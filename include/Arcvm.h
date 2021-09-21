@@ -1,6 +1,11 @@
+#ifndef ARCVM_ARCVM_H
+#define ARCVM_ARCVM_H
+
 #include <cstdint>
+#include <iostream>
 #include <string>
 #include <vector>
+
 
 namespace arcvm {
 
@@ -13,17 +18,13 @@ using i16 = int16_t;
 using i32 = int32_t;
 using i64 = int64_t;
 
-template <typename T>
-concept Stringable = requires(T t) {
-    std::string(t);
-};
+template <typename T> concept Stringable = requires(T t) { std::string(t); };
 
 struct File {
     std::string file_name;
     std::string file_data;
 
-    template <Stringable T>
-    File(T name) : file_name(std::move(name)) {}
+    template <Stringable T> File(T name) : file_name(std::move(name)) {}
 };
 
 enum class OptimizationLevel : i8 {
@@ -41,6 +42,17 @@ struct Args {
     Mode mode;
     std::vector<File> input_files;
     std::string output_file_name;
+
+    void debug_print() {
+        std::cout << "OptimizationLevel: " << i32(opt_level) << '\n';
+        std::cout << "Mode: " << i32(mode) << '\n';
+        std::cout << "Output File: " << output_file_name << '\n';
+        std::cout << "Input Files: \n";
+        for (auto& [name, data] : input_files)
+            std::cout << '\t' << name << '\n';
+    }
 };
 
 } // namespace arcvm
+
+#endif

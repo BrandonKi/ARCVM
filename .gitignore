@@ -1,0 +1,23 @@
+/bin
+/build
+/.vscode
+/.vs
+/.idea
+/out
+
+# clion 
+# maybe just ignore all directories with the cmake prefix
+/cmake-build-debug
+/cmake-build-debug-visual-studio
+/cmake-build-release
+
+CMakeSettings.json
+
+*.exe
+*.o
+
+# profiler files
+profile.json
+
+# compiler output files
+*.arcb

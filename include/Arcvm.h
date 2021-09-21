@@ -13,12 +13,17 @@ using i16 = int16_t;
 using i32 = int32_t;
 using i64 = int64_t;
 
+template <typename T>
+concept Stringable = requires(T t) {
+    std::string(t);
+};
+
 struct File {
     std::string file_name;
     std::string file_data;
-    // accept anything convertible to string
-    File(std::string name) : file_name(name) {}
-    File(std::string_view name) : file_name(name) {}
+
+    template <Stringable T>
+    File(T name) : file_name(std::move(name)) {}
 };
 
 enum class OptimizationLevel : i8 {

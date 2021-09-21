@@ -1,6 +1,8 @@
 #ifndef ARCVM_ARCVM_H
 #define ARCVM_ARCVM_H
 
+#include "IRGenerator.h"
+
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -48,11 +50,15 @@ struct Args {
         std::cout << "Mode: " << i32(mode) << '\n';
         std::cout << "Output File: " << output_file_name << '\n';
         std::cout << "Input Files: \n";
-        for (auto& [name, data] : input_files)
+        for (auto const& [name, data] : input_files)
             std::cout << '\t' << name << '\n';
     }
 };
 
 } // namespace arcvm
+
+class Arcvm {
+
+};
 
 #endif

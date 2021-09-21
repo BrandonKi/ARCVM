@@ -8,7 +8,8 @@ cmake_policy(SET CMP0069 NEW)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 set(SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Arcvm.cpp
 )
 
 add_executable(ARCVM ${SRC})

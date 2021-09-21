@@ -48,9 +48,4 @@ Args get_args(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     Args args = get_args(argc, argv);
-    std::cout << i32(args.opt_level) << '\n';
-    std::cout << i32(args.mode) << '\n';
-    std::cout << args.output_file_name << '\n';
-    for(auto& [name, data] : args.input_files)
-        std::cout << name << '\n';
 }

@@ -1,0 +1,5 @@
+
+[entrypoint]
+define function main() -> none {
+    ret 1
+}

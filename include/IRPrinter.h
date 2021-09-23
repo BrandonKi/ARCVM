@@ -8,11 +8,13 @@
 #include <iostream>
 
 namespace IRPrinter {
-    void print(Module*);
-    void print(Function*);
-    void print(Block*);
-    void print(BasicBlock*);
-    void print(Entry*);
+    void print(Module*, i32 indent = 0);
+    void print(Function*, i32 indent = 0);
+    void print(std::vector<Type>&, i32 indent = 0);
+    void print(std::vector<Attribute>&, i32 indent = 0);
+    void print(Block*, i32 indent = 0);
+    void print(BasicBlock*, i32 indent = 0);
+    void print(Entry*, i32 indent = 0);
 }
 
 #endif

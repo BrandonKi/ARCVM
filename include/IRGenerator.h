@@ -1,8 +1,9 @@
 #ifndef ARCVM_IRGENERATOR_H
 #define ARCVM_IRGENERATOR_H
 
-#include <vector>
 #include <string>
+#include <vector>
+
 
 using u8 = uint8_t;
 using u16 = uint16_t;
@@ -13,15 +14,7 @@ using i16 = int16_t;
 using i32 = int32_t;
 using i64 = int64_t;
 
-enum class Instruction : i8 {
-    add,
-    index,
-    call,
-    ret,
-    alloc,
-    load,
-    store
-};
+enum class Instruction : i8 { add, index, call, ret, alloc, load, store };
 
 enum class Type : i8 {
     none,
@@ -38,7 +31,7 @@ enum class Type : i8 {
 };
 
 static std::string to_string(Type type) {
-    switch(type) {
+    switch (type) {
         case Type::none:
             return "none";
         case Type::ir_i8:
@@ -66,17 +59,12 @@ static std::string to_string(Type type) {
     }
 }
 
-enum class ValueType : i8 {
-    none,
-    pointer,
-    reference,
-    immediate
-};
+enum class ValueType : i8 { none, pointer, reference, immediate };
 
 // FIXME does not work with float immediate values
 struct Value {
     ValueType type;
-    i64 value;    
+    i64 value;
 };
 
 struct Entry {
@@ -105,12 +93,10 @@ struct Block {
     Value gen_inst(Instruction, std::vector<Value>);
 };
 
-enum class Attribute : i8 {
-    entrypoint
-};
+enum class Attribute : i8 { entrypoint };
 
 static std::string to_string(Attribute attribute) {
-    switch(attribute) {
+    switch (attribute) {
         case Attribute::entrypoint:
             return "entrypoint";
         default:
@@ -127,9 +113,7 @@ struct Function {
 
     Block block;
 
-    void add_attribute(Attribute attribute) {
-        attributes.push_back(attribute);
-    }
+    void add_attribute(Attribute attribute) { attributes.push_back(attribute); }
 
     Label* gen_label(std::string);
     Value gen_inst(Instruction, Value);

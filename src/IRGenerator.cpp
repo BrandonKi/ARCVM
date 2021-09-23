@@ -1,17 +1,16 @@
 #include "IRGenerator.h"
 
-IRGenerator::IRGenerator(): modules_{} {}
+IRGenerator::IRGenerator() : modules_{} {}
 
 // TODO use allocator
 Module* IRGenerator::create_module() {
     return new Module{};
 }
 
-void link_modules() {
+void link_modules() {}
 
-}
-
-Function* Module::gen_function_def(std::string name, std::vector<Type> parameters, Type return_type) {
+Function* Module::gen_function_def(std::string name, std::vector<Type> parameters,
+                                   Type return_type) {
     auto* fn = new Function{name, true, std::move(parameters), return_type, {}};
     fn->gen_label("fn_start");
     return fn;

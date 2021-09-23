@@ -8,7 +8,9 @@
 #include <string>
 #include <vector>
 
-template <typename T> concept Stringable = requires(T t) { std::string(t); };
+template <typename T> concept Stringable = requires(T t) {
+    std::string(t);
+};
 
 struct File {
     std::string file_name;
@@ -17,13 +19,7 @@ struct File {
     template <Stringable T> File(T name) : file_name(std::move(name)) {}
 };
 
-enum class OptimizationLevel : i8 {
-    custom = -1,
-    zero = 0,
-    one = 1,
-    two = 2,
-    three = 3
-};
+enum class OptimizationLevel : i8 { custom = -1, zero = 0, one = 1, two = 2, three = 3 };
 
 enum class Mode : i8 { binary = 0, text = 1 };
 

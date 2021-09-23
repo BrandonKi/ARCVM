@@ -8,20 +8,21 @@
 #include <string>
 #include <vector>
 
-Args get_args(int argc, char *argv[]) {
+Args get_args(int argc, char* argv[]) {
     Args args;
     // set defaults
     args.opt_level = OptimizationLevel::zero;
     args.mode = Mode::text;
     args.output_file_name = "a.exe";
 
-    for(std::string_view string : std::vector<std::string_view>(argv + 1, argv + argc)) {
-        switch(string[0]) {
+    for (std::string_view string : std::vector<std::string_view>(argv + 1, argv + argc)) {
+        switch (string[0]) {
             case '-':
-                switch(string[1]) {
+                switch (string[1]) {
                     case 'O':
                         errno = 0;
-                        args.opt_level = static_cast<OptimizationLevel>(std::strtol(string.substr(2).data(), nullptr, 10));
+                        args.opt_level = static_cast<OptimizationLevel>(
+                            std::strtol(string.substr(2).data(), nullptr, 10));
                         if (errno != 0) {
                             std::cerr << "Invalid argument given to '-O'\n";
                             args.opt_level = OptimizationLevel::zero;
@@ -38,7 +39,8 @@ Args get_args(int argc, char *argv[]) {
                         break;
                 }
                 break;
-            // if an argument doesn't start with '-' then assume it's an input file name
+            // if an argument doesn't start with '-' then assume it's an input
+            // file name
             default:
                 args.input_files.emplace_back(string);
         }
@@ -46,7 +48,7 @@ Args get_args(int argc, char *argv[]) {
     return args;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     // Args args = get_args(argc, argv);
     // Arcvm vm(args);
     IRGenerator gen;

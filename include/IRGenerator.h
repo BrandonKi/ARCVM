@@ -37,6 +37,35 @@ enum class Type : i8 {
     ir_b8
 };
 
+static std::string to_string(Type type) {
+    switch(type) {
+        case Type::none:
+            return "none";
+        case Type::ir_i8:
+            return "i8";
+        case Type::ir_i16:
+            return "i16";
+        case Type::ir_i32:
+            return "i32";
+        case Type::ir_i64:
+            return "i64";
+        case Type::ir_u8:
+            return "u8";
+        case Type::ir_u16:
+            return "u16";
+        case Type::ir_u32:
+            return "u32";
+        case Type::ir_u64:
+            return "u64";
+        case Type::ir_b1:
+            return "b1";
+        case Type::ir_b8:
+            return "b8";
+        default:
+            return "";
+    }
+}
+
 enum class ValueType : i8 {
     none,
     pointer,
@@ -80,7 +109,17 @@ enum class Attribute : i8 {
     entrypoint
 };
 
+static std::string to_string(Attribute attribute) {
+    switch(attribute) {
+        case Attribute::entrypoint:
+            return "entrypoint";
+        default:
+            return "";
+    }
+}
+
 struct Function {
+    std::string name;
     bool is_complete;
     std::vector<Type> parameters;
     Type return_type;
@@ -101,10 +140,10 @@ struct Function {
 struct Module {
     std::vector<Function> functions;
 
-    Function* gen_function_def(std::vector<Type>, Type);
-    Function* gen_aggregate_def(std::vector<Type>);
-    Function* gen_function_decl(std::vector<Type>, Type);
-    Function* gen_aggregate_decl(std::vector<Type>);
+    Function* gen_function_def(std::string, std::vector<Type>, Type);
+    Function* gen_aggregate_def(std::string, std::vector<Type>);
+    Function* gen_function_decl(std::string, std::vector<Type>, Type);
+    Function* gen_aggregate_decl(std::string, std::vector<Type>);
 };
 
 // TODO make generating code from multiple threads more friendly

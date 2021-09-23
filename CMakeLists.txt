@@ -11,6 +11,7 @@ set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Arcvm.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IRGenerator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/IRPrinter.cpp
 )
 
 add_executable(ARCVM ${SRC})

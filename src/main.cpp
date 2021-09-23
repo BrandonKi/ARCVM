@@ -2,6 +2,7 @@
 
 #include "Arcvm.h"
 #include "IRGenerator.h"
+#include "IRPrinter.h"
 
 #include <iostream>
 #include <string>
@@ -50,7 +51,9 @@ int main(int argc, char *argv[]) {
     // Arcvm vm(args);
     IRGenerator gen;
     auto* main_module = gen.create_module();
-    auto* main = main_module->gen_function_def({}, Type::ir_i32);
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
     main->add_attribute(Attribute::entrypoint);
     main->gen_inst(Instruction::ret, Value{ValueType::immediate, 1});
+
+    IRPrinter::print(main);
 }

@@ -11,15 +11,15 @@ void link_modules() {
 
 }
 
-Function* Module::gen_function_def(std::vector<Type> parameters, Type return_type) {
-    auto* fn = new Function{true, std::move(parameters), return_type, {}};
+Function* Module::gen_function_def(std::string name, std::vector<Type> parameters, Type return_type) {
+    auto* fn = new Function{name, true, std::move(parameters), return_type, {}};
     fn->gen_label("fn_start");
     return fn;
 }
 
-// Function* gen_aggregate_def(std::vector<Type>);
-// Function* gen_function_decl(std::vector<Type>, Type);
-// Function* gen_aggregate_decl(std::vector<Type>);
+// Function* gen_aggregate_def(std::string, std::vector<Type>);
+// Function* gen_function_decl(std::string, std::vector<Type>, Type);
+// Function* gen_aggregate_decl(std::string, std::vector<Type>);
 
 // TODO implement this
 Label* Function::gen_label(std::string name) {

@@ -10,6 +10,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Arcvm.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/IRGenerator.cpp
 )
 
 add_executable(ARCVM ${SRC})

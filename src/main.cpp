@@ -1,12 +1,11 @@
 // CLI for calling ARCVM directly
 
 #include "Arcvm.h"
+#include "IRGenerator.h"
 
 #include <iostream>
 #include <string>
 #include <vector>
-
-using namespace arcvm;
 
 Args get_args(int argc, char *argv[]) {
     Args args;
@@ -47,6 +46,11 @@ Args get_args(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-    Args args = get_args(argc, argv);
-    Arcvm vm(args);
+    // Args args = get_args(argc, argv);
+    // Arcvm vm(args);
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def({}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    main->gen_inst(Instruction::ret, Value{ValueType::immediate, 1});
 }

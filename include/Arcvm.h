@@ -58,7 +58,11 @@ struct Args {
 } // namespace arcvm
 
 class Arcvm {
+  public:
+    Arcvm(Args);
 
+  private:
+    Args args_;
 };
 
 #endif

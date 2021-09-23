@@ -48,4 +48,5 @@ Args get_args(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     Args args = get_args(argc, argv);
+    Arcvm vm(args);
 }

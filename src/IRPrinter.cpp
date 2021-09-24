@@ -10,6 +10,7 @@ void IRPrinter::print(Function* function, i32 indent) {
     if (function->is_complete) {
         std::cout << " {\n";
         IRPrinter::print(&function->block, indent + 2);
+        std::cout << "}\n";
     } else {
         std::cout << ";\n";
     }
@@ -61,11 +62,30 @@ void IRPrinter::print(Entry* entry, i32 indent) {
     auto print_indent = [=]() { std::cout << std::string(indent, ' '); };
 
     print_indent();
-    switch (entry->instruction) {
-        case Instruction::ret:
-            std::cout << "ret " << entry->arguments[0].value << '\n';
-            break;
+    std::cout << to_string(entry->instruction) << ' ';
 
+    for(size_t i = 0; i < entry->arguments.size() - 1; ++i) {
+        IRPrinter::print(&entry->arguments[i]);
+        std::cout << ", ";
+    }
+    IRPrinter::print(&entry->arguments.back());
+    std::cout << '\n';
+}
+
+void IRPrinter::print(Value* value, i32 indent) {
+    switch(value->type) {
+        case ValueType::none:
+            std::cout << "none";
+            break;
+        case ValueType::immediate:
+            std::cout << value->value;
+            break;
+        case ValueType::reference:
+        case ValueType::pointer:
+            std::cout << "%" << value->value;
+            break;
+        case ValueType::type:
+            std::cout << to_string(value->type_value);
         default:
             break;
     }

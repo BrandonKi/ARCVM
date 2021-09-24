@@ -16,6 +16,7 @@ void print(std::vector<Attribute>&, i32 indent = 0);
 void print(Block*, i32 indent = 0);
 void print(BasicBlock*, i32 indent = 0);
 void print(Entry*, i32 indent = 0);
+void print(Value* value, i32 indent = 0);
 
 } // namespace IRPrinter
 

@@ -9,10 +9,9 @@ Module* IRGenerator::create_module() {
 
 void link_modules() {}
 
-Function* Module::gen_function_def(std::string name, std::vector<Type> parameters,
-                                   Type return_type) {
+Function* Module::gen_function_def(std::string name, std::vector<Type> parameters, Type return_type) {
     auto* fn = new Function{name, true, std::move(parameters), return_type, {}};
-    fn->gen_label("fn_start");
+    fn->gen_label("start");
     return fn;
 }
 
@@ -29,8 +28,8 @@ Value Function::gen_inst(Instruction instruction, Value value) {
     return block.gen_inst(instruction, value);
 }
 
-Value Function::gen_inst(Instruction, std::vector<Value>) {
-    return Value{ValueType::none};
+Value Function::gen_inst(Instruction instruction, std::vector<Value> values) {
+    return block.gen_inst(instruction, values);
 }
 
 Value Function::get_param(i32) {
@@ -44,10 +43,34 @@ Label* Block::gen_label(std::string name) {
 }
 
 Value Block::gen_inst(Instruction instruction, Value value) {
-    return blocks.back().gen_inst(instruction, value);
+    return blocks.back().gen_inst(instruction, value, var_name);
 }
 
-Value BasicBlock::gen_inst(Instruction instruction, Value value) {
-    entries.emplace_back(-1, instruction, std::vector{value});
-    return Value{ValueType::none};
+Value Block::gen_inst(Instruction instruction, std::vector<Value> values) {
+    return blocks.back().gen_inst(instruction, values, var_name);
+}
+
+Value BasicBlock::gen_inst(Instruction instruction, Value value, i32& var_name) {
+    return gen_inst(instruction, std::vector{value}, var_name);
+}
+
+Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values, i32& var_name) {
+    switch(instruction) {
+        case Instruction::add:
+        case Instruction::index:
+        case Instruction::call:
+        case Instruction::ret:
+            entries.emplace_back(Value{ValueType::none}, instruction, values);
+            return entries.back().dest;
+        case Instruction::alloc:
+            entries.emplace_back(Value{ValueType::pointer, var_name}, instruction, values);
+            ++var_name;
+            return entries.back().dest;
+        case Instruction::load:
+        case Instruction::store:
+            entries.emplace_back(Value{ValueType::none}, instruction, values);
+            return entries.back().dest;
+        default:
+            return Value{ValueType::none};
+    }
 }

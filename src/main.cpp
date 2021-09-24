@@ -51,11 +51,5 @@ Args get_args(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
     // Args args = get_args(argc, argv);
     // Arcvm vm(args);
-    IRGenerator gen;
-    auto* main_module = gen.create_module();
-    auto* main = main_module->gen_function_def("main", {Type::ir_i64, Type::ir_i32}, Type::ir_i32);
-    main->add_attribute(Attribute::entrypoint);
-    main->gen_inst(Instruction::ret, Value{ValueType::immediate, 1});
 
-    IRPrinter::print(main);
 }

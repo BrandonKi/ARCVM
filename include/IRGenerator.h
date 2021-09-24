@@ -16,6 +16,27 @@ using i64 = int64_t;
 
 enum class Instruction : i8 { add, index, call, ret, alloc, load, store };
 
+static std::string to_string(Instruction instruction) {
+    switch(instruction) {
+        case Instruction::add:
+            return "add";
+        case Instruction::index:
+            return "index";
+        case Instruction::call:
+            return "call";
+        case Instruction::ret:
+            return "ret";
+        case Instruction::alloc:
+            return "alloc";
+        case Instruction::load:
+            return "load";
+        case Instruction::store:
+            return "store";
+        default:
+            return "";
+    }
+}
+
 enum class Type : i8 {
     none,
     ir_i8,
@@ -59,16 +80,23 @@ static std::string to_string(Type type) {
     }
 }
 
-enum class ValueType : i8 { none, pointer, reference, immediate };
+enum class ValueType : i8 { none, pointer, reference, immediate, type };
 
 // FIXME does not work with float immediate values
 struct Value {
     ValueType type;
-    i64 value;
+    union {
+        i64 value;
+        Type type_value;
+    };
+
+    Value(ValueType type): type(type) {}
+    Value(ValueType type, i64 value): type(type), value(value) {}
+    Value(ValueType type, Type type_value): type(type), type_value(type_value) {}
 };
 
 struct Entry {
-    i32 dest;
+    Value dest;
     Instruction instruction;
     std::vector<Value> arguments;
 };
@@ -81,12 +109,13 @@ struct BasicBlock {
     Label label;
     std::vector<Entry> entries;
 
-    Value gen_inst(Instruction, Value);
-    Value gen_inst(Instruction, std::vector<Value>);
+    Value gen_inst(Instruction, Value, i32&);
+    Value gen_inst(Instruction, std::vector<Value>, i32&);
 };
 
 struct Block {
     std::vector<BasicBlock> blocks;
+    i32 var_name = 0;
 
     Label* gen_label(std::string);
     Value gen_inst(Instruction, Value);

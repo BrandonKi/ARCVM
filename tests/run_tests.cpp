@@ -6,8 +6,9 @@
 
 #include <string>
 #include <string_view>
+#include <concepts>
 
-template <typename T>
+template <std::invocable T>
 void run_test(std::string name, T test) {
     if(test())
         std::cout << name << '\t' << cprint::fmt("pass", cprint::GREEN) << '\n';
@@ -40,5 +41,6 @@ using namespace std::literals;
 int main(int argc, char *argv[]) {
     if(argc > 1 && "-noisy"sv == argv[1])
         noisy = true;
+
     run_test("test0", test0);
 }

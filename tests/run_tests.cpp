@@ -36,14 +36,14 @@ static bool test0() {
     auto* main = main_module->gen_function_def("main", {Type::none}, Type::ir_i32);
     main->add_attribute(Attribute::entrypoint);
     auto val = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    main->gen_inst(Instruction::store, {val, Value{ValueType::immediate, 1}});
+    main->gen_inst(Instruction::store, {val, Value{ValueType::immediate, 10}});
     main->gen_inst(Instruction::ret, {val});
 
     if(noisy)
         IRPrinter::print(main);
 
     IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    return interp.run() == 10;
 }
 
 static bool test1() {
@@ -54,8 +54,8 @@ static bool test1() {
     auto op1 = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
     auto op2 = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
     auto sum = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    main->gen_inst(Instruction::store, {op1, Value{ValueType::immediate, 1}});
-    main->gen_inst(Instruction::store, {op2, Value{ValueType::immediate, 1}});
+    main->gen_inst(Instruction::store, {op1, Value{ValueType::immediate, 10}});
+    main->gen_inst(Instruction::store, {op2, Value{ValueType::immediate, 10}});
     auto tmp = main->gen_inst(Instruction::add, {op1, op2});
     main->gen_inst(Instruction::store, {sum, tmp});
     main->gen_inst(Instruction::ret, {sum});
@@ -64,7 +64,7 @@ static bool test1() {
         IRPrinter::print(main);
 
     IRInterpreter interp(main_module);
-    return interp.run() == 2;
+    return interp.run() == 20;
 }
 
 using namespace std::literals;

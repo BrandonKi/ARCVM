@@ -9,10 +9,12 @@ Module* IRGenerator::create_module() {
 
 void link_modules() {}
 
+// FIXME URGENT this returns a pointer to memory owned by vector
+// that means the pointer to it will get invalidated on resize
 Function* Module::gen_function_def(std::string name, std::vector<Type> parameters, Type return_type) {
-    auto* fn = new Function{name, true, std::move(parameters), return_type, {}};
-    fn->gen_label("start");
-    return fn;
+    functions.push_back(Function{name, true, std::move(parameters), return_type, {}});
+    functions.back().gen_label("main");
+    return &functions.back();
 }
 
 // Function* gen_aggregate_def(std::string, std::vector<Type>);

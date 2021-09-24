@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-
 using u8 = uint8_t;
 using u16 = uint16_t;
 using u32 = uint32_t;
@@ -14,7 +13,21 @@ using i16 = int16_t;
 using i32 = int32_t;
 using i64 = int64_t;
 
-enum class Instruction : i8 { add, index, call, ret, alloc, load, store };
+enum class Instruction : i8 {
+    alloc,
+    load,
+    store,
+
+    call,
+    ret,
+
+    index,
+
+    add,
+    sub,
+    mul,
+    div,
+};
 
 static std::string to_string(Instruction instruction) {
     switch(instruction) {
@@ -80,6 +93,36 @@ static std::string to_string(Type type) {
     }
 }
 
+// TODO overload for aggregate types
+static i32 type_size(Type type) {
+    switch (type) {
+        case Type::none:
+            return 0;
+        case Type::ir_i8:
+            return 1;
+        case Type::ir_i16:
+            return 2;
+        case Type::ir_i32:
+            return 4;
+        case Type::ir_i64:
+            return 8;
+        case Type::ir_u8:
+            return 1;
+        case Type::ir_u16:
+            return 2;
+        case Type::ir_u32:
+            return 4;
+        case Type::ir_u64:
+            return 8;
+        case Type::ir_b1:
+            return 1;
+        case Type::ir_b8:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
 enum class ValueType : i8 { none, pointer, reference, immediate, type };
 
 // FIXME does not work with float immediate values
@@ -87,11 +130,14 @@ struct Value {
     ValueType type;
     union {
         i64 value;
+        uintptr_t pointer_value;
         Type type_value;
     };
 
+    Value(): type{ValueType::none} {}
     Value(ValueType type): type(type) {}
     Value(ValueType type, i64 value): type(type), value(value) {}
+    Value(ValueType type, void* ptr): type(type), pointer_value((uintptr_t)ptr) {}
     Value(ValueType type, Type type_value): type(type), type_value(type_value) {}
 };
 

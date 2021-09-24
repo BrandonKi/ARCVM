@@ -23,7 +23,7 @@ Args get_args(int argc, char* argv[]) {
                         errno = 0;
                         args.opt_level = static_cast<OptimizationLevel>(
                             std::strtol(string.substr(2).data(), nullptr, 10));
-                        if (errno != 0) {
+                        if (errno != 0) {   // FIXME strtol throws an exception
                             std::cerr << "Invalid argument given to '-O'\n";
                             args.opt_level = OptimizationLevel::zero;
                         }

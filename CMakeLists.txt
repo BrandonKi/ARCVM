@@ -11,6 +11,7 @@ add_library(arcvm_lib OBJECT
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Arcvm.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IRGenerator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IRPrinter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/IRInterpreter.cpp
 )
 
 target_include_directories(arcvm_lib

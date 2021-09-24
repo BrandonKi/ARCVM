@@ -28,9 +28,7 @@ void run_test(std::string name, T test) {
     }
 }
 
-
-
-bool test0() {
+static bool test0() {
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {Type::none}, Type::ir_i32);

@@ -26,7 +26,7 @@ define function $main() -> i32 {
     store %5, 0
     store %6, 0
     store %7, 0
-    %8 = call $add(%0, %4)
+    %8 = call $add, %0, %4
 }
 
 define function $add(@vec3 %0, @vec3 %1) -> @vec3 {

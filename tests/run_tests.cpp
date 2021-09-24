@@ -8,15 +8,27 @@
 #include <string_view>
 #include <concepts>
 
-template <std::invocable T>
-void run_test(std::string name, T test) {
-    if(test())
-        std::cout << name << '\t' << cprint::fmt("pass", cprint::GREEN) << '\n';
-    else
-        std::cout << name << '\t' << cprint::fmt("fail", cprint::RED) << '\n';
+static bool noisy = false;
+static i32 passed_tests = 0;
+static i32 failed_tests = 0;
+
+void print_report() {
+    std::cout << passed_tests << "/" << (passed_tests + failed_tests) << " tests passed\n";
 }
 
-static bool noisy = false;
+template <std::invocable T>
+void run_test(std::string name, T test) {
+    if(test()) {
+        std::cout << name << '\t' << cprint::fmt("pass", cprint::GREEN) << '\n';
+        ++passed_tests;
+    }
+    else {
+        std::cout << name << '\t' << cprint::fmt("fail", cprint::RED) << '\n';
+        ++failed_tests;
+    }
+}
+
+
 
 bool test0() {
     IRGenerator gen;
@@ -43,4 +55,6 @@ int main(int argc, char *argv[]) {
         noisy = true;
 
     run_test("test0", test0);
+
+    print_report();
 }

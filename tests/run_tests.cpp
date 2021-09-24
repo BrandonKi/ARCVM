@@ -1,7 +1,22 @@
 #include "IRGenerator.h"
+#include "IRInterpreter.h"
 #include "IRPrinter.h"
 
-// e2e tests always pass and just print their IR result at the moment 
+#include <color_print.h>
+
+#include <string>
+#include <string_view>
+
+template <typename T>
+void run_test(std::string name, T test) {
+    if(test())
+        std::cout << name << '\t' << cprint::fmt("pass", cprint::GREEN) << '\n';
+    else
+        std::cout << name << '\t' << cprint::fmt("fail", cprint::RED) << '\n';
+}
+
+static bool noisy = false;
+
 bool test0() {
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -11,10 +26,19 @@ bool test0() {
     main->gen_inst(Instruction::store, {val, Value{ValueType::immediate, 1}});
     main->gen_inst(Instruction::ret, {val});
 
-    IRPrinter::print(main);
-    return true;
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    auto ret = interp.run();
+
+    return ret == 0;
 }
 
-int main() {
-    test0();
+using namespace std::literals;
+
+int main(int argc, char *argv[]) {
+    if(argc > 1 && "-noisy"sv == argv[1])
+        noisy = true;
+    run_test("test0", test0);
 }

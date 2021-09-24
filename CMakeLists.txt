@@ -7,11 +7,20 @@ cmake_policy(SET CMP0069 NEW)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-set(SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+add_library(arcvm_lib OBJECT 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Arcvm.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IRGenerator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IRPrinter.cpp
+)
+
+target_include_directories(arcvm_lib
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib
+)
+
+set(SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    $<TARGET_OBJECTS:arcvm_lib>
 )
 
 add_executable(ARCVM ${SRC})
@@ -53,3 +62,15 @@ if(MSVC)
 else()
     target_compile_options(ARCVM PRIVATE -Wall -Wextra -pedantic)
 endif()
+
+set(TEST_SRC
+    $<TARGET_OBJECTS:arcvm_lib>
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/run_tests.cpp
+)
+
+add_executable(tests ${TEST_SRC})
+
+target_include_directories(tests 
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib
+)

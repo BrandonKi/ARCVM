@@ -17,7 +17,7 @@ void print_report() {
 }
 
 template <std::invocable T>
-void run_test(std::string name, T test) {
+void run_named_test(std::string name, T test) {
     if(test()) {
         std::cout << name << '\t' << cprint::fmt("pass", cprint::GREEN) << '\n';
         ++passed_tests;
@@ -27,6 +27,8 @@ void run_test(std::string name, T test) {
         ++failed_tests;
     }
 }
+
+#define run_test(name) run_named_test(#name, name)
 
 static bool test0() {
     IRGenerator gen;
@@ -52,7 +54,7 @@ int main(int argc, char *argv[]) {
     if(argc > 1 && "-noisy"sv == argv[1])
         noisy = true;
 
-    run_test("test0", test0);
+    run_test(test0);
 
     print_report();
 }

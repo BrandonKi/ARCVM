@@ -32,7 +32,7 @@ bool test0() {
     IRInterpreter interp(main_module);
     auto ret = interp.run();
 
-    return ret == 0;
+    return ret == 1;
 }
 
 using namespace std::literals;

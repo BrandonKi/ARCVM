@@ -68,14 +68,18 @@ Value IRInterpreter::run_entry(Entry* entry) {
             {
                 auto num_bytes = type_size(entry->arguments[0].type_value);
                 ir_register[entry->dest.value] = Value(ValueType::pointer, malloc(num_bytes));
-                return Value{};
+                break;
             }
         case Instruction::load:
             break;
         case Instruction::store:
         {
-            ir_register[entry->arguments[0].value] = Value(ValueType::immediate, entry->arguments[0].value);
-            return Value{};
+            if(entry->arguments[1].type == ValueType::immediate)
+                ir_register[entry->arguments[0].value] = Value(ValueType::immediate, entry->arguments[1].value);
+            else if(entry->arguments[1].type == ValueType::reference)
+                ir_register[entry->arguments[0].value] = Value(ValueType::immediate, ir_register[entry->arguments[1].value].value);
+
+            break;
         }
         case Instruction::call:
             break;
@@ -87,13 +91,33 @@ Value IRInterpreter::run_entry(Entry* entry) {
         case Instruction::index:
             break;
         case Instruction::add:
+        {
+            //FIXME assumes we are using references
+            auto sum = ir_register[entry->arguments[0].value].value + ir_register[entry->arguments[1].value].value;
+            ir_register[entry->dest.value] = Value{ValueType::reference, sum};
             break;
+        }
         case Instruction::sub:
+        {
+            //FIXME assumes we are using references
+            auto sum = ir_register[entry->arguments[0].value].value - ir_register[entry->arguments[1].value].value;
+            ir_register[entry->dest.value] = Value{ValueType::reference, sum};
             break;
+        }
         case Instruction::mul:
+        {
+            //FIXME assumes we are using references
+            auto sum = ir_register[entry->arguments[0].value].value * ir_register[entry->arguments[1].value].value;
+            ir_register[entry->dest.value] = Value{ValueType::reference, sum};
             break;
+        }
         case Instruction::div:
+        {
+            //FIXME assumes we are using references
+            auto sum = ir_register[entry->arguments[0].value].value / ir_register[entry->arguments[1].value].value;
+            ir_register[entry->dest.value] = Value{ValueType::reference, sum};
             break;
+        }
         default:
             return Value{};
     }

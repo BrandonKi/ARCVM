@@ -43,9 +43,28 @@ static bool test0() {
         IRPrinter::print(main);
 
     IRInterpreter interp(main_module);
-    auto ret = interp.run();
+    return interp.run() == 1;
+}
 
-    return ret == 1;
+static bool test1() {
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {Type::none}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1 = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2 = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto sum = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1, Value{ValueType::immediate, 1}});
+    main->gen_inst(Instruction::store, {op2, Value{ValueType::immediate, 1}});
+    auto tmp = main->gen_inst(Instruction::add, {op1, op2});
+    main->gen_inst(Instruction::store, {sum, tmp});
+    main->gen_inst(Instruction::ret, {sum});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 2;
 }
 
 using namespace std::literals;
@@ -55,6 +74,7 @@ int main(int argc, char *argv[]) {
         noisy = true;
 
     run_test(test0);
+    run_test(test1);
 
     print_report();
 }

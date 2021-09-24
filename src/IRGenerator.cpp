@@ -59,6 +59,12 @@ Value BasicBlock::gen_inst(Instruction instruction, Value value, i32& var_name) 
 Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values, i32& var_name) {
     switch(instruction) {
         case Instruction::add:
+        case Instruction::sub:
+        case Instruction::mul:
+        case Instruction::div:
+            entries.emplace_back(Value{ValueType::reference, var_name}, instruction, values);
+            ++var_name;
+            return entries.back().dest;
         case Instruction::index:
         case Instruction::call:
         case Instruction::ret:

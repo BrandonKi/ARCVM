@@ -2,29 +2,29 @@
 
 void IRPrinter::print(Module* module, i32 indent) {}
 
-void IRPrinter::print(Function* function, i32 indent) {
+void IRPrinter::print(Function* function, i32 var_name, i32 indent) {
     IRPrinter::print(function->attributes);
     std::cout << "define function " << function->name;
-    IRPrinter::print(function->parameters);
+    IRPrinter::print(function->parameters, var_name);
     std::cout << " -> " << to_string(function->return_type);
     if (function->is_complete) {
         std::cout << " {\n";
-        IRPrinter::print(&function->block, indent + 2);
+        IRPrinter::print(&function->block, var_name, indent + 2);
         std::cout << "}\n";
     } else {
         std::cout << ";\n";
     }
 }
 
-void IRPrinter::print(std::vector<Type>& parameters, i32 indent) {
+void IRPrinter::print(std::vector<Type>& parameters, i32& var_name, i32 indent) {
     auto print_indent = [=]() { std::cout << std::string(indent, ' '); };
 
     if (!parameters.empty()) {
         print_indent();
         std::cout << '(';
         for (size_t i = 0; i < parameters.size() - 1; ++i)
-            std::cout << to_string(parameters[i]) << ", ";
-        std::cout << to_string(parameters.back()) << ")";
+            std::cout << to_string(parameters[i]) << " %" << var_name++ << ", ";
+        std::cout << to_string(parameters.back()) << " %" << var_name++ << ")";
     } else {
         std::cout << "()";
     }
@@ -42,26 +42,28 @@ void IRPrinter::print(std::vector<Attribute>& attributes, i32 indent) {
     }
 }
 
-void IRPrinter::print(Block* block, i32 indent) {
+void IRPrinter::print(Block* block, i32& var_name, i32 indent) {
     for (auto basic_block : block->blocks) {
-        IRPrinter::print(&basic_block, indent);
+        IRPrinter::print(&basic_block, var_name, indent);
     }
 }
 
-void IRPrinter::print(BasicBlock* basic_block, i32 indent) {
+void IRPrinter::print(BasicBlock* basic_block, i32& var_name, i32 indent) {
     auto print_indent = [=]() { std::cout << std::string(indent, ' '); };
 
     print_indent();
     std::cout << '#' << basic_block->label.name << '\n';
     for (auto entry : basic_block->entries) {
-        IRPrinter::print(&entry, indent + 2);
+        IRPrinter::print(&entry, var_name, indent + 2);
     }
 }
 
-void IRPrinter::print(Entry* entry, i32 indent) {
+void IRPrinter::print(Entry* entry, i32& var_name, i32 indent) {
     auto print_indent = [=]() { std::cout << std::string(indent, ' '); };
 
     print_indent();
+    if(entry->dest.type != ValueType::none)
+        std::cout << '%' << var_name++ << " = ";
     std::cout << to_string(entry->instruction) << ' ';
 
     for(size_t i = 0; i < entry->arguments.size() - 1; ++i) {

@@ -140,7 +140,8 @@ struct Function {
     Type return_type;
     std::vector<Attribute> attributes;
 
-    Block block;
+    //FIXME write constructors
+    Block block{{}, (i32)parameters.size()};
 
     void add_attribute(Attribute attribute) { attributes.push_back(attribute); }
 

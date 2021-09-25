@@ -1,5 +1,30 @@
 # ARCVM
 
-Compiler backend
+replacement for https://github.com/BrandonKi/ARCVM-old
 
-TODO
+Compiler backend for https://github.com/BrandonKi/ARCANE
+
+Uses SSA. 
+
+//TODO write description
+
+## examples
+
+### add two numbers
+```
+[entrypoint]
+define function main() -> i32 {
+  #main
+    %0 = alloc i32
+    %1 = alloc i32
+    %2 = alloc i32
+    store %0, 10
+    store %1, 10
+    %3 = load %0
+    %4 = load %1
+    %5 = add %3, %4
+    store %2, %5
+    %6 = load %2
+    ret %6
+}
+```

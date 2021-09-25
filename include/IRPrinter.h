@@ -3,7 +3,7 @@
 
 // FIXME only includes this for the types
 // move them into a different header
-#include "IRGenerator.h"
+#include "Common.h"
 
 #include <iostream>
 

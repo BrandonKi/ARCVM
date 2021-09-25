@@ -1,7 +1,7 @@
 #ifndef ARCVM_ARCVM_H
 #define ARCVM_ARCVM_H
 
-#include "IRGenerator.h"
+#include "Common.h"
 
 #include <cstdint>
 #include <iostream>

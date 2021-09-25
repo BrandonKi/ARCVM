@@ -1,7 +1,7 @@
 #ifndef ARCVM_IRINTERPRETER_H
 #define ARCVM_IRINTERPRETER_H
 
-#include "IRGenerator.h"
+#include "Common.h"
 
 #include <unordered_map>
 #include <array>

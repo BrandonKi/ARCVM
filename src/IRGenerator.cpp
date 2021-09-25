@@ -1,7 +1,5 @@
 #include "IRGenerator.h"
 
-#include <cassert>
-
 IRGenerator::IRGenerator() : modules_{} {}
 
 // TODO use allocator

@@ -1,6 +1,10 @@
 #include "IRPrinter.h"
 
-void IRPrinter::print(Module* module, i32 indent) {}
+void IRPrinter::print(Module* module, i32 indent) {
+    for(size_t i = 0; i < module->functions.size(); ++i) {
+        IRPrinter::print(&module->functions[i]);
+    }
+}
 
 void IRPrinter::print(Function* function, i32 var_name, i32 indent) {
     IRPrinter::print(function->attributes);

@@ -76,6 +76,8 @@ Value IRInterpreter::run_entry(Entry* entry) {
             }
         case Instruction::store:
             {
+                /// TODO be able to store different sizes of data
+                // at the moment it defaults to i64
                 if (entry->arguments[1].type == ValueType::immediate) {
                     auto* ptr = reinterpret_cast<i64*>(ir_register[entry->arguments[0].value].pointer_value);
                     *ptr = entry->arguments[1].value;
@@ -91,9 +93,19 @@ Value IRInterpreter::run_entry(Entry* entry) {
             {
                 return ir_register[entry->arguments[0].value];
             }
-            break;
         case Instruction::index:
-            break;
+            {
+                // TODO clean this up
+                auto* ptr = reinterpret_cast<i8*>(ir_register[entry->arguments[0].value].pointer_value);
+                if(entry->arguments[1].type == ValueType::immediate) {
+                    ptr += entry->arguments[1].value;
+                }
+                else if(entry->arguments[1].type == ValueType::reference) {
+                    ptr += ir_register[entry->arguments[1].value].value;
+                }
+                ir_register[entry->dest.value].pointer_value = (uintptr_t)ptr;
+                break;
+            }
         case Instruction::add:
             {
                 // FIXME assumes we are using references

@@ -68,7 +68,9 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values, i
             ++var_name;
             return entries.back().dest;
         case Instruction::index:
-            assert(false);
+            entries.emplace_back(Value{ValueType::pointer, var_name}, instruction, values);
+            ++var_name;
+            return entries.back().dest;
         case Instruction::call:
             assert(false);
         case Instruction::ret:

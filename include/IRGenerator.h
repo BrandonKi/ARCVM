@@ -142,6 +142,8 @@ struct Value {
 
     Value(): type{ValueType::none} {}
     Value(ValueType type): type(type) {}
+    // TODO use concepts to accept all integral types
+    Value(ValueType type, i32 value): type(type), value(value) {}
     Value(ValueType type, i64 value): type(type), value(value) {}
     Value(ValueType type, void* ptr): type(type), pointer_value((uintptr_t)ptr) {}
     Value(ValueType type, Type type_value): type(type), type_value(type_value) {}

@@ -30,8 +30,8 @@ i32 IRInterpreter::run_module(Module* module) {
 
 i32 IRInterpreter::run_entry_function() {
     Value ret_val = run_function(function_table.at(entrypoint_name));
-    if(ret_val.type != ValueType::none)
-        return ret_val.value;
+    if (ret_val.type != ValueType::none)
+        return static_cast<i32>(ret_val.value);
     return 0;
 }
 
@@ -42,20 +42,18 @@ Value IRInterpreter::run_function(Function* function) {
 Value IRInterpreter::run_block(Block* block) {
     for (size_t i = 0; i < block->blocks.size(); ++i) {
         auto ret_val = run_basicblock(&block->blocks[i]);
-        if(ret_val.type != ValueType::none)
+        if (ret_val.type != ValueType::none)
             return ret_val;
     }
-    // FIXME return the correct value
     return Value{ValueType::none};
 }
 
 Value IRInterpreter::run_basicblock(BasicBlock* basicblock) {
     for (size_t i = 0; i < basicblock->entries.size(); ++i) {
         auto ret_val = run_entry(&basicblock->entries[i]);
-        if(ret_val.type != ValueType::none)
+        if (ret_val.type != ValueType::none)
             return ret_val;
     }
-    // FIXME return the correct value
     return Value{ValueType::none};
 }
 
@@ -71,53 +69,63 @@ Value IRInterpreter::run_entry(Entry* entry) {
                 break;
             }
         case Instruction::load:
-            break;
+            {
+                auto* ptr = reinterpret_cast<i64*>(ir_register[entry->arguments[0].value].pointer_value);
+                ir_register[entry->dest.value] = Value(ValueType::immediate, *ptr);
+                break;
+            }
         case Instruction::store:
-        {
-            if(entry->arguments[1].type == ValueType::immediate)
-                ir_register[entry->arguments[0].value] = Value(ValueType::immediate, entry->arguments[1].value);
-            else if(entry->arguments[1].type == ValueType::reference)
-                ir_register[entry->arguments[0].value] = Value(ValueType::immediate, ir_register[entry->arguments[1].value].value);
-
-            break;
-        }
+            {
+                if (entry->arguments[1].type == ValueType::immediate) {
+                    auto* ptr = reinterpret_cast<i64*>(ir_register[entry->arguments[0].value].pointer_value);
+                    *ptr = entry->arguments[1].value;
+                } else if (entry->arguments[1].type == ValueType::reference) {
+                    auto* ptr = reinterpret_cast<i64*>(ir_register[entry->arguments[0].value].pointer_value);
+                    *ptr = ir_register[entry->arguments[1].value].value;
+                }
+                break;
+            }
         case Instruction::call:
             break;
         case Instruction::ret:
-        {
-            return ir_register[entry->arguments[0].value];
-        }
+            {
+                return ir_register[entry->arguments[0].value];
+            }
             break;
         case Instruction::index:
             break;
         case Instruction::add:
-        {
-            //FIXME assumes we are using references
-            auto sum = ir_register[entry->arguments[0].value].value + ir_register[entry->arguments[1].value].value;
-            ir_register[entry->dest.value] = Value{ValueType::reference, sum};
-            break;
-        }
+            {
+                // FIXME assumes we are using references
+                auto sum = ir_register[entry->arguments[0].value].value +
+                           ir_register[entry->arguments[1].value].value;
+                ir_register[entry->dest.value] = Value{ValueType::reference, sum};
+                break;
+            }
         case Instruction::sub:
-        {
-            //FIXME assumes we are using references
-            auto sum = ir_register[entry->arguments[0].value].value - ir_register[entry->arguments[1].value].value;
-            ir_register[entry->dest.value] = Value{ValueType::reference, sum};
-            break;
-        }
+            {
+                // FIXME assumes we are using references
+                auto sum = ir_register[entry->arguments[0].value].value -
+                           ir_register[entry->arguments[1].value].value;
+                ir_register[entry->dest.value] = Value{ValueType::reference, sum};
+                break;
+            }
         case Instruction::mul:
-        {
-            //FIXME assumes we are using references
-            auto sum = ir_register[entry->arguments[0].value].value * ir_register[entry->arguments[1].value].value;
-            ir_register[entry->dest.value] = Value{ValueType::reference, sum};
-            break;
-        }
+            {
+                // FIXME assumes we are using references
+                auto sum = ir_register[entry->arguments[0].value].value *
+                           ir_register[entry->arguments[1].value].value;
+                ir_register[entry->dest.value] = Value{ValueType::reference, sum};
+                break;
+            }
         case Instruction::div:
-        {
-            //FIXME assumes we are using references
-            auto sum = ir_register[entry->arguments[0].value].value / ir_register[entry->arguments[1].value].value;
-            ir_register[entry->dest.value] = Value{ValueType::reference, sum};
-            break;
-        }
+            {
+                // FIXME assumes we are using references
+                auto sum = ir_register[entry->arguments[0].value].value /
+                           ir_register[entry->arguments[1].value].value;
+                ir_register[entry->dest.value] = Value{ValueType::reference, sum};
+                break;
+            }
         default:
             return Value{};
     }

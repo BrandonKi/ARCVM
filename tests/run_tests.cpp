@@ -33,10 +33,11 @@ void run_named_test(std::string name, T test) {
 static bool test0() {
     IRGenerator gen;
     auto* main_module = gen.create_module();
-    auto* main = main_module->gen_function_def("main", {Type::none}, Type::ir_i32);
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
     main->add_attribute(Attribute::entrypoint);
-    auto val = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    main->gen_inst(Instruction::store, {val, Value{ValueType::immediate, 10}});
+    auto val_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 10}});
+    auto val = main->gen_inst(Instruction::load, {val_ptr});
     main->gen_inst(Instruction::ret, {val});
 
     if(noisy)
@@ -49,15 +50,18 @@ static bool test0() {
 static bool test1() {
     IRGenerator gen;
     auto* main_module = gen.create_module();
-    auto* main = main_module->gen_function_def("main", {Type::none}, Type::ir_i32);
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
     main->add_attribute(Attribute::entrypoint);
-    auto op1 = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2 = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto sum = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    main->gen_inst(Instruction::store, {op1, Value{ValueType::immediate, 10}});
-    main->gen_inst(Instruction::store, {op2, Value{ValueType::immediate, 10}});
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto sum_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 10}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 10}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = main->gen_inst(Instruction::add, {op1, op2});
-    main->gen_inst(Instruction::store, {sum, tmp});
+    main->gen_inst(Instruction::store, {sum_ptr, tmp});
+    auto sum = main->gen_inst(Instruction::load, {sum_ptr});
     main->gen_inst(Instruction::ret, {sum});
 
     if(noisy)

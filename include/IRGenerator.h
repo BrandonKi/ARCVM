@@ -31,20 +31,26 @@ enum class Instruction : i8 {
 
 static std::string to_string(Instruction instruction) {
     switch(instruction) {
-        case Instruction::add:
-            return "add";
-        case Instruction::index:
-            return "index";
-        case Instruction::call:
-            return "call";
-        case Instruction::ret:
-            return "ret";
         case Instruction::alloc:
             return "alloc";
         case Instruction::load:
             return "load";
         case Instruction::store:
             return "store";
+        case Instruction::call:
+            return "call";
+        case Instruction::ret:
+            return "ret";
+        case Instruction::index:
+            return "index";
+        case Instruction::add:
+            return "add";
+        case Instruction::sub:
+            return "sub";
+        case Instruction::mul:
+            return "mul";
+        case Instruction::div:
+            return "div";
         default:
             return "";
     }

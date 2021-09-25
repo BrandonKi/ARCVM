@@ -66,7 +66,9 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values, i
             ++var_name;
             return entries.back().dest;
         case Instruction::index:
+            static_assert("index instruction not implemented");
         case Instruction::call:
+            static_assert("call instruction not implemented");
         case Instruction::ret:
             entries.emplace_back(Value{ValueType::none}, instruction, values);
             return entries.back().dest;
@@ -75,6 +77,9 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values, i
             ++var_name;
             return entries.back().dest;
         case Instruction::load:
+            entries.emplace_back(Value{ValueType::reference, var_name}, instruction, values);
+            ++var_name;
+            return entries.back().dest;
         case Instruction::store:
             entries.emplace_back(Value{ValueType::none}, instruction, values);
             return entries.back().dest;

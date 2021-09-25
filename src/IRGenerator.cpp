@@ -1,5 +1,7 @@
 #include "IRGenerator.h"
 
+#include <cassert>
+
 IRGenerator::IRGenerator() : modules_{} {}
 
 // TODO use allocator
@@ -66,9 +68,9 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values, i
             ++var_name;
             return entries.back().dest;
         case Instruction::index:
-            static_assert("index instruction not implemented");
+            assert(false, "index instruction not implemented");
         case Instruction::call:
-            static_assert("call instruction not implemented");
+            assert(false, "call instruction not implemented");
         case Instruction::ret:
             entries.emplace_back(Value{ValueType::none}, instruction, values);
             return entries.back().dest;

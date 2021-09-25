@@ -30,7 +30,7 @@ void run_named_test(std::string name, T test) {
 
 #define run_test(name) run_named_test(#name, name)
 
-static bool test0() {
+static bool create_var() {
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -47,7 +47,7 @@ static bool test0() {
     return interp.run() == 10;
 }
 
-static bool test1() {
+static bool add_vars() {
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -71,7 +71,7 @@ static bool test1() {
     return interp.run() == 20;
 }
 
-static bool test2() {
+static bool sub_vars() {
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -95,7 +95,7 @@ static bool test2() {
     return interp.run() == 90;
 }
 
-static bool test3() {
+static bool mul_vars() {
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -119,7 +119,7 @@ static bool test3() {
     return interp.run() == 50;
 }
 
-static bool test4() {
+static bool div_vars() {
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -143,7 +143,7 @@ static bool test4() {
     return interp.run() == 10;
 }
 
-static bool test5() {
+static bool index_stack_buffer() {
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -174,12 +174,12 @@ int main(int argc, char *argv[]) {
     if(argc > 1 && "-noisy"sv == argv[1])
         noisy = true;
 
-    run_test(test0);
-    run_test(test1);
-    run_test(test2);
-    run_test(test3);
-    run_test(test4);
-    run_test(test5);
+    run_test(create_var);
+    run_test(add_vars);
+    run_test(sub_vars);
+    run_test(mul_vars);
+    run_test(div_vars);
+    run_test(index_stack_buffer);
 
     print_report();
 }

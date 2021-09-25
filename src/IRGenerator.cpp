@@ -14,6 +14,7 @@ void link_modules() {}
 // FIXME URGENT this returns a pointer to memory owned by vector
 // that means the pointer to it will get invalidated on resize
 Function* Module::gen_function_def(std::string name, std::vector<Type> parameters, Type return_type) {
+    ARCVM_PROFILE();
     functions.push_back(Function{name, true, std::move(parameters), return_type, {}});
     functions.back().gen_label("main");
     return &functions.back();
@@ -25,40 +26,49 @@ Function* Module::gen_function_def(std::string name, std::vector<Type> parameter
 
 // TODO implement this
 Label* Function::gen_label(std::string name) {
+    ARCVM_PROFILE();
     return block.gen_label(std::move(name));
 }
 
 Value Function::gen_inst(Instruction instruction, Value value) {
+    ARCVM_PROFILE();
     return block.gen_inst(instruction, value);
 }
 
 Value Function::gen_inst(Instruction instruction, std::vector<Value> values) {
+    ARCVM_PROFILE();
     return block.gen_inst(instruction, values);
 }
 
 Value Function::get_param(i32) {
+    ARCVM_PROFILE();
     return Value{ValueType::none};
 }
 
 // TODO use allocator
 Label* Block::gen_label(std::string name) {
+    ARCVM_PROFILE();
     blocks.emplace_back(Label{std::move(name)}, std::vector<Entry>{});
     return &blocks.back().label;
 }
 
 Value Block::gen_inst(Instruction instruction, Value value) {
+    ARCVM_PROFILE();
     return blocks.back().gen_inst(instruction, value, var_name);
 }
 
 Value Block::gen_inst(Instruction instruction, std::vector<Value> values) {
+    ARCVM_PROFILE();
     return blocks.back().gen_inst(instruction, values, var_name);
 }
 
 Value BasicBlock::gen_inst(Instruction instruction, Value value, i32& var_name) {
+    ARCVM_PROFILE();
     return gen_inst(instruction, std::vector{value}, var_name);
 }
 
 Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values, i32& var_name) {
+    ARCVM_PROFILE();
     switch(instruction) {
         case Instruction::add:
         case Instruction::sub:

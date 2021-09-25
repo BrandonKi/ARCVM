@@ -4,10 +4,12 @@ IRInterpreter::IRInterpreter(Module* module)
     : module_{module}, jump_table{}, function_table{}, entrypoint_name{}, ir_register{} {}
 
 i32 IRInterpreter::run() {
+    ARCVM_PROFILE();
     return run_module(module_);
 }
 
 void IRInterpreter::build_jump_table(Module* module) {
+    ARCVM_PROFILE();
     for (auto& function : module->functions) {
         for (auto const& attribute : function.attributes) {
             if (attribute == Attribute::entrypoint)
@@ -24,11 +26,13 @@ void IRInterpreter::build_jump_table(Module* module) {
 }
 
 i32 IRInterpreter::run_module(Module* module) {
+    ARCVM_PROFILE();
     build_jump_table(module);
     return run_entry_function();
 }
 
 i32 IRInterpreter::run_entry_function() {
+    ARCVM_PROFILE();
     Value ret_val = run_function(function_table.at(entrypoint_name));
     if (ret_val.type != ValueType::none)
         return static_cast<i32>(ret_val.value);
@@ -36,10 +40,12 @@ i32 IRInterpreter::run_entry_function() {
 }
 
 Value IRInterpreter::run_function(Function* function) {
+    ARCVM_PROFILE();
     return run_block(&function->block);
 }
 
 Value IRInterpreter::run_block(Block* block) {
+    ARCVM_PROFILE();
     for (size_t i = 0; i < block->blocks.size(); ++i) {
         auto ret_val = run_basicblock(&block->blocks[i]);
         if (ret_val.type != ValueType::none)
@@ -49,6 +55,7 @@ Value IRInterpreter::run_block(Block* block) {
 }
 
 Value IRInterpreter::run_basicblock(BasicBlock* basicblock) {
+    ARCVM_PROFILE();
     for (size_t i = 0; i < basicblock->entries.size(); ++i) {
         auto ret_val = run_entry(&basicblock->entries[i]);
         if (ret_val.type != ValueType::none)
@@ -62,7 +69,7 @@ Value IRInterpreter::run_basicblock(BasicBlock* basicblock) {
 // FIXME this is purposely inefficient
 // fix at some point
 Value IRInterpreter::run_entry(Entry* entry) {
-
+    // ARCVM_PROFILE();
     switch (entry->instruction) {
         case Instruction::alloc:
             {

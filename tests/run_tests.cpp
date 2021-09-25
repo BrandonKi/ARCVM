@@ -71,6 +71,78 @@ static bool test1() {
     return interp.run() == 20;
 }
 
+static bool test2() {
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto sum_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 100}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 10}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::sub, {op1, op2});
+    main->gen_inst(Instruction::store, {sum_ptr, tmp});
+    auto sum = main->gen_inst(Instruction::load, {sum_ptr});
+    main->gen_inst(Instruction::ret, {sum});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 90;
+}
+
+static bool test3() {
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto sum_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 5}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 10}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::mul, {op1, op2});
+    main->gen_inst(Instruction::store, {sum_ptr, tmp});
+    auto sum = main->gen_inst(Instruction::load, {sum_ptr});
+    main->gen_inst(Instruction::ret, {sum});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 50;
+}
+
+static bool test4() {
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto sum_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 70}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 7}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::div, {op1, op2});
+    main->gen_inst(Instruction::store, {sum_ptr, tmp});
+    auto sum = main->gen_inst(Instruction::load, {sum_ptr});
+    main->gen_inst(Instruction::ret, {sum});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 10;
+}
+
 using namespace std::literals;
 
 int main(int argc, char *argv[]) {
@@ -79,6 +151,9 @@ int main(int argc, char *argv[]) {
 
     run_test(test0);
     run_test(test1);
+    run_test(test2);
+    run_test(test3);
+    run_test(test4);
 
     print_report();
 }

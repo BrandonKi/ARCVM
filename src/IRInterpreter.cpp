@@ -57,6 +57,8 @@ Value IRInterpreter::run_basicblock(BasicBlock* basicblock) {
     return Value{ValueType::none};
 }
 
+// TODO there are a lot of common patterns here that can be extracted into macros
+//
 // FIXME this is purposely inefficient
 // fix at some point
 Value IRInterpreter::run_entry(Entry* entry) {

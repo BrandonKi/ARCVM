@@ -79,7 +79,8 @@ Value IRInterpreter::run_entry(Entry* entry) {
         case Instruction::store:
             {
                 /// TODO be able to store different sizes of data
-                // at the moment it defaults to i64
+                // at the moment it defaults to i64 which will result in some subtle bugs
+                // such as accidentally writing into neighboring memory etc.
                 if (entry->arguments[1].type == ValueType::immediate) {
                     auto* ptr = reinterpret_cast<i64*>(ir_register[entry->arguments[0].value].pointer_value);
                     *ptr = entry->arguments[1].value;

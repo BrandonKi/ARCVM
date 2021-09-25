@@ -18,19 +18,21 @@ void print_report() {
 
 template <std::invocable T>
 void run_named_test(std::string name, T test) {
+    ARCVM_PROFILE();
     if(test()) {
-        std::cout << name << '\t' << cprint::fmt("pass", cprint::GREEN) << '\n';
+        std::cout << name << '\t' << cprint::fmt("pass", cprint::BRIGHT_GREEN) << '\n';
         ++passed_tests;
     }
     else {
-        std::cout << name << '\t' << cprint::fmt("fail", cprint::RED) << '\n';
+        std::cout << name << '\t' << cprint::fmt("fail", cprint::BRIGHT_RED) << '\n';
         ++failed_tests;
     }
 }
 
 #define run_test(name) run_named_test(#name, name)
 
-static bool create_var() {
+inline static bool create_var() {
+    ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -47,7 +49,8 @@ static bool create_var() {
     return interp.run() == 10;
 }
 
-static bool add_vars() {
+inline static bool add_vars() {
+    ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -71,7 +74,8 @@ static bool add_vars() {
     return interp.run() == 20;
 }
 
-static bool sub_vars() {
+inline static bool sub_vars() {
+    ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -95,7 +99,8 @@ static bool sub_vars() {
     return interp.run() == 90;
 }
 
-static bool mul_vars() {
+inline static bool mul_vars() {
+    ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -119,7 +124,8 @@ static bool mul_vars() {
     return interp.run() == 50;
 }
 
-static bool div_vars() {
+inline static bool div_vars() {
+    ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
@@ -143,7 +149,8 @@ static bool div_vars() {
     return interp.run() == 10;
 }
 
-static bool index_stack_buffer() {
+inline static bool index_stack_buffer() {
+    ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);

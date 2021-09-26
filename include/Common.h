@@ -160,6 +160,7 @@ struct Value {
     Value(T value): type(ValueType::immediate), value(value) {}
     Value(ValueType type, void* ptr): type(type), pointer_value((uintptr_t)ptr) {}
     Value(ValueType type, Type type_value): type(type), type_value(type_value) {}
+    Value(Type type_value): type(ValueType::type), type_value(type_value) {}
 };
 
 struct Entry {

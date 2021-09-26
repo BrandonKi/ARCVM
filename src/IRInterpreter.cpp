@@ -79,21 +79,80 @@ Value IRInterpreter::run_entry(Entry* entry) {
             }
         case Instruction::load:
             {
-                auto* ptr = reinterpret_cast<i64*>(ir_register[entry->arguments[0].value].pointer_value);
-                ir_register[entry->dest.value] = Value(ValueType::immediate, *ptr);
+                // FIXME wow this workaround is hideous
+                // not much I can do though
+                auto load = [&]<std::integral T>(T t) {
+                    auto* ptr = reinterpret_cast<T*>(ir_register[entry->arguments[0].value].pointer_value);
+                    ir_register[entry->dest.value] = Value(ValueType::immediate, *ptr);
+                };
+                if(entry->arguments.size() > 1) {
+                    switch(entry->arguments[1].type_value) {
+                        case Type::ir_b1:
+                        case Type::ir_b8:
+                        case Type::ir_i8:
+                        case Type::ir_u8:
+                            load((i8)0);
+                            break;
+                        case Type::ir_i16:
+                        case Type::ir_u16:
+                            load((i16)0);
+                            break;
+                        case Type::ir_i32:
+                        case Type::ir_u32:
+                            load((i32)0);
+                            break;
+                        case Type::ir_i64:
+                        case Type::ir_u64:
+                            load((i64)0);
+                            break;
+                        default:
+                            load((i64)0);
+                    }
+                }
+                else {
+                    load((i64)0);
+                }
                 break;
             }
         case Instruction::store:
             {
-                /// TODO be able to store different sizes of data
-                // at the moment it defaults to i64 which will result in some subtle bugs
-                // such as accidentally writing into neighboring memory etc.
-                if (entry->arguments[1].type == ValueType::immediate) {
-                    auto* ptr = reinterpret_cast<i64*>(ir_register[entry->arguments[0].value].pointer_value);
-                    *ptr = entry->arguments[1].value;
-                } else if (entry->arguments[1].type == ValueType::reference) {
-                    auto* ptr = reinterpret_cast<i64*>(ir_register[entry->arguments[0].value].pointer_value);
-                    *ptr = ir_register[entry->arguments[1].value].value;
+                // another hideous workaround :)
+                auto store = [&]<std::integral T>(T t) {
+                    if (entry->arguments[1].type == ValueType::immediate) {
+                        auto* ptr = reinterpret_cast<T*>(ir_register[entry->arguments[0].value].pointer_value);
+                        *ptr = static_cast<T>(entry->arguments[1].value);
+                    } else if (entry->arguments[1].type == ValueType::reference) {
+                        auto* ptr = reinterpret_cast<T*>(ir_register[entry->arguments[0].value].pointer_value);
+                        *ptr = static_cast<T>(ir_register[entry->arguments[1].value].value);
+                    }
+                };
+
+                if(entry->arguments.size() > 2) {
+                    switch(entry->arguments[2].type_value) {
+                        case Type::ir_b1:
+                        case Type::ir_b8:
+                        case Type::ir_i8:
+                        case Type::ir_u8:
+                            store((i8)0);
+                            break;
+                        case Type::ir_i16:
+                        case Type::ir_u16:
+                            store((i16)0);
+                            break;
+                        case Type::ir_i32:
+                        case Type::ir_u32:
+                            store((i32)0);
+                            break;
+                        case Type::ir_i64:
+                        case Type::ir_u64:
+                            store((i64)0);
+                            break;
+                        default:
+                            store((i64)0);
+                    }
+                }
+                else {
+                    store((i64)0);
                 }
                 break;
             }

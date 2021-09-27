@@ -14,7 +14,7 @@ void link_modules() {}
 Function* Module::gen_function_def(std::string name, std::vector<Type> parameters, Type return_type) {
     ARCVM_PROFILE();
     functions.push_back(Function{name, true, std::move(parameters), return_type, {}});
-    functions.back().gen_label("main");
+    functions.back().gen_label(name);
     return &functions.back();
 }
 
@@ -80,7 +80,10 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values, i
             ++var_name;
             return entries.back().dest;
         case Instruction::call:
-            assert(false);
+            // FIXME return type is set to none
+            entries.emplace_back(Value{ValueType::immediate, var_name}, instruction, values);
+            ++var_name;
+            return entries.back().dest;
         case Instruction::ret:
             entries.emplace_back(Value{ValueType::none}, instruction, values);
             return entries.back().dest;

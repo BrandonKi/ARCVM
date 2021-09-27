@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <concepts>
 #include <cassert>
 
@@ -141,7 +142,7 @@ static i32 type_size(Type type) {
     }
 }
 
-enum class ValueType : i8 { none, pointer, reference, immediate, type };
+enum class ValueType : i8 { none, pointer, reference, immediate, type, table_index };
 
 // FIXME does not work with float immediate values
 struct Value {

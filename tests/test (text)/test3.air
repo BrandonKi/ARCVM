@@ -1,8 +1,11 @@
 /// aggregate test
 
-declare aggregate @data{}
-
-declare function $add(@vec3, @vec3) -> @vec3
+// symbol table
+[[
+    0: main
+    1: add
+    2: vec3
+]]
 
 define aggregate @vec3 {
     i32,

@@ -209,7 +209,7 @@ inline static bool no_arg_function_call() {
     auto val_ptr = func->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
     func->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 70}});
     auto val = func->gen_inst(Instruction::load, {val_ptr});
-    
+
     func->gen_inst(Instruction::ret, {val});
 
 
@@ -237,3 +237,34 @@ int main(int argc, char *argv[]) {
 
     print_report();
 }
+
+
+// this design would allow for multithreaded IR generation also
+// since the IRGenerators have no dependency on the vm or each other
+/*
+IRGenerator gen;
+
+...
+
+IRModule m1 = gen.create_module();
+gen.clear();
+
+...
+
+IRModule m2 = gen.create_module();
+
+Arcvm vm;
+vm.load_module(m1);
+vm.load_module(m2);
+
+// interpret
+i32 ec = vm.run();
+
+// create a binary file
+vm.compile();
+
+// jit compile and run
+vm.jit();
+
+
+*/

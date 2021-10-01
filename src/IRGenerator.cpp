@@ -1,13 +1,11 @@
 #include "IRGenerator.h"
 
-IRGenerator::IRGenerator() : modules_{} {}
+IRGenerator::IRGenerator() {}
 
 // TODO use allocator
 Module* IRGenerator::create_module() {
     return new Module{};
 }
-
-void link_modules() {}
 
 // FIXME URGENT this returns a pointer to memory owned by vector
 // that means the pointer to it will get invalidated on resize
@@ -19,8 +17,6 @@ Function* Module::gen_function_def(std::string name, std::vector<Type> parameter
 }
 
 // Function* gen_aggregate_def(std::string, std::vector<Type>);
-// Function* gen_function_decl(std::string, std::vector<Type>, Type);
-// Function* gen_aggregate_decl(std::string, std::vector<Type>);
 
 // TODO implement this
 Label* Function::gen_label(std::string name) {

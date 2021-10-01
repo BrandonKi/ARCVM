@@ -41,10 +41,16 @@ struct Args {
 
 class Arcvm {
   public:
+    Arcvm();
     Arcvm(Args);
+
+    void run();
+    void jit();
+    void compile();
 
   private:
     Args args_;
+    std::vector<Module*> modules_;
 };
 
 #endif

@@ -34,12 +34,14 @@ Value Function::gen_inst(Instruction instruction, std::vector<Value> values) {
     return block.gen_inst(instruction, values);
 }
 
+// TODO implement this
 Value Function::get_param(i32) {
     ARCVM_PROFILE();
     return Value{ValueType::none};
 }
 
 // TODO use allocator
+// currently returns a pointer to memory owned by a vector
 Label* Block::gen_label(std::string name) {
     ARCVM_PROFILE();
     blocks.emplace_back(Label{std::move(name)}, std::vector<Entry>{});

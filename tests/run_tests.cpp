@@ -239,7 +239,7 @@ int main(int argc, char *argv[]) {
 }
 
 
-// this design would allow for multithreaded IR generation also
+// this design would allow for easier multithreaded IR generation
 // since the IRGenerators have no dependency on the vm or each other
 /*
 IRGenerator gen;

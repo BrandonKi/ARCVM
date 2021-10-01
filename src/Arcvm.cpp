@@ -4,31 +4,33 @@ Arcvm::Arcvm(Args args) : args_{std::move(args)} {}
 
 Arcvm::Arcvm(): args_{} {}
 
-Arcvm::load_module(Module* module) {
+void Arcvm::load_module(Module* module) {
     modules_.push_back(module);
     // there's probably some work I could be doing here
 }
 
 // run in interpret mode
-Arcvm::run() {
-    IRInterpreter
+// TODO run all the modules in one interpreter context
+// then just return the result of the entrypoint function
+i32 Arcvm::run() {
     for(auto* module: modules_) {
-
+       IRInterpreter interp(module);
+       return interp.run();
     }
 }
 
 // run in JIT mode
-Arcvm::jit() {
-
+i32 Arcvm::jit() {
+    return 0;
 }
 
 // compile to binary, does not run
-Arcvm::compile() {
-
+i32 Arcvm::compile() {
+    return 0;
 }
 
 // write to file
 // assume compile() has been called
-Arcvm::write_file() {
+void Arcvm::write_file() {
 
 }

@@ -2,6 +2,7 @@
 #include "IRGenerator.h"
 #include "IRInterpreter.h"
 #include "IRPrinter.h"
+#include "Arcvm.h"
 
 static bool noisy = false;
 static i32 passed_tests = 0;
@@ -220,6 +221,23 @@ inline static bool no_arg_function_call() {
     return interp.run() == 70;
 }
 
+inline static bool arcvm_api_test() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto val_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 0}});
+    auto val = main->gen_inst(Instruction::load, {val_ptr});
+    main->gen_inst(Instruction::ret, {val});
+
+    Arcvm vm;
+    vm.load_module(main_module);
+
+    return vm.run() == 0;
+}
+
 using namespace std::literals;
 
 int main(int argc, char *argv[]) {
@@ -234,6 +252,7 @@ int main(int argc, char *argv[]) {
     run_test(index_stack_buffer);
     run_test(index_stack_buffer2);
     run_test(no_arg_function_call);
+    run_test(arcvm_api_test);
 
     print_report();
 }

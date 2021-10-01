@@ -1,8 +1,6 @@
 #ifndef ARCVM_COMMON_H
 #define ARCVM_COMMON_H
 
-// #include "IRGenerator.h"
-
 #include <small_profiler.h>
 #include <color_print.h>
 

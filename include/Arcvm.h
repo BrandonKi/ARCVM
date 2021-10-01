@@ -3,6 +3,9 @@
 
 #include "Common.h"
 
+#include "IRGenerator.h"
+#include "IRInterpreter.h"
+
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -44,9 +47,13 @@ class Arcvm {
     Arcvm();
     Arcvm(Args);
 
-    void run();
-    void jit();
-    void compile();
+    void load_module(Module*);
+
+    i32 run();
+    i32 jit();
+    i32 compile();
+
+    void write_file();
 
   private:
     Args args_;

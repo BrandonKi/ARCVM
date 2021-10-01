@@ -14,7 +14,7 @@ class IRGenerator {
     void link_modules();
 
   private:
-    std::vector<Module> modules_;
+    std::vector<Module*> modules_;
 };
 
 #endif

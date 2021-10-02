@@ -1,11 +1,11 @@
 #ifndef ARCVM_IRPRINTER_H
 #define ARCVM_IRPRINTER_H
 
-// FIXME only includes this for the types
-// move them into a different header
 #include "Common.h"
 
 #include <iostream>
+
+namespace arcvm {
 
 namespace IRPrinter {
 
@@ -19,5 +19,7 @@ void print(Entry*, i32&, i32 indent = 0);
 void print(Value* value, i32 indent = 0);
 
 } // namespace IRPrinter
+
+};
 
 #endif

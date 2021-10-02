@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+using namespace arcvm;
+
 Args get_args(int argc, char* argv[]) {
     Args args;
     // set defaults

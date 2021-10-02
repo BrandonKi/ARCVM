@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+namespace arcvm {
+
 template <typename T> concept Stringable = requires(T t) {
     std::string(t);
 };
@@ -58,6 +60,8 @@ class Arcvm {
   private:
     Args args_;
     std::vector<Module*> modules_;
+};
+
 };
 
 #endif

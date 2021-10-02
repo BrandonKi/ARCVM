@@ -1,5 +1,7 @@
 #include "IRPrinter.h"
 
+using namespace arcvm;
+
 void IRPrinter::print(Module* module, i32 indent) {
     ARCVM_PROFILE();
     for(size_t i = 0; i < module->functions.size(); ++i) {

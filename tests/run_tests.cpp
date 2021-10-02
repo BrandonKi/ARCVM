@@ -4,6 +4,8 @@
 #include "IRPrinter.h"
 #include "Arcvm.h"
 
+using namespace arcvm;
+
 static bool noisy = false;
 static i32 passed_tests = 0;
 static i32 failed_tests = 0;

@@ -12,6 +12,9 @@
 #include <cassert>
 
 // renaming makes replacing the profiler easier in the future if needed
+
+namespace arcvm {
+
 #define ARCVM_PROFILE() PROFILE()
 #define ARCVM_PROFILE_SCOPE(x) PROFILE_SCOPE(x)
 
@@ -223,9 +226,8 @@ struct Module {
 
     Function* gen_function_def(std::string, std::vector<Type>, Type);
     Function* gen_aggregate_def(std::string, std::vector<Type>);
-    Function* gen_function_decl(std::string, std::vector<Type>, Type);
-    Function* gen_aggregate_decl(std::string, std::vector<Type>);
 };
 
+};
 
 #endif

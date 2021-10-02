@@ -1,5 +1,7 @@
 #include "IRGenerator.h"
 
+using namespace arcvm;
+
 IRGenerator::IRGenerator() {}
 
 // TODO use allocator

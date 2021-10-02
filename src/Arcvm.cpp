@@ -1,5 +1,7 @@
 #include "Arcvm.h"
 
+using namespace arcvm;
+
 Arcvm::Arcvm(Args args) : args_{std::move(args)} {}
 
 Arcvm::Arcvm(): args_{} {}
@@ -17,6 +19,7 @@ i32 Arcvm::run() {
        IRInterpreter interp(module);
        return interp.run();
     }
+    return -1;
 }
 
 // run in JIT mode

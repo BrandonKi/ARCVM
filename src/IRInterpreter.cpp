@@ -1,5 +1,7 @@
 #include "IRInterpreter.h"
 
+using namespace arcvm;
+
 IRInterpreter::IRInterpreter(Module* module)
     : module_{module}, jump_table{}, function_table{}, entrypoint_name{}, ir_register{} {}
 
@@ -39,7 +41,7 @@ i32 IRInterpreter::run_entry_function() {
     return 0;
 }
 
-// TODO be able to pass args to functions 
+// TODO be able to pass args to functions
 Value IRInterpreter::run_function(Function* function) {
     ARCVM_PROFILE();
     ir_register.emplace_back();

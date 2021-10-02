@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <array>
 
+namespace arcvm {
+
 struct IRLocation {
     Block* block;
     size_t basicblock_index;
@@ -32,6 +34,8 @@ class IRInterpreter {
     Value run_block(Block*);
     Value run_basicblock(BasicBlock*);
     Value run_entry(Entry*);
+};
+
 };
 
 #endif

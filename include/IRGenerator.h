@@ -5,6 +5,8 @@
 
 #include <vector>
 
+namespace arcvm {
+
 // TODO make generating code from multiple threads more friendly
 class IRGenerator {
   public:
@@ -17,4 +19,5 @@ class IRGenerator {
     std::vector<Module*> modules_;
 };
 
+};
 #endif

@@ -3,6 +3,7 @@
 
 #include <small_profiler.h>
 #include <color_print.h>
+#include <thread_pool.h>
 
 #include <cstdint>
 #include <vector>

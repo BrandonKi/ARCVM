@@ -242,6 +242,7 @@ inline static bool arcvm_api_test() {
 
 using namespace std::literals;
 
+// TODO use thread pool for running tests
 int main(int argc, char *argv[]) {
     if(argc > 1 && "-noisy"sv == argv[1])
         noisy = true;

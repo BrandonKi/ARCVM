@@ -130,15 +130,15 @@ inline static bool div_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
     auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto sum_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
     main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 70}});
     main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 7}});
     auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = main->gen_inst(Instruction::div, {op1, op2});
-    main->gen_inst(Instruction::store, {sum_ptr, tmp});
-    auto sum = main->gen_inst(Instruction::load, {sum_ptr});
-    main->gen_inst(Instruction::ret, {sum});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
 
     if(noisy)
         IRPrinter::print(main);
@@ -147,7 +147,357 @@ inline static bool div_vars() {
     return interp.run() == 10;
 }
 
-inline static bool index_stack_buffer() {
+inline static bool mod_vars() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 76}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 7}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::mod, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 6;
+}
+
+inline static bool bin_or_vars() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 1}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 2}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::bin_or, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 3;
+}
+
+inline static bool bin_and_vars() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 3}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 7}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::bin_and, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 3;
+}
+
+inline static bool bin_xor_vars() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 3}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 7}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::bin_xor, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 4;
+}
+
+inline static bool lshift_vars() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 3}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 2}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::lshift, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 12;
+}
+
+inline static bool rshift_vars() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 7}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::rshift, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 3;
+}
+
+inline static bool lt_vars() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::lt, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 0;
+}
+
+inline static bool gt_vars() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::gt, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 1;
+}
+
+inline static bool lte_vars1() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 25}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::lte, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 1;
+}
+
+inline static bool lte_vars2() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::lte, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 0;
+}
+
+inline static bool lte_vars3() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 1}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 25}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::lte, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 1;
+}
+
+inline static bool gte_vars1() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 25}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::gte, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 1;
+}
+
+inline static bool gte_vars2() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::gte, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 1;
+}
+
+inline static bool gte_vars3() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto op1_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto op2_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto result_ptr = main->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    main->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 1}});
+    main->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 25}});
+    auto op1 = main->gen_inst(Instruction::load, {op1_ptr});
+    auto op2 = main->gen_inst(Instruction::load, {op2_ptr});
+    auto tmp = main->gen_inst(Instruction::gte, {op1, op2});
+    main->gen_inst(Instruction::store, {result_ptr, tmp});
+    auto result = main->gen_inst(Instruction::load, {result_ptr});
+    main->gen_inst(Instruction::ret, {result});
+
+    if(noisy)
+        IRPrinter::print(main);
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 0;
+}
+
+inline static bool index_stack_buffer1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -252,7 +602,21 @@ int main(int argc, char *argv[]) {
     run_test(sub_vars);
     run_test(mul_vars);
     run_test(div_vars);
-    run_test(index_stack_buffer);
+    run_test(mod_vars);
+    run_test(bin_or_vars);
+    run_test(bin_and_vars);
+    run_test(bin_xor_vars);
+    run_test(lshift_vars);
+    run_test(rshift_vars);
+    run_test(lt_vars);
+    run_test(gt_vars);
+    run_test(lte_vars1);
+    run_test(lte_vars2);
+    run_test(lte_vars3);
+    run_test(gte_vars1);
+    run_test(gte_vars2);
+    run_test(gte_vars3);
+    run_test(index_stack_buffer1);
     run_test(index_stack_buffer2);
     run_test(no_arg_function_call);
     run_test(arcvm_api_test);

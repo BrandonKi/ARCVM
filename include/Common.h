@@ -12,10 +12,10 @@
 #include <concepts>
 #include <cassert>
 
-// renaming makes replacing the profiler easier in the future if needed
 
 namespace arcvm {
 
+// renaming makes replacing/disabling the profiler easier in the future if needed
 #define ARCVM_PROFILE() PROFILE()
 #define ARCVM_PROFILE_SCOPE(x) PROFILE_SCOPE(x)
 
@@ -42,6 +42,19 @@ enum class Instruction : i8 {
     sub,
     mul,
     div,
+    mod,
+    bin_or,
+    bin_and,
+    bin_xor,
+    lshift,
+    rshift,
+    lt,
+    gt,
+    lte,
+    gte,
+    log_or,
+    log_and,
+    log_xor
 };
 
 static std::string to_string(Instruction instruction) {

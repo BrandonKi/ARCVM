@@ -322,10 +322,9 @@ Value IRInterpreter::run_entry(Entry* entry) {
             // FIXME doesn't do short circuiting
             // actually I'm pretty sure logical xor can't do short circuiting
             // both operands need to be evaluated
-            auto result = ir_register.back()[entry->arguments[0].value].value ^
-                        ir_register.back()[entry->arguments[1].value].value;
-            // converts to bool
-            result &= 1;
+            auto lhs = ir_register.back()[entry->arguments[0].value].value != 0;
+            auto rhs = ir_register.back()[entry->arguments[1].value].value != 0;
+            auto result = lhs ^ rhs;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }

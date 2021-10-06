@@ -79,6 +79,32 @@ static std::string to_string(Instruction instruction) {
             return "mul";
         case Instruction::div:
             return "div";
+        case Instruction::mod:
+            return "mod";
+        case Instruction::bin_or:
+            return "bin_or";
+        case Instruction::bin_and:
+            return "bin_and";
+        case Instruction::bin_xor:
+            return "bin_xor";
+        case Instruction::lshift:
+            return "lshift";
+        case Instruction::rshift:
+            return "rshift";
+        case Instruction::lt:
+            return "lt";
+        case Instruction::gt:
+            return "gt";
+        case Instruction::lte:
+            return "lte";
+        case Instruction::gte:
+            return "gte";
+        case Instruction::log_or:
+            return "log_or";
+        case Instruction::log_and:
+            return "log_and";
+        case Instruction::log_xor:
+            return "log_xor";
         default:
             return "";
     }

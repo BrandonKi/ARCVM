@@ -867,7 +867,7 @@ inline static bool no_arg_function_call() {
 
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 70;
@@ -887,6 +887,9 @@ inline static bool arcvm_api_test() {
     Arcvm vm;
     vm.load_module(main_module);
 
+    if(noisy)
+        IRPrinter::print(main_module);
+        
     return vm.run() == 0;
 }
 

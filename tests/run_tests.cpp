@@ -4,30 +4,36 @@
 #include "IRPrinter.h"
 #include "Arcvm.h"
 
+#include <mutex>
+
 using namespace arcvm;
 
 static bool noisy = false;
-static i32 passed_tests = 0;
-static i32 failed_tests = 0;
+static std::atomic<i32> passed_tests = 0;
+static std::atomic<i32> failed_tests = 0;
+static std::mutex cout_mutex;
 
 void print_report() {
     std::cout << passed_tests << "/" << (passed_tests + failed_tests) << " tests passed\n";
 }
 
 template <std::invocable T>
-void run_named_test(std::string name, T test) {
-    ARCVM_PROFILE();
+void run_named_test(std::string_view name, T test) {
+    // ARCVM_PROFILE();
     if(test()) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         std::cout << name << '\t' << cprint::fmt("pass", cprint::BRIGHT_GREEN) << '\n';
         ++passed_tests;
     }
     else {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         std::cout << name << '\t' << cprint::fmt("fail", cprint::BRIGHT_RED) << '\n';
         ++failed_tests;
     }
 }
 
-#define run_test(name) run_named_test(#name, name)
+#define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
+
 
 inline static bool create_var() {
     ARCVM_PROFILE();
@@ -41,8 +47,10 @@ inline static bool create_var() {
     bblock->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 10}});
     auto val = bblock->gen_inst(Instruction::load, {val_ptr});
     bblock->gen_inst(Instruction::ret, {val});
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 10;
@@ -67,8 +75,10 @@ inline static bool add_vars() {
     auto sum = bblock->gen_inst(Instruction::load, {sum_ptr});
     bblock->gen_inst(Instruction::ret, {sum});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 20;
@@ -94,8 +104,10 @@ inline static bool sub_vars() {
     auto sum = bblock->gen_inst(Instruction::load, {sum_ptr});
     bblock->gen_inst(Instruction::ret, {sum});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 90;
@@ -121,8 +133,10 @@ inline static bool mul_vars() {
     auto sum = bblock->gen_inst(Instruction::load, {sum_ptr});
     bblock->gen_inst(Instruction::ret, {sum});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 50;
@@ -148,8 +162,10 @@ inline static bool div_vars() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 10;
@@ -175,8 +191,10 @@ inline static bool mod_vars() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 6;
@@ -202,8 +220,10 @@ inline static bool bin_or_vars() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 3;
@@ -229,8 +249,10 @@ inline static bool bin_and_vars() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 3;
@@ -256,8 +278,10 @@ inline static bool bin_xor_vars() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 4;
@@ -283,8 +307,10 @@ inline static bool lshift_vars() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 12;
@@ -310,8 +336,10 @@ inline static bool rshift_vars() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 3;
@@ -337,8 +365,10 @@ inline static bool lt_vars() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -364,8 +394,10 @@ inline static bool gt_vars() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -391,8 +423,10 @@ inline static bool lte_vars1() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -418,8 +452,10 @@ inline static bool lte_vars2() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -445,8 +481,10 @@ inline static bool lte_vars3() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -472,8 +510,10 @@ inline static bool gte_vars1() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -499,8 +539,10 @@ inline static bool gte_vars2() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -526,8 +568,10 @@ inline static bool gte_vars3() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -553,8 +597,10 @@ inline static bool log_or_vars1() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -580,8 +626,10 @@ inline static bool log_or_vars2() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -607,8 +655,10 @@ inline static bool log_or_vars3() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -634,8 +684,10 @@ inline static bool log_or_vars4() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -661,8 +713,10 @@ inline static bool log_and_vars1() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -688,8 +742,10 @@ inline static bool log_and_vars2() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -715,8 +771,10 @@ inline static bool log_and_vars3() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -742,8 +800,10 @@ inline static bool log_and_vars4() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -769,8 +829,10 @@ inline static bool log_xor_vars1() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -796,8 +858,10 @@ inline static bool log_xor_vars2() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -823,8 +887,10 @@ inline static bool log_xor_vars3() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -850,8 +916,10 @@ inline static bool log_xor_vars4() {
     auto result = bblock->gen_inst(Instruction::load, {result_ptr});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -878,8 +946,10 @@ inline static bool index_stack_buffer1() {
     auto sum = bblock->gen_inst(Instruction::load, {sum_ptr});
     bblock->gen_inst(Instruction::ret, {sum});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 200;
@@ -906,8 +976,10 @@ inline static bool index_stack_buffer2() {
     auto sum = bblock->gen_inst(Instruction::load, {sum_ptr});
     bblock->gen_inst(Instruction::ret, {sum});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 200;
@@ -933,8 +1005,10 @@ inline static bool no_arg_function_call() {
 
     bblock2->gen_inst(Instruction::ret, {val});
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     IRInterpreter interp(main_module);
     return interp.run() == 70;
@@ -956,8 +1030,10 @@ inline static bool arcvm_api_test() {
     Arcvm vm;
     vm.load_module(main_module);
 
-    if(noisy)
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
         IRPrinter::print(main_module);
+    }
 
     return vm.run() == 0;
 }
@@ -968,6 +1044,8 @@ using namespace std::literals;
 int main(int argc, char *argv[]) {
     if(argc > 1 && "-noisy"sv == argv[1])
         noisy = true;
+
+    ThreadPool test_thread_pool;
 
     run_test(create_var);
     run_test(add_vars);
@@ -1004,8 +1082,11 @@ int main(int argc, char *argv[]) {
     run_test(index_stack_buffer2);
     run_test(no_arg_function_call);
     run_test(arcvm_api_test);
-
+    test_thread_pool.~ThreadPool();
     print_report();
+    // std::cin.get();
+    // std::cin.get();
+    // std::cin.get();
 }
 
 

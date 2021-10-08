@@ -39,6 +39,7 @@
 #include <sstream>
 #include <vector>
 #include <array>
+#include <mutex>
 
 #if defined(__linux__)
 #include <sys/types.h>
@@ -64,6 +65,8 @@
         small_profiler::internal_scoped_profiler CONCAT(_small_profiler_temp_, __COUNTER__) { x }
 
 namespace small_profiler {
+
+    inline std::mutex scope_table_mutex;
 
     inline unsigned long long get_pid() {
         #if defined(__linux__)
@@ -135,6 +138,7 @@ namespace small_profiler {
             const auto dur = std::chrono::duration_cast<std::chrono::microseconds>(end - begin_).count();
             const auto args = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin_).count();
 
+            std::unique_lock<std::mutex> lock(scope_table_mutex);
             file.scope_table.emplace_back(std::move(scope_info{std::move(name_), std::move(std::array<long long, 5>{pid, tid, ts, dur, args})}));
         }
 

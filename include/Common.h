@@ -15,9 +15,16 @@
 
 namespace arcvm {
 
+// #define NO_PROFILE
+
 // renaming makes replacing/disabling the profiler easier in the future if needed
+#ifdef NO_PROFILE
+#define ARCVM_PROFILE() (void)0
+#define ARCVM_PROFILE_SCOPE(x) (void)0
+#else
 #define ARCVM_PROFILE() PROFILE()
 #define ARCVM_PROFILE_SCOPE(x) PROFILE_SCOPE(x)
+#endif
 
 using u8 = uint8_t;
 using u16 = uint16_t;

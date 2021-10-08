@@ -38,6 +38,8 @@ enum class Instruction : i8 {
 
     index,
 
+    branch,
+
     add,
     sub,
     mul,
@@ -71,6 +73,8 @@ static std::string to_string(Instruction instruction) {
             return "ret";
         case Instruction::index:
             return "index";
+        case Instruction::branch:
+            return "branch";
         case Instruction::add:
             return "add";
         case Instruction::sub:
@@ -192,6 +196,7 @@ struct Value {
         i64 value;
         uintptr_t pointer_value;
         Type type_value;
+        std::string* label_value;
     };
 
     Value(): type{ValueType::none} {}
@@ -214,22 +219,33 @@ struct Entry {
 struct Label {
     std::string name;
 };
-
+// TODO maybe have a pointer to the parent block?
 struct BasicBlock {
     Label label;
     std::vector<Entry> entries;
+    i32& var_name;
 
-    Value gen_inst(Instruction, Value, i32&);
-    Value gen_inst(Instruction, std::vector<Value>, i32&);
+    BasicBlock(std::string label_name, std::vector<Entry> entries_, i32& var_name_):
+        label{label_name}, entries{entries_}, var_name{var_name_} {}
+
+    Value gen_inst(Instruction, Value);
+    Value gen_inst(Instruction, std::vector<Value>);
+};
+
+struct If {
+    BasicBlock* if_true;
+    BasicBlock* if_false;
+    BasicBlock* then;
 };
 
 struct Block {
     std::vector<BasicBlock> blocks;
     i32 var_name = 0;
 
-    Label* gen_label(std::string);
-    Value gen_inst(Instruction, Value);
-    Value gen_inst(Instruction, std::vector<Value>);
+    BasicBlock* new_basic_block(std::string);
+    // TODO use allocator. uses memory owned by a vector :(
+    BasicBlock* get_bblock() { return &blocks.back(); }
+    If* gen_if(BasicBlock*, BasicBlock*, BasicBlock*);
 };
 
 enum class Attribute : i8 { entrypoint };
@@ -253,11 +269,8 @@ struct Function {
     //FIXME write constructors
     Block block{{}, (i32)parameters.size()};
 
+    Block* get_block() { return &block; }
     void add_attribute(Attribute attribute) { attributes.push_back(attribute); }
-
-    Label* gen_label(std::string);
-    Value gen_inst(Instruction, Value);
-    Value gen_inst(Instruction, std::vector<Value>);
     Value get_param(i32);
 };
 

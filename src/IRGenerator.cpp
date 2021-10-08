@@ -13,27 +13,21 @@ Module* IRGenerator::create_module() {
 // that means the pointer to it will get invalidated on resize
 Function* Module::gen_function_def(std::string name, std::vector<Type> parameters, Type return_type) {
     ARCVM_PROFILE();
-    functions.push_back(Function{name, true, std::move(parameters), return_type, {}});
-    functions.back().gen_label(name);
+    auto func = Function{name, true, std::move(parameters), return_type, {}};
+    auto* block = func.get_block();
+    block->new_basic_block(name);
+    functions.push_back(std::move(func));
     return &functions.back();
 }
 
 // Function* gen_aggregate_def(std::string, std::vector<Type>);
 
-// TODO implement this
-Label* Function::gen_label(std::string name) {
+// TODO use allocator
+// same issue as the function above :(
+BasicBlock* Block::new_basic_block(std::string label_name) {
     ARCVM_PROFILE();
-    return block.gen_label(std::move(name));
-}
-
-Value Function::gen_inst(Instruction instruction, Value value) {
-    ARCVM_PROFILE();
-    return block.gen_inst(instruction, value);
-}
-
-Value Function::gen_inst(Instruction instruction, std::vector<Value> values) {
-    ARCVM_PROFILE();
-    return block.gen_inst(instruction, values);
+    blocks.emplace_back(std::move(label_name), std::vector<Entry>{}, var_name);
+    return &(blocks.back());
 }
 
 // TODO implement this
@@ -42,30 +36,12 @@ Value Function::get_param(i32) {
     return Value{ValueType::none};
 }
 
-// TODO use allocator
-// currently returns a pointer to memory owned by a vector
-Label* Block::gen_label(std::string name) {
+Value BasicBlock::gen_inst(Instruction instruction, Value value) {
     ARCVM_PROFILE();
-    blocks.emplace_back(Label{std::move(name)}, std::vector<Entry>{});
-    return &blocks.back().label;
+    return gen_inst(instruction, std::vector{value});
 }
 
-Value Block::gen_inst(Instruction instruction, Value value) {
-    ARCVM_PROFILE();
-    return blocks.back().gen_inst(instruction, value, var_name);
-}
-
-Value Block::gen_inst(Instruction instruction, std::vector<Value> values) {
-    ARCVM_PROFILE();
-    return blocks.back().gen_inst(instruction, values, var_name);
-}
-
-Value BasicBlock::gen_inst(Instruction instruction, Value value, i32& var_name) {
-    ARCVM_PROFILE();
-    return gen_inst(instruction, std::vector{value}, var_name);
-}
-
-Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values, i32& var_name) {
+Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values) {
     ARCVM_PROFILE();
     switch(instruction) {
         case Instruction::add:
@@ -87,6 +63,9 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values, i
         case Instruction::log_xor:
             entries.emplace_back(Value{ValueType::reference, var_name}, instruction, values);
             ++var_name;
+            return entries.back().dest;
+        case Instruction::branch:
+            entries.emplace_back(Value{ValueType::none}, instruction, values);
             return entries.back().dest;
         case Instruction::index:
             entries.emplace_back(Value{ValueType::pointer, var_name}, instruction, values);

@@ -12,16 +12,16 @@ i32 IRInterpreter::run() {
 
 void IRInterpreter::build_jump_table(Module* module) {
     ARCVM_PROFILE();
-    for (auto& function : module->functions) {
-        for (auto const& attribute : function.attributes) {
+    for (auto* function : module->functions) {
+        for (auto const& attribute : function->attributes) {
             if (attribute == Attribute::entrypoint)
-                entrypoint_name = function.name;
+                entrypoint_name = function->name;
         }
-        if (function.is_complete) {
-            for (size_t i = 0; i < function.block.blocks.size(); ++i) {
-                auto& basicblock = function.block.blocks[i];
-                jump_table.emplace(basicblock.label.name, IRLocation{&function.block, i});
-                function_table.emplace(basicblock.label.name, &function);
+        if (function->is_complete) {
+            for (size_t i = 0; i < function->block.blocks.size(); ++i) {
+                auto* basicblock = function->block.blocks[i];
+                jump_table.emplace(basicblock->label.name, IRLocation{&function->block, i});
+                function_table.emplace(basicblock->label.name, function);
             }
         }
     }
@@ -53,7 +53,7 @@ Value IRInterpreter::run_function(Function* function) {
 Value IRInterpreter::run_block(Block* block) {
     ARCVM_PROFILE();
     for (size_t i = 0; i < block->blocks.size(); ++i) {
-        auto ret_val = run_basicblock(&block->blocks[i]);
+        auto ret_val = run_basicblock(block->blocks[i]);
         if (ret_val.type != ValueType::none)
             return ret_val;
     }
@@ -63,7 +63,7 @@ Value IRInterpreter::run_block(Block* block) {
 Value IRInterpreter::run_basicblock(BasicBlock* basicblock) {
     ARCVM_PROFILE();
     for (size_t i = 0; i < basicblock->entries.size(); ++i) {
-        auto ret_val = run_entry(&basicblock->entries[i]);
+        auto ret_val = run_entry(basicblock->entries[i]);
         if (ret_val.type != ValueType::none)
             return ret_val;
     }

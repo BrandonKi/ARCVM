@@ -222,10 +222,10 @@ struct Label {
 // TODO maybe have a pointer to the parent block?
 struct BasicBlock {
     Label label;
-    std::vector<Entry> entries;
+    std::vector<Entry*> entries;
     i32& var_name;
 
-    BasicBlock(std::string label_name, std::vector<Entry> entries_, i32& var_name_):
+    BasicBlock(std::string label_name, std::vector<Entry*> entries_, i32& var_name_):
         label{label_name}, entries{entries_}, var_name{var_name_} {}
 
     Value gen_inst(Instruction, Value);
@@ -239,12 +239,12 @@ struct If {
 };
 
 struct Block {
-    std::vector<BasicBlock> blocks;
+    std::vector<BasicBlock*> blocks;
     i32 var_name = 0;
 
     BasicBlock* new_basic_block(std::string);
     // TODO use allocator. uses memory owned by a vector :(
-    BasicBlock* get_bblock() { return &blocks.back(); }
+    BasicBlock* get_bblock() { return blocks.back(); }
     If* gen_if(BasicBlock*, BasicBlock*, BasicBlock*);
 };
 
@@ -275,7 +275,7 @@ struct Function {
 };
 
 struct Module {
-    std::vector<Function> functions;
+    std::vector<Function*> functions;
 
     Function* gen_function_def(std::string, std::vector<Type>, Type);
     Function* gen_aggregate_def(std::string, std::vector<Type>);

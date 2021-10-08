@@ -5,7 +5,7 @@ using namespace arcvm;
 void IRPrinter::print(Module* module, i32 indent) {
     ARCVM_PROFILE();
     for(size_t i = 0; i < module->functions.size(); ++i) {
-        IRPrinter::print(&module->functions[i]);
+        IRPrinter::print(module->functions[i]);
     }
 }
 
@@ -55,7 +55,7 @@ void IRPrinter::print(std::vector<Attribute>& attributes, i32 indent) {
 void IRPrinter::print(Block* block, i32& var_name, i32 indent) {
     ARCVM_PROFILE();
     for (auto basic_block : block->blocks) {
-        IRPrinter::print(&basic_block, var_name, indent);
+        IRPrinter::print(basic_block, var_name, indent);
     }
 }
 
@@ -66,7 +66,7 @@ void IRPrinter::print(BasicBlock* basic_block, i32& var_name, i32 indent) {
     print_indent();
     std::cout << '#' << basic_block->label.name << '\n';
     for (auto entry : basic_block->entries) {
-        IRPrinter::print(&entry, var_name, indent + 2);
+        IRPrinter::print(entry, var_name, indent + 2);
     }
 }
 

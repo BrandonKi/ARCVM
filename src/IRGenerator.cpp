@@ -13,21 +13,21 @@ Module* IRGenerator::create_module() {
 // that means the pointer to it will get invalidated on resize
 Function* Module::gen_function_def(std::string name, std::vector<Type> parameters, Type return_type) {
     ARCVM_PROFILE();
-    auto func = Function{name, true, std::move(parameters), return_type, {}};
-    auto* block = func.get_block();
+    auto* func = new Function{name, true, std::move(parameters), return_type, {}};
+    auto* block = func->get_block();
     block->new_basic_block(name);
-    functions.push_back(std::move(func));
-    return &functions.back();
+    functions.push_back(func);
+    return functions.back();
 }
 
 // Function* gen_aggregate_def(std::string, std::vector<Type>);
 
 // TODO use allocator
-// same issue as the function above :(
 BasicBlock* Block::new_basic_block(std::string label_name) {
     ARCVM_PROFILE();
-    blocks.emplace_back(std::move(label_name), std::vector<Entry>{}, var_name);
-    return &(blocks.back());
+    auto* new_block = new BasicBlock(std::move(label_name), std::vector<Entry*>{}, var_name);
+    blocks.push_back(new_block);
+    return new_block;
 }
 
 // TODO implement this
@@ -61,35 +61,35 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values) {
         case Instruction::log_or:
         case Instruction::log_and:
         case Instruction::log_xor:
-            entries.emplace_back(Value{ValueType::reference, var_name}, instruction, values);
+            entries.push_back(new Entry{Value{ValueType::reference, var_name}, instruction, values});
             ++var_name;
-            return entries.back().dest;
+            return entries.back()->dest;
         case Instruction::branch:
-            entries.emplace_back(Value{ValueType::none}, instruction, values);
-            return entries.back().dest;
+            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            return entries.back()->dest;
         case Instruction::index:
-            entries.emplace_back(Value{ValueType::pointer, var_name}, instruction, values);
+            entries.push_back(new Entry{Value{ValueType::pointer, var_name}, instruction, values});
             ++var_name;
-            return entries.back().dest;
+            return entries.back()->dest;
         case Instruction::call:
             // FIXME return type is set to none
-            entries.emplace_back(Value{ValueType::immediate, var_name}, instruction, values);
+            entries.push_back(new Entry{Value{ValueType::immediate, var_name}, instruction, values});
             ++var_name;
-            return entries.back().dest;
+            return entries.back()->dest;
         case Instruction::ret:
-            entries.emplace_back(Value{ValueType::none}, instruction, values);
-            return entries.back().dest;
+            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            return entries.back()->dest;
         case Instruction::alloc:
-            entries.emplace_back(Value{ValueType::pointer, var_name}, instruction, values);
+            entries.push_back(new Entry{Value{ValueType::pointer, var_name}, instruction, values});
             ++var_name;
-            return entries.back().dest;
+            return entries.back()->dest;
         case Instruction::load:
-            entries.emplace_back(Value{ValueType::reference, var_name}, instruction, values);
+            entries.push_back(new Entry{Value{ValueType::reference, var_name}, instruction, values});
             ++var_name;
-            return entries.back().dest;
+            return entries.back()->dest;
         case Instruction::store:
-            entries.emplace_back(Value{ValueType::none}, instruction, values);
-            return entries.back().dest;
+            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            return entries.back()->dest;
         default:
             return Value{ValueType::none};
     }

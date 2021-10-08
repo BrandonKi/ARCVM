@@ -243,7 +243,6 @@ struct Block {
     i32 var_name = 0;
 
     BasicBlock* new_basic_block(std::string);
-    // TODO use allocator. uses memory owned by a vector :(
     BasicBlock* get_bblock() { return blocks.back(); }
     If* gen_if(BasicBlock*, BasicBlock*, BasicBlock*);
 };
@@ -267,9 +266,9 @@ struct Function {
     std::vector<Attribute> attributes;
 
     //FIXME write constructors
-    Block block{{}, (i32)parameters.size()};
+    Block* block{new Block{{}, (i32)parameters.size()}};
 
-    Block* get_block() { return &block; }
+    Block* get_block() { return block; }
     void add_attribute(Attribute attribute) { attributes.push_back(attribute); }
     Value get_param(i32);
 };

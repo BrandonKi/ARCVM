@@ -17,7 +17,7 @@ void IRPrinter::print(Function* function, i32 var_name, i32 indent) {
     std::cout << " -> " << to_string(function->return_type);
     if (function->is_complete) {
         std::cout << " {\n";
-        IRPrinter::print(&function->block, var_name, indent + 2);
+        IRPrinter::print(function->block, var_name, indent + 2);
         std::cout << "}\n";
     } else {
         std::cout << ";\n";

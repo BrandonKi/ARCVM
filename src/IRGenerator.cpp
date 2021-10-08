@@ -9,8 +9,7 @@ Module* IRGenerator::create_module() {
     return new Module{};
 }
 
-// FIXME URGENT this returns a pointer to memory owned by vector
-// that means the pointer to it will get invalidated on resize
+// TODO use allocator
 Function* Module::gen_function_def(std::string name, std::vector<Type> parameters, Type return_type) {
     ARCVM_PROFILE();
     auto* func = new Function{name, true, std::move(parameters), return_type, {}};

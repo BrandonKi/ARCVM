@@ -122,7 +122,7 @@ inline static bool mul_vars() {
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 50;
@@ -149,7 +149,7 @@ inline static bool div_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 10;
@@ -176,7 +176,7 @@ inline static bool mod_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 6;
@@ -203,7 +203,7 @@ inline static bool bin_or_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 3;
@@ -230,7 +230,7 @@ inline static bool bin_and_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 3;
@@ -257,7 +257,7 @@ inline static bool bin_xor_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 4;
@@ -284,7 +284,7 @@ inline static bool lshift_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 12;
@@ -311,7 +311,7 @@ inline static bool rshift_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 3;
@@ -338,7 +338,7 @@ inline static bool lt_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -365,7 +365,7 @@ inline static bool gt_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -392,7 +392,7 @@ inline static bool lte_vars1() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -419,7 +419,7 @@ inline static bool lte_vars2() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -446,7 +446,7 @@ inline static bool lte_vars3() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -473,7 +473,7 @@ inline static bool gte_vars1() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -500,7 +500,7 @@ inline static bool gte_vars2() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -527,7 +527,7 @@ inline static bool gte_vars3() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -554,7 +554,7 @@ inline static bool log_or_vars1() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -581,7 +581,7 @@ inline static bool log_or_vars2() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -608,7 +608,7 @@ inline static bool log_or_vars3() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -635,7 +635,7 @@ inline static bool log_or_vars4() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -662,7 +662,7 @@ inline static bool log_and_vars1() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -689,7 +689,7 @@ inline static bool log_and_vars2() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -716,7 +716,7 @@ inline static bool log_and_vars3() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -743,7 +743,7 @@ inline static bool log_and_vars4() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -770,7 +770,7 @@ inline static bool log_xor_vars1() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -797,7 +797,7 @@ inline static bool log_xor_vars2() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -824,7 +824,7 @@ inline static bool log_xor_vars3() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 1;
@@ -851,7 +851,7 @@ inline static bool log_xor_vars4() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 0;
@@ -879,7 +879,7 @@ inline static bool index_stack_buffer1() {
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 200;
@@ -907,7 +907,7 @@ inline static bool index_stack_buffer2() {
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy)
-        IRPrinter::print(main);
+        IRPrinter::print(main_module);
 
     IRInterpreter interp(main_module);
     return interp.run() == 200;

@@ -19,7 +19,7 @@ void print_report() {
 
 template <std::invocable T>
 void run_named_test(std::string_view name, T test) {
-    // ARCVM_PROFILE();
+    ARCVM_PROFILE();
     if(test()) {
         std::unique_lock<std::mutex> lock(cout_mutex);
         std::cout << name << '\t' << cprint::fmt("pass", cprint::BRIGHT_GREEN) << '\n';
@@ -1042,6 +1042,7 @@ using namespace std::literals;
 
 // TODO use thread pool for running tests
 int main(int argc, char *argv[]) {
+    ARCVM_PROFILE();
     if(argc > 1 && "-noisy"sv == argv[1])
         noisy = true;
 

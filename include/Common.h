@@ -267,7 +267,6 @@ static std::string to_string(Attribute attribute) {
 
 struct Function {
     std::string name;
-    bool is_complete;
     std::vector<Type> parameters;
     Type return_type;
     std::vector<Attribute> attributes;

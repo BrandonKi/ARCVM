@@ -34,7 +34,6 @@ void run_named_test(std::string_view name, T test) {
 
 #define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
 
-
 inline static bool create_var() {
     ARCVM_PROFILE();
     IRGenerator gen;
@@ -55,6 +54,7 @@ inline static bool create_var() {
     IRInterpreter interp(main_module);
     return interp.run() == 10;
 }
+
 inline static bool add_vars() {
     ARCVM_PROFILE();
     IRGenerator gen;
@@ -1085,13 +1085,10 @@ int main(int argc, char *argv[]) {
     run_test(arcvm_api_test);
     test_thread_pool.~ThreadPool();
     print_report();
-    // std::cin.get();
-    // std::cin.get();
-    // std::cin.get();
 }
 
 
-// this design would allow for easier multithreaded IR generation
+//~ this design would allow for easier multithreaded IR generation
 // since the IRGenerators have no dependency on the vm or each other
 /*
 IRGenerator gen;
@@ -1121,19 +1118,18 @@ vm.jit();
 
 */
 
-
-// currently there is no way to refer to basic blocks
-// this is an issue because it makes generating control flow structures
+//~ currently there is no way to refer to basic blocks
+// this is an issue because it makes generating control flow structures impossible
 // for example statements like if-elseif-else-then, for, while, etc.
 //
-// mabye only let labels/basicblocks be created at function level
+// maybe only let labels/basicblocks be created at function level
 // then whatever code is calling a gen_inst will have to create explicity create a basic block
 // this will then give them a way to reference the block
 // problem solved
 // then higher-level contructs can take basicblock pointers as arugments
 // as long as the basicblocks are local to the current block there should be no issues
 //
-// this will also make phi nodes possible implement
+// this will also make phi nodes possible to implement
 //
 // something to think about:
 // phi nodes can somewhat be "replaced" by pointers in some cases
@@ -1144,8 +1140,8 @@ vm.jit();
 // hmmm, actually a language without pointers may have a harder time trying to do this
 // let's start with having users generate phi nodes
 // it will allow for easier optimization in the backend and it's less to think about for the frontend
-/*
 
+/*
 // new function gen api
 // this should handle label creation
 create_basicblock()
@@ -1163,10 +1159,11 @@ basicblock->gen_inst(...);
 basicblock->gen_if(BasicBlock, BasicBlock, BasicBlock);
 // basicblock->gen_loop(header, body, then);
 basicblock->gen_loop(BasicBlock, BasicBlock, BasicBlock);
-
 */
 
-// an aritfact from the old design is the gen_function_def() function
+//~ an aritfact from the old design is the gen_function_def() function
 // at this point it should just take a Block as a parameter
-// at the momentit just handles the header stuff and let's
+// at the moment it just handles the header stuff and let's
 // the user generate the code directly
+
+//~

@@ -12,7 +12,7 @@ Module* IRGenerator::create_module() {
 // TODO use allocator
 Function* Module::gen_function_def(std::string name, std::vector<Type> parameters, Type return_type) {
     ARCVM_PROFILE();
-    auto* func = new Function{name, true, std::move(parameters), return_type, {}};
+    auto* func = new Function{name, std::move(parameters), return_type, {}};
     auto* block = func->get_block();
     block->new_basic_block(name);
     functions.push_back(func);
@@ -27,6 +27,10 @@ BasicBlock* Block::new_basic_block(std::string label_name) {
     auto* new_block = new BasicBlock(std::move(label_name), std::vector<Entry*>{}, var_name);
     blocks.push_back(new_block);
     return new_block;
+}
+
+If* Block::gen_if(BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block) {
+    return nullptr;
 }
 
 // TODO implement this

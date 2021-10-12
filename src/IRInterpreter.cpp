@@ -17,12 +17,10 @@ void IRInterpreter::build_jump_table(Module* module) {
             if (attribute == Attribute::entrypoint)
                 entrypoint_name = function->name;
         }
-        if (function->is_complete) {
-            for (size_t i = 0; i < function->block->blocks.size(); ++i) {
-                auto* basicblock = function->block->blocks[i];
-                jump_table.emplace(basicblock->label.name, IRLocation{function->block, i});
-                function_table.emplace(basicblock->label.name, function);
-            }
+        for (size_t i = 0; i < function->block->blocks.size(); ++i) {
+            auto* basicblock = function->block->blocks[i];
+            jump_table.emplace(basicblock->label.name, IRLocation{function->block, i});
+            function_table.emplace(basicblock->label.name, function);
         }
     }
 }

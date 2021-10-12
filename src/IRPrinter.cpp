@@ -15,13 +15,9 @@ void IRPrinter::print(Function* function, i32 var_name, i32 indent) {
     std::cout << "define function " << function->name;
     IRPrinter::print(function->parameters, var_name);
     std::cout << " -> " << to_string(function->return_type);
-    if (function->is_complete) {
-        std::cout << " {\n";
-        IRPrinter::print(function->block, var_name, indent + 2);
-        std::cout << "}\n";
-    } else {
-        std::cout << ";\n";
-    }
+    std::cout << " {\n";
+    IRPrinter::print(function->block, var_name, indent + 2);
+    std::cout << "}\n";
 }
 
 void IRPrinter::print(std::vector<Type>& parameters, i32& var_name, i32 indent) {

@@ -8,6 +8,14 @@
 
 using namespace arcvm;
 
+//#define POOL
+
+#ifdef POOL
+#define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
+#else
+#define run_test(name) run_named_test(#name, name)
+#endif
+
 static bool noisy = false;
 static std::atomic<i32> passed_tests = 0;
 static std::atomic<i32> failed_tests = 0;
@@ -17,22 +25,27 @@ void print_report() {
     std::cout << passed_tests << "/" << (passed_tests + failed_tests) << " tests passed\n";
 }
 
+// there's a lot of lock contention here, not much I can do about it though
+// the locks are already held for as little time as possible
 template <std::invocable T>
 void run_named_test(std::string_view name, T test) {
     ARCVM_PROFILE();
     if(test()) {
+        static auto str = cprint::fmt("pass", cprint::BRIGHT_GREEN);
         std::unique_lock<std::mutex> lock(cout_mutex);
-        std::cout << name << '\t' << cprint::fmt("pass", cprint::BRIGHT_GREEN) << '\n';
+        std::cout << name << '\t' << str << '\n';
+        lock.unlock();
         ++passed_tests;
     }
     else {
+        static auto str = cprint::fmt("fail", cprint::BRIGHT_RED);
         std::unique_lock<std::mutex> lock(cout_mutex);
-        std::cout << name << '\t' << cprint::fmt("fail", cprint::BRIGHT_RED) << '\n';
+        std::cout << name << '\t' << str  << '\n';
+        lock.unlock();
         ++failed_tests;
     }
 }
 
-#define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
 
 inline static bool create_var() {
     ARCVM_PROFILE();
@@ -1038,15 +1051,47 @@ inline static bool arcvm_api_test() {
     return vm.run() == 0;
 }
 
+
+inline static bool branch() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto* if_block = fn_body->new_basic_block("if_block");
+    if_block->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 1}});
+    if_block->gen_inst(Instruction::br, {Value{new std::string("then_block")}});
+    auto* else_block = fn_body->new_basic_block("else_block");
+    else_block->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 2}});
+    else_block->gen_inst(Instruction::br, {Value{new std::string("then_block")}});
+    auto* then_block = fn_body->new_basic_block("then_block");
+    auto val = then_block->gen_inst(Instruction::load, {val_ptr});
+    then_block->gen_inst(Instruction::ret, {val});
+
+    if(noisy) {
+        std::unique_lock<std::mutex> lock(cout_mutex);
+        IRPrinter::print(main_module);
+    }
+
+    //IRInterpreter interp(main_module);
+    //return interp.run() == 10;
+    return false;
+}
+
+
 using namespace std::literals;
 
-// TODO use thread pool for running tests
 int main(int argc, char *argv[]) {
     ARCVM_PROFILE();
     if(argc > 1 && "-noisy"sv == argv[1])
         noisy = true;
 
+    #ifdef POOL
     ThreadPool test_thread_pool;
+    #endif
 
     run_test(create_var);
     run_test(add_vars);
@@ -1083,10 +1128,14 @@ int main(int argc, char *argv[]) {
     run_test(index_stack_buffer2);
     run_test(no_arg_function_call);
     run_test(arcvm_api_test);
+    run_test(branch);
+
+    #ifdef POOL
     test_thread_pool.~ThreadPool();
+    #endif
+
     print_report();
 }
-
 
 //~ this design would allow for easier multithreaded IR generation
 // since the IRGenerators have no dependency on the vm or each other
@@ -1166,4 +1215,31 @@ basicblock->gen_loop(BasicBlock, BasicBlock, BasicBlock);
 // at the moment it just handles the header stuff and let's
 // the user generate the code directly
 
-//~
+//~ Block::gen_if
+/*
+
+Value cond, BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block
+
+cond: codegen is inserted into the preceding BasicBlock
+
+if_block: is jumped to when the cond is non-zero
+
+else_block: is jumped to when cond is zero
+
+then_block: is jumped to after if_block or else_block is executed
+
+       fn(...)
+       #fn
+       ...
+       #bb1
+       ...
++---+--brz cond, #if_block1, #else_block
+|   +->#if_block
+|      ...
+|  +---br #then_block1
++--+-->#else_block1
+   |   ...
+   | +-br #then_block1
+   +-+>#then_block1
+       ...
+*/

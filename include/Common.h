@@ -45,7 +45,8 @@ enum class Instruction : i8 {
 
     index,
 
-    branch,
+    br,
+    brz,
 
     add,
     sub,
@@ -80,8 +81,10 @@ static std::string to_string(Instruction instruction) {
             return "ret";
         case Instruction::index:
             return "index";
-        case Instruction::branch:
-            return "branch";
+        case Instruction::br:
+            return "br";
+        case Instruction::brz:
+            return "brz";
         case Instruction::add:
             return "add";
         case Instruction::sub:
@@ -194,7 +197,7 @@ static i32 type_size(Type type) {
     }
 }
 
-enum class ValueType : i8 { none, pointer, reference, immediate, type, table_index };
+enum class ValueType : i8 { none, pointer, reference, immediate, type, table_index, label };
 
 // FIXME does not work with float immediate values
 struct Value {
@@ -215,6 +218,7 @@ struct Value {
     Value(ValueType type, void* ptr): type(type), pointer_value((uintptr_t)ptr) {}
     Value(ValueType type, Type type_value): type(type), type_value(type_value) {}
     Value(Type type_value): type(ValueType::type), type_value(type_value) {}
+    Value(std::string* label_name): type(ValueType::label), label_value(label_name) {}
 };
 
 struct Entry {
@@ -251,7 +255,7 @@ struct Block {
 
     BasicBlock* new_basic_block(std::string);
     BasicBlock* get_bblock() { return blocks.back(); }
-    If* gen_if(BasicBlock*, BasicBlock*, BasicBlock*);
+    If* gen_if(Value, BasicBlock*, BasicBlock*, BasicBlock*);
 };
 
 enum class Attribute : i8 { entrypoint };

@@ -29,8 +29,10 @@ BasicBlock* Block::new_basic_block(std::string label_name) {
     return new_block;
 }
 
-If* Block::gen_if(BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block) {
-    return nullptr;
+If* Block::gen_if(Value cond, BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block) {
+
+    auto if_expr = new If{if_block, else_block, then_block};
+    return if_expr;
 }
 
 // TODO implement this
@@ -67,9 +69,6 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values) {
             entries.push_back(new Entry{Value{ValueType::reference, var_name}, instruction, values});
             ++var_name;
             return entries.back()->dest;
-        case Instruction::branch:
-            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
-            return entries.back()->dest;
         case Instruction::index:
             entries.push_back(new Entry{Value{ValueType::pointer, var_name}, instruction, values});
             ++var_name;
@@ -91,6 +90,12 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values) {
             ++var_name;
             return entries.back()->dest;
         case Instruction::store:
+            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            return entries.back()->dest;
+        case Instruction::br:
+            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            return entries.back()->dest;
+        case Instruction::brz:
             entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
             return entries.back()->dest;
         default:

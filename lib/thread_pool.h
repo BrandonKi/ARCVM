@@ -41,10 +41,7 @@ class ThreadPool {
     }
 
     ~ThreadPool() {
-        {
-            std::unique_lock<std::mutex> lock(queue_mutex);
-            exit = true;
-        }
+        exit = true;
         manager.notify_all();
         for (auto& thread : pool)
             thread.join();

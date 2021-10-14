@@ -1052,7 +1052,7 @@ inline static bool arcvm_api_test() {
 }
 
 
-inline static bool branch() {
+inline static bool manual_branch() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -1060,7 +1060,11 @@ inline static bool branch() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
+    auto cond_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
+    bblock->gen_inst(Instruction::store, {cond_ptr, Value{ValueType::immediate, 1}});
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    bblock->gen_inst(Instruction::brz, {cond_val,{Value{new std::string("if_block")}},{Value{new std::string("else_block")}}});
     auto* if_block = fn_body->new_basic_block("if_block");
     if_block->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 1}});
     if_block->gen_inst(Instruction::br, {Value{new std::string("then_block")}});
@@ -1076,8 +1080,8 @@ inline static bool branch() {
         IRPrinter::print(main_module);
     }
 
-    //IRInterpreter interp(main_module);
-    //return interp.run() == 10;
+    IRInterpreter interp(main_module);
+    return interp.run() == 2;
     return false;
 }
 
@@ -1128,7 +1132,7 @@ int main(int argc, char *argv[]) {
     run_test(index_stack_buffer2);
     run_test(no_arg_function_call);
     run_test(arcvm_api_test);
-    run_test(branch);
+    run_test(manual_branch);
 
     #ifdef POOL
     test_thread_pool.~ThreadPool();
@@ -1136,110 +1140,3 @@ int main(int argc, char *argv[]) {
 
     print_report();
 }
-
-//~ this design would allow for easier multithreaded IR generation
-// since the IRGenerators have no dependency on the vm or each other
-/*
-IRGenerator gen;
-
-...
-
-IRModule m1 = gen.create_module();
-gen.clear();
-
-...
-
-IRModule m2 = gen.create_module();
-
-Arcvm vm;
-vm.load_module(m1);
-vm.load_module(m2);
-
-// interpret
-i32 ec = vm.run();
-
-// create a binary file
-vm.compile();
-
-// jit compile and run
-vm.jit();
-
-
-*/
-
-//~ currently there is no way to refer to basic blocks
-// this is an issue because it makes generating control flow structures impossible
-// for example statements like if-elseif-else-then, for, while, etc.
-//
-// maybe only let labels/basicblocks be created at function level
-// then whatever code is calling a gen_inst will have to create explicity create a basic block
-// this will then give them a way to reference the block
-// problem solved
-// then higher-level contructs can take basicblock pointers as arugments
-// as long as the basicblocks are local to the current block there should be no issues
-//
-// this will also make phi nodes possible to implement
-//
-// something to think about:
-// phi nodes can somewhat be "replaced" by pointers in some cases
-// what do I want to do about this????
-// obviously there will be a canonicalization pass
-// however do I want to generate this instead of phi nodes by default?
-// it could potentially make IR gen easier for the front end
-// hmmm, actually a language without pointers may have a harder time trying to do this
-// let's start with having users generate phi nodes
-// it will allow for easier optimization in the backend and it's less to think about for the frontend
-
-/*
-// new function gen api
-// this should handle label creation
-create_basicblock()
-// allow pushing/popping/reordering elements in the list???
-get_basic_block_list()
-
-
-// I don't see much of a reason to provide a public gen api for blocks
-// at the moment it is purely used as a function body, so
-// the function api can handle it
-
-// new basic block api
-basicblock->gen_inst(...);
-// basicblock->gen_if(if, else, then);
-basicblock->gen_if(BasicBlock, BasicBlock, BasicBlock);
-// basicblock->gen_loop(header, body, then);
-basicblock->gen_loop(BasicBlock, BasicBlock, BasicBlock);
-*/
-
-//~ an aritfact from the old design is the gen_function_def() function
-// at this point it should just take a Block as a parameter
-// at the moment it just handles the header stuff and let's
-// the user generate the code directly
-
-//~ Block::gen_if
-/*
-
-Value cond, BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block
-
-cond: codegen is inserted into the preceding BasicBlock
-
-if_block: is jumped to when the cond is non-zero
-
-else_block: is jumped to when cond is zero
-
-then_block: is jumped to after if_block or else_block is executed
-
-       fn(...)
-       #fn
-       ...
-       #bb1
-       ...
-+---+--brz cond, #if_block1, #else_block
-|   +->#if_block
-|      ...
-|  +---br #then_block1
-+--+-->#else_block1
-   |   ...
-   | +-br #then_block1
-   +-+>#then_block1
-       ...
-*/

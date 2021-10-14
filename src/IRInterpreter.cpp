@@ -19,7 +19,7 @@ void IRInterpreter::build_jump_table(Module* module) {
         }
         for (size_t i = 0; i < function->block->blocks.size(); ++i) {
             auto* basicblock = function->block->blocks[i];
-            jump_table.emplace(basicblock->label.name, IRLocation{function->block, i});
+            jump_table.emplace(basicblock->label.name, basicblock);
             function_table.emplace(basicblock->label.name, function);
         }
     }
@@ -75,14 +75,12 @@ Value IRInterpreter::run_basicblock(BasicBlock* basicblock) {
 Value IRInterpreter::run_entry(Entry* entry) {
     // ARCVM_PROFILE();
     switch (entry->instruction) {
-        case Instruction::alloc:
-        {
+        case Instruction::alloc: {
             auto num_bytes = type_size(entry->arguments[0].type_value);
             ir_register.back()[entry->dest.value] = Value(ValueType::pointer, malloc(num_bytes));
             break;
         }
-        case Instruction::load:
-        {
+        case Instruction::load: {
             // FIXME wow this workaround is hideous
             // not much I can do though
             auto load = [&]<std::integral T>(T t) {
@@ -118,8 +116,7 @@ Value IRInterpreter::run_entry(Entry* entry) {
             }
             break;
         }
-        case Instruction::store:
-        {
+        case Instruction::store: {
             // another hideous workaround :)
             auto store = [&]<std::integral T>(T t) {
                 if (entry->arguments[1].type == ValueType::immediate) {
@@ -160,19 +157,31 @@ Value IRInterpreter::run_entry(Entry* entry) {
             }
             break;
         }
-        case Instruction::call:
-        {
+        case Instruction::call: {
             // TODO finalize plans for symbol_table etc.
             ir_register.back()[entry->dest.value] = run_function(function_table.at("func"));
             break;
         }
-        case Instruction::ret:
-        {
+        case Instruction::ret: {
             // assumes you are returning an index
             return ir_register.back()[entry->arguments[0].value];
         }
-        case Instruction::index:
-        {
+        case Instruction::br: {
+            auto* label_name = entry->arguments[0].label_value;
+            run_basicblock(jump_table[*label_name]);
+            break;
+        }
+        case Instruction::brz: {
+            auto val = entry->arguments[0].value;
+            auto* label_name = entry->arguments[1].label_value;
+            auto* label_name2 = entry->arguments[2].label_value;
+            if(val == 0)
+                run_basicblock(jump_table[*label_name]);
+            else
+                run_basicblock(jump_table[*label_name2]);
+            break;
+        }
+        case Instruction::index: {
             // TODO clean this up
             auto* ptr = reinterpret_cast<i8*>(ir_register.back()[entry->arguments[0].value].pointer_value);
             if(entry->arguments[1].type == ValueType::immediate) {
@@ -184,120 +193,105 @@ Value IRInterpreter::run_entry(Entry* entry) {
             ir_register.back()[entry->dest.value].pointer_value = (uintptr_t)ptr;
             break;
         }
-        case Instruction::add:
-        {
+        case Instruction::add: {
             // FIXME assumes we are using references
             auto sum = ir_register.back()[entry->arguments[0].value].value +
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, sum};
             break;
         }
-        case Instruction::sub:
-        {
+        case Instruction::sub: {
             // FIXME assumes we are using references
             auto sum = ir_register.back()[entry->arguments[0].value].value -
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, sum};
             break;
         }
-        case Instruction::mul:
-        {
+        case Instruction::mul: {
             // FIXME assumes we are using references
             auto sum = ir_register.back()[entry->arguments[0].value].value *
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, sum};
             break;
         }
-        case Instruction::div:
-        {
+        case Instruction::div: {
             // FIXME assumes we are using references
             auto sum = ir_register.back()[entry->arguments[0].value].value /
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, sum};
             break;
         }
-        case Instruction::mod:
-        {
+        case Instruction::mod: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value %
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::bin_or:
-        {
+        case Instruction::bin_or: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value |
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::bin_and:
-        {
+        case Instruction::bin_and: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value &
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::bin_xor:
-        {
+        case Instruction::bin_xor: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value ^
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::lshift:
-        {
+        case Instruction::lshift: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value <<
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::rshift:
-        {
+        case Instruction::rshift: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value >>
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::lt:
-        {
+        case Instruction::lt: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value <
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::gt:
-        {
+        case Instruction::gt: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value >
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::lte:
-        {
+        case Instruction::lte: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value <=
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::gte:
-        {
+        case Instruction::gte: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value >=
                         ir_register.back()[entry->arguments[1].value].value;
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::log_or:
-        {
+        case Instruction::log_or: {
             // FIXME assumes we are using references
             // FIXME doesn't do short circuiting
             auto result = ir_register.back()[entry->arguments[0].value].value ||
@@ -305,8 +299,7 @@ Value IRInterpreter::run_entry(Entry* entry) {
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::log_and:
-        {
+        case Instruction::log_and: {
             // FIXME assumes we are using references
             // FIXME doesn't do short circuiting
             auto result = ir_register.back()[entry->arguments[0].value].value &&
@@ -314,8 +307,7 @@ Value IRInterpreter::run_entry(Entry* entry) {
             ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
             break;
         }
-        case Instruction::log_xor:
-        {
+        case Instruction::log_xor: {
             // FIXME assumes we are using references
             // FIXME doesn't do short circuiting
             // actually I'm pretty sure logical xor can't do short circuiting

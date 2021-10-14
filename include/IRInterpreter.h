@@ -21,7 +21,7 @@ class IRInterpreter {
 
   private:
     Module* module_;
-    std::unordered_map<std::string, IRLocation> jump_table;
+    std::unordered_map<std::string, BasicBlock*> jump_table;
     std::unordered_map<std::string, Function*> function_table;
     std::string entrypoint_name;
 

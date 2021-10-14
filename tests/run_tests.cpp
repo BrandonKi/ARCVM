@@ -55,12 +55,14 @@ inline static bool create_var() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
     bblock->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 10}});
     auto val = bblock->gen_inst(Instruction::load, {val_ptr});
     bblock->gen_inst(Instruction::ret, {val});
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -76,11 +78,11 @@ inline static bool add_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 10}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 10}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{10}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{10}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::add, {op1, op2});
@@ -89,7 +91,9 @@ inline static bool add_vars() {
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -105,11 +109,11 @@ inline static bool sub_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 100}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 10}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{100}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{10}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::sub, {op1, op2});
@@ -118,7 +122,9 @@ inline static bool sub_vars() {
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -134,11 +140,11 @@ inline static bool mul_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 5}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 10}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{5}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{10}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::mul, {op1, op2});
@@ -147,7 +153,9 @@ inline static bool mul_vars() {
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -163,11 +171,11 @@ inline static bool div_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 70}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 7}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{70}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{7}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::div, {op1, op2});
@@ -176,7 +184,9 @@ inline static bool div_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -192,11 +202,11 @@ inline static bool mod_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 76}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 7}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{76}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{7}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::mod, {op1, op2});
@@ -205,7 +215,9 @@ inline static bool mod_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -221,11 +233,11 @@ inline static bool bin_or_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 1}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 2}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{1}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{2}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::bin_or, {op1, op2});
@@ -234,7 +246,9 @@ inline static bool bin_or_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -250,11 +264,11 @@ inline static bool bin_and_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 3}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 7}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{3}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{7}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::bin_and, {op1, op2});
@@ -263,7 +277,9 @@ inline static bool bin_and_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -279,11 +295,11 @@ inline static bool bin_xor_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 3}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 7}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{3}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{7}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::bin_xor, {op1, op2});
@@ -292,7 +308,9 @@ inline static bool bin_xor_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -308,11 +326,11 @@ inline static bool lshift_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 3}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 2}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{3}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{2}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::lshift, {op1, op2});
@@ -321,7 +339,9 @@ inline static bool lshift_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -337,11 +357,11 @@ inline static bool rshift_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 7}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{7}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::rshift, {op1, op2});
@@ -350,7 +370,9 @@ inline static bool rshift_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -366,11 +388,11 @@ inline static bool lt_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{25}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::lt, {op1, op2});
@@ -379,7 +401,9 @@ inline static bool lt_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -395,11 +419,11 @@ inline static bool gt_vars() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{25}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::gt, {op1, op2});
@@ -408,7 +432,9 @@ inline static bool gt_vars() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -424,11 +450,11 @@ inline static bool lte_vars1() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 25}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{25}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{25}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::lte, {op1, op2});
@@ -437,7 +463,9 @@ inline static bool lte_vars1() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -453,11 +481,11 @@ inline static bool lte_vars2() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{25}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::lte, {op1, op2});
@@ -466,7 +494,9 @@ inline static bool lte_vars2() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -482,11 +512,11 @@ inline static bool lte_vars3() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 1}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 25}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{1}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{25}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::lte, {op1, op2});
@@ -495,7 +525,9 @@ inline static bool lte_vars3() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -511,11 +543,11 @@ inline static bool gte_vars1() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 25}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{25}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{25}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::gte, {op1, op2});
@@ -524,7 +556,9 @@ inline static bool gte_vars1() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -540,11 +574,11 @@ inline static bool gte_vars2() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 25}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{25}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::gte, {op1, op2});
@@ -553,7 +587,9 @@ inline static bool gte_vars2() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -569,11 +605,11 @@ inline static bool gte_vars3() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 1}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 25}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{1}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{25}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::gte, {op1, op2});
@@ -582,7 +618,9 @@ inline static bool gte_vars3() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -598,11 +636,11 @@ inline static bool log_or_vars1() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 1}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 0}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{1}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{0}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_or, {op1, op2});
@@ -611,7 +649,9 @@ inline static bool log_or_vars1() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -627,11 +667,11 @@ inline static bool log_or_vars2() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 100}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 333}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{100}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{333}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_or, {op1, op2});
@@ -640,7 +680,9 @@ inline static bool log_or_vars2() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -656,11 +698,11 @@ inline static bool log_or_vars3() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 0}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{0}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_or, {op1, op2});
@@ -669,7 +711,9 @@ inline static bool log_or_vars3() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -685,11 +729,11 @@ inline static bool log_or_vars4() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 0}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 0}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{0}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{0}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_or, {op1, op2});
@@ -698,7 +742,9 @@ inline static bool log_or_vars4() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -714,11 +760,11 @@ inline static bool log_and_vars1() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 1}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 0}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{1}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{0}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_and, {op1, op2});
@@ -727,7 +773,9 @@ inline static bool log_and_vars1() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -743,11 +791,11 @@ inline static bool log_and_vars2() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 100}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 333}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{100}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{333}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_and, {op1, op2});
@@ -756,7 +804,9 @@ inline static bool log_and_vars2() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -772,11 +822,11 @@ inline static bool log_and_vars3() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 0}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{0}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_and, {op1, op2});
@@ -785,7 +835,9 @@ inline static bool log_and_vars3() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -801,11 +853,11 @@ inline static bool log_and_vars4() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 0}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 0}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{0}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{0}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_and, {op1, op2});
@@ -814,7 +866,9 @@ inline static bool log_and_vars4() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -830,11 +884,11 @@ inline static bool log_xor_vars1() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 1}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 0}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{1}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{0}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_xor, {op1, op2});
@@ -843,7 +897,9 @@ inline static bool log_xor_vars1() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -859,11 +915,11 @@ inline static bool log_xor_vars2() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 100}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 333}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{100}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{333}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_xor, {op1, op2});
@@ -872,7 +928,9 @@ inline static bool log_xor_vars2() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -888,11 +946,11 @@ inline static bool log_xor_vars3() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 0}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 1}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{0}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_xor, {op1, op2});
@@ -901,7 +959,9 @@ inline static bool log_xor_vars3() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -917,11 +977,11 @@ inline static bool log_xor_vars4() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 0}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 0}});
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto result_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{0}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{0}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
     auto tmp = bblock->gen_inst(Instruction::log_xor, {op1, op2});
@@ -930,7 +990,9 @@ inline static bool log_xor_vars4() {
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -946,12 +1008,12 @@ inline static bool index_stack_buffer1() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i64}});
-    auto op1_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, Value{ValueType::immediate, 0}});
-    auto op2_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, Value{ValueType::immediate, 4}});
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 100}, Value{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 100}, Value{Type::ir_i32}});
+    auto op1_op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i64}});
+    auto op1_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, Value{ 0}});
+    auto op2_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, Value{4}});
+    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{100}, Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{100}, Value{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, Value{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, Value{Type::ir_i32}});
     auto tmp = bblock->gen_inst(Instruction::add, {op1, op2});
@@ -960,7 +1022,9 @@ inline static bool index_stack_buffer1() {
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -976,12 +1040,12 @@ inline static bool index_stack_buffer2() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto op1_op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i64}});
-    auto op1_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, Value{ValueType::immediate, 0}});
-    auto op2_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, Value{ValueType::immediate, 4}});
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, Value{ValueType::immediate, 100}, Value{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, Value{ValueType::immediate, 100}, Value{Type::ir_i32}});
+    auto op1_op2_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i64}});
+    auto op1_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, Value{0}});
+    auto op2_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, Value{4}});
+    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, Value{100}, Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, Value{100}, Value{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, Value{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, Value{Type::ir_i32}});
     auto tmp = bblock->gen_inst(Instruction::add, {op1, op2});
@@ -990,7 +1054,9 @@ inline static bool index_stack_buffer2() {
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -1019,7 +1085,9 @@ inline static bool no_arg_function_call() {
     bblock2->gen_inst(Instruction::ret, {val});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -1035,8 +1103,8 @@ inline static bool arcvm_api_test() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 0}});
+    auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {val_ptr, Value{0}});
     auto val = bblock->gen_inst(Instruction::load, {val_ptr});
     bblock->gen_inst(Instruction::ret, {val});
 
@@ -1044,7 +1112,9 @@ inline static bool arcvm_api_test() {
     vm.load_module(main_module);
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
@@ -1060,29 +1130,30 @@ inline static bool manual_branch() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto cond_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto cond_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
     auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
-    bblock->gen_inst(Instruction::store, {cond_ptr, Value{ValueType::immediate, 1}});
-    auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {cond_ptr, Value{1}});
+    auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
     bblock->gen_inst(Instruction::brz, {cond_val,{Value{new std::string("if_block")}},{Value{new std::string("else_block")}}});
     auto* if_block = fn_body->new_basic_block("if_block");
-    if_block->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 1}});
+    if_block->gen_inst(Instruction::store, {val_ptr, Value{1}});
     if_block->gen_inst(Instruction::br, {Value{new std::string("then_block")}});
     auto* else_block = fn_body->new_basic_block("else_block");
-    else_block->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 2}});
+    else_block->gen_inst(Instruction::store, {val_ptr, Value{2}});
     else_block->gen_inst(Instruction::br, {Value{new std::string("then_block")}});
     auto* then_block = fn_body->new_basic_block("then_block");
     auto val = then_block->gen_inst(Instruction::load, {val_ptr});
     then_block->gen_inst(Instruction::ret, {val});
 
     if(noisy) {
+        #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
+        #endif
         IRPrinter::print(main_module);
     }
 
     IRInterpreter interp(main_module);
     return interp.run() == 2;
-    return false;
 }
 
 

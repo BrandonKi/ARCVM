@@ -21,18 +21,52 @@ Function* Module::gen_function_def(std::string name, std::vector<Type> parameter
 
 // Function* gen_aggregate_def(std::string, std::vector<Type>);
 
+void Block::set_insertion_point(BasicBlock* bb) {
+    for(i32 i = 0; i < blocks.size(); ++i)
+        if(blocks[i] == bb)
+            insertion_point = i;
+}
+
+void Block::set_insertion_point(std::string label) {
+    for(i32 i = 0; i < blocks.size(); ++i)
+        if(blocks[i]->label.name == label)
+            insertion_point = i;
+}
+
+void Block::set_insertion_point(i32 new_point) {
+    insertion_point = new_point;
+}
+
+BasicBlock* Block::new_basic_block() {
+    ARCVM_PROFILE();
+    auto* new_block = new_basic_block(std::to_string(label_name));
+    ++label_name;
+    return new_block;
+}
+
 // TODO use allocator
 BasicBlock* Block::new_basic_block(std::string label_name) {
     ARCVM_PROFILE();
     auto* new_block = new BasicBlock(std::move(label_name), std::vector<Entry*>{}, var_name);
-    blocks.push_back(new_block);
+    ++insertion_point;
+    if(blocks.empty())
+        blocks.push_back(new_block);
+    else
+        blocks.insert(blocks.cbegin() + insertion_point, new_block);
     return new_block;
 }
 
-If* Block::gen_if(Value cond, BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block) {
-
-    auto if_expr = new If{if_block, else_block, then_block};
-    return if_expr;
+// make sure we are done writing to if_block and else_block
+// this generates the final jump out of the block
+void Block::gen_if(Value cond, BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block) {
+    ARCVM_PROFILE();
+    auto* bblock = blocks[insertion_point];
+    auto* if_block_name = new std::string(if_block->label.name);
+    auto* else_block_name = new std::string(else_block->label.name);
+    bblock->gen_inst(Instruction::brz, {cond,{Value{if_block_name}},{Value{else_block_name}}});
+    auto* then_block_name = new std::string(then_block->label.name);
+    if_block->gen_inst(Instruction::br, {Value{then_block_name}});
+    else_block->gen_inst(Instruction::br, {Value{then_block_name}});
 }
 
 // TODO implement this

@@ -1156,6 +1156,88 @@ inline static bool manual_branch() {
     return interp.run() == 2;
 }
 
+inline static bool branch_api() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto cond_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {cond_ptr, Value{0}});
+    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
+    auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+
+    auto* if_block = fn_body->new_basic_block("if_block");
+    auto* else_block = fn_body->new_basic_block("else_block");
+    auto* then_block = fn_body->new_basic_block("then_block");
+
+    // if
+    if_block->gen_inst(Instruction::store, {val_ptr, Value{1}});
+    // else
+    else_block->gen_inst(Instruction::store, {val_ptr, Value{2}});
+    // then
+    auto val = then_block->gen_inst(Instruction::load, {val_ptr});
+
+    fn_body->set_insertion_point(bblock);
+    fn_body->gen_if(cond_val, if_block, else_block, then_block);
+    then_block->gen_inst(Instruction::ret, {val});
+
+    if(noisy) {
+#ifdef POOL
+        std::unique_lock<std::mutex> lock(cout_mutex);
+#endif
+        IRPrinter::print(main_module);
+    }
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 1;
+}
+
+
+inline static bool branch_and_insertion_point_test() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto cond_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
+    bblock->gen_inst(Instruction::store, {cond_ptr, Value{1}});
+    auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto* if_block = fn_body->new_basic_block("if_block");
+    auto* else_block = fn_body->new_basic_block("else_block");
+    auto* then_block = fn_body->new_basic_block("then_block");
+
+    fn_body->set_insertion_point(if_block);
+    auto* i_block = fn_body->get_bblock();
+    i_block->gen_inst(Instruction::store, {val_ptr, Value{1}});
+
+    fn_body->set_insertion_point(else_block);
+    auto* e_block = fn_body->get_bblock();
+    e_block->gen_inst(Instruction::store, {val_ptr, Value{2}});
+
+    fn_body->set_insertion_point(bblock);
+    fn_body->gen_if(cond_val, if_block, else_block, then_block);
+
+    fn_body->set_insertion_point(then_block);
+    auto* t_block = fn_body->get_bblock();
+    auto val = t_block->gen_inst(Instruction::load, {val_ptr});
+    t_block->gen_inst(Instruction::ret, {val});
+
+    if(noisy) {
+#ifdef POOL
+        std::unique_lock<std::mutex> lock(cout_mutex);
+#endif
+        IRPrinter::print(main_module);
+    }
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 2;
+}
 
 using namespace std::literals;
 
@@ -1204,6 +1286,8 @@ int main(int argc, char *argv[]) {
     run_test(no_arg_function_call);
     run_test(arcvm_api_test);
     run_test(manual_branch);
+    run_test(branch_api);
+    run_test(branch_and_insertion_point_test);
 
     #ifdef POOL
     test_thread_pool.~ThreadPool();

@@ -105,3 +105,16 @@ then_block: is jumped to after if_block or else_block is executed
    +-+>#then_block1
        ...
 */
+
+//~
+/*
+need some way to change the "insertion point"
+at the moment the way to generate an if expression would
+be to make a bunch of free basic blocks then use gen_if to tie them together
+this design is not good
+
+instead providing an easy way to insert basic blocks in the middle of blocks would be better
+
+
+
+*/

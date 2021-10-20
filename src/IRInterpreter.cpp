@@ -168,18 +168,16 @@ Value IRInterpreter::run_entry(Entry* entry) {
         }
         case Instruction::br: {
             auto* label_name = entry->arguments[0].label_value;
-            run_basicblock(jump_table[*label_name]);
-            break;
+            return run_basicblock(jump_table[*label_name]);
         }
         case Instruction::brz: {
-            auto val = entry->arguments[0].value;
+            auto val = ir_register.back()[entry->arguments[0].value].value;
             auto* label_name = entry->arguments[1].label_value;
             auto* label_name2 = entry->arguments[2].label_value;
             if(val == 0)
-                run_basicblock(jump_table[*label_name]);
+                return run_basicblock(jump_table[*label_name]);
             else
-                run_basicblock(jump_table[*label_name2]);
-            break;
+                return run_basicblock(jump_table[*label_name2]);
         }
         case Instruction::index: {
             // TODO clean this up

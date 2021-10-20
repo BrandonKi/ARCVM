@@ -243,19 +243,19 @@ struct BasicBlock {
     Value gen_inst(Instruction, std::vector<Value>);
 };
 
-struct If {
-    BasicBlock* if_true;
-    BasicBlock* if_false;
-    BasicBlock* then;
-};
-
 struct Block {
     std::vector<BasicBlock*> blocks;
     i32 var_name = 0;
+    i32 label_name = 0;
+    i32 insertion_point = -1;
 
+    void set_insertion_point(BasicBlock*);
+    void set_insertion_point(std::string);
+    void set_insertion_point(i32);
+    BasicBlock* new_basic_block();
     BasicBlock* new_basic_block(std::string);
-    BasicBlock* get_bblock() { return blocks.back(); }
-    If* gen_if(Value, BasicBlock*, BasicBlock*, BasicBlock*);
+    BasicBlock* get_bblock() { return blocks[insertion_point]; }
+    void gen_if(Value, BasicBlock*, BasicBlock*, BasicBlock*);
 };
 
 enum class Attribute : i8 { entrypoint };

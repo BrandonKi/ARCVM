@@ -100,7 +100,7 @@ void IRPrinter::print(Value* value, i32 indent) {
             std::cout << to_string(value->type_value);
             break;
         case ValueType::label:
-            std::cout << *(value->label_value);
+            std::cout << "#" << *(value->label_value);
             break;
         default:
             break;

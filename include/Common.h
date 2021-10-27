@@ -47,6 +47,7 @@ enum class Instruction : i8 {
 
     br,
     brz,
+    brnz,
 
     add,
     sub,
@@ -85,6 +86,8 @@ static std::string to_string(Instruction instruction) {
             return "br";
         case Instruction::brz:
             return "brz";
+        case Instruction::brnz:
+            return "brnz";
         case Instruction::add:
             return "add";
         case Instruction::sub:

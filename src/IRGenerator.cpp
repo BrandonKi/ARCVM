@@ -63,7 +63,7 @@ void Block::gen_if(Value cond, BasicBlock* if_block, BasicBlock* else_block, Bas
     auto* bblock = blocks[insertion_point];
     auto* if_block_name = new std::string(if_block->label.name);
     auto* else_block_name = new std::string(else_block->label.name);
-    bblock->gen_inst(Instruction::brz, {cond,{Value{if_block_name}},{Value{else_block_name}}});
+    bblock->gen_inst(Instruction::brnz, {cond,{Value{if_block_name}},{Value{else_block_name}}});
     auto* then_block_name = new std::string(then_block->label.name);
     if_block->gen_inst(Instruction::br, {Value{then_block_name}});
     else_block->gen_inst(Instruction::br, {Value{then_block_name}});
@@ -80,6 +80,7 @@ Value BasicBlock::gen_inst(Instruction instruction, Value value) {
     return gen_inst(instruction, std::vector{value});
 }
 
+// FIXME there is a lot of code duplication here
 Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values) {
     ARCVM_PROFILE();
     switch(instruction) {
@@ -130,6 +131,9 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values) {
             entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
             return entries.back()->dest;
         case Instruction::brz:
+            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            return entries.back()->dest;
+        case Instruction::brnz:
             entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
             return entries.back()->dest;
         default:

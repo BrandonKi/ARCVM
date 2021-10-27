@@ -179,6 +179,15 @@ Value IRInterpreter::run_entry(Entry* entry) {
             else
                 return run_basicblock(jump_table[*label_name2]);
         }
+        case Instruction::brnz: {
+            auto val = ir_register.back()[entry->arguments[0].value].value;
+            auto* label_name = entry->arguments[1].label_value;
+            auto* label_name2 = entry->arguments[2].label_value;
+            if(val != 0)
+                return run_basicblock(jump_table[*label_name]);
+            else
+                return run_basicblock(jump_table[*label_name2]);
+        }
         case Instruction::index: {
             // TODO clean this up
             auto* ptr = reinterpret_cast<i8*>(ir_register.back()[entry->arguments[0].value].pointer_value);

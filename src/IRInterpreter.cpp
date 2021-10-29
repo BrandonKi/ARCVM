@@ -159,7 +159,7 @@ Value IRInterpreter::run_entry(Entry* entry) {
         }
         case Instruction::call: {
             // TODO finalize plans for symbol_table etc.
-            ir_register.back()[entry->dest.value] = run_function(function_table.at("func"));
+            ir_register.back()[entry->dest.value] = run_function(function_table.at(*(entry->arguments[0].label_value)));
             break;
         }
         case Instruction::ret: {

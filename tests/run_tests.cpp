@@ -1072,11 +1072,11 @@ inline static bool no_arg_function_call() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body1 = main->get_block();
     auto* bblock1 = fn_body1->get_bblock();
-    auto ret = bblock1->gen_inst(Instruction::call, {Value{ValueType::table_index, 0}, Value{Type::ir_i32}});
+    auto ret = bblock1->gen_inst(Instruction::call, {Value{new std::string("func")}, Value{Type::ir_i32}});
     bblock1->gen_inst(Instruction::ret, {ret});
 
     auto* func = main_module->gen_function_def("func", {}, Type::ir_i32);
-    auto* fn_body2 = main->get_block();
+    auto* fn_body2 = func->get_block();
     auto* bblock2 = fn_body2->get_bblock();
     auto val_ptr = bblock2->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
     bblock2->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 70}});

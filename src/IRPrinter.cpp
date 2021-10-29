@@ -101,6 +101,7 @@ void IRPrinter::print(Value* value, i32 indent) {
             break;
         case ValueType::label:
             std::cout << "#" << *(value->str_value);
+            break;
         case ValueType::fn_name:
             std::cout << "@" << *(value->str_value);
             break;

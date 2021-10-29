@@ -159,7 +159,7 @@ Value IRInterpreter::run_entry(Entry* entry) {
         }
         case Instruction::call: {
             // TODO finalize plans for symbol_table etc.
-            ir_register.back()[entry->dest.value] = run_function(function_table.at(*(entry->arguments[0].label_value)));
+            ir_register.back()[entry->dest.value] = run_function(function_table.at(*(entry->arguments[0].str_value)));
             break;
         }
         case Instruction::ret: {
@@ -167,13 +167,13 @@ Value IRInterpreter::run_entry(Entry* entry) {
             return ir_register.back()[entry->arguments[0].value];
         }
         case Instruction::br: {
-            auto* label_name = entry->arguments[0].label_value;
+            auto* label_name = entry->arguments[0].str_value;
             return run_basicblock(jump_table[*label_name]);
         }
         case Instruction::brz: {
             auto val = ir_register.back()[entry->arguments[0].value].value;
-            auto* label_name = entry->arguments[1].label_value;
-            auto* label_name2 = entry->arguments[2].label_value;
+            auto* label_name = entry->arguments[1].str_value;
+            auto* label_name2 = entry->arguments[2].str_value;
             if(val == 0)
                 return run_basicblock(jump_table[*label_name]);
             else
@@ -181,8 +181,8 @@ Value IRInterpreter::run_entry(Entry* entry) {
         }
         case Instruction::brnz: {
             auto val = ir_register.back()[entry->arguments[0].value].value;
-            auto* label_name = entry->arguments[1].label_value;
-            auto* label_name2 = entry->arguments[2].label_value;
+            auto* label_name = entry->arguments[1].str_value;
+            auto* label_name2 = entry->arguments[2].str_value;
             if(val != 0)
                 return run_basicblock(jump_table[*label_name]);
             else

@@ -1072,7 +1072,7 @@ inline static bool no_arg_function_call() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body1 = main->get_block();
     auto* bblock1 = fn_body1->get_bblock();
-    auto ret = bblock1->gen_inst(Instruction::call, {Value{new std::string("func")}, Value{Type::ir_i32}});
+    auto ret = bblock1->gen_inst(Instruction::call, {Value{ValueType::fn_name, new std::string("func")}, Value{Type::ir_i32}});
     bblock1->gen_inst(Instruction::ret, {ret});
 
     auto* func = main_module->gen_function_def("func", {}, Type::ir_i32);
@@ -1134,13 +1134,13 @@ inline static bool brz_test() {
     auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     bblock->gen_inst(Instruction::store, {cond_ptr, Value{1}});
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
-    bblock->gen_inst(Instruction::brz, {cond_val,{Value{new std::string("if_block")}},{Value{new std::string("else_block")}}});
+    bblock->gen_inst(Instruction::brz, {cond_val,{Value{ValueType::label, new std::string("if_block")}},{Value{ValueType::label, new std::string("else_block")}}});
     auto* if_block = fn_body->new_basic_block("if_block");
     if_block->gen_inst(Instruction::store, {val_ptr, Value{1}});
-    if_block->gen_inst(Instruction::br, {Value{new std::string("then_block")}});
+    if_block->gen_inst(Instruction::br, {Value{ValueType::fn_name, new std::string("then_block")}});
     auto* else_block = fn_body->new_basic_block("else_block");
     else_block->gen_inst(Instruction::store, {val_ptr, Value{2}});
-    else_block->gen_inst(Instruction::br, {Value{new std::string("then_block")}});
+    else_block->gen_inst(Instruction::br, {Value{ValueType::fn_name, new std::string("then_block")}});
     auto* then_block = fn_body->new_basic_block("then_block");
     auto val = then_block->gen_inst(Instruction::load, {val_ptr});
     then_block->gen_inst(Instruction::ret, {val});
@@ -1169,13 +1169,13 @@ inline static bool brnz_test() {
     auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     bblock->gen_inst(Instruction::store, {cond_ptr, Value{1}});
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
-    bblock->gen_inst(Instruction::brnz, {cond_val,{Value{new std::string("if_block")}},{Value{new std::string("else_block")}}});
+    bblock->gen_inst(Instruction::brnz, {cond_val,{Value{ValueType::fn_name, new std::string("if_block")}},{Value{ValueType::fn_name, new std::string("else_block")}}});
     auto* if_block = fn_body->new_basic_block("if_block");
     if_block->gen_inst(Instruction::store, {val_ptr, Value{1}});
-    if_block->gen_inst(Instruction::br, {Value{new std::string("then_block")}});
+    if_block->gen_inst(Instruction::br, {Value{ValueType::fn_name, new std::string("then_block")}});
     auto* else_block = fn_body->new_basic_block("else_block");
     else_block->gen_inst(Instruction::store, {val_ptr, Value{2}});
-    else_block->gen_inst(Instruction::br, {Value{new std::string("then_block")}});
+    else_block->gen_inst(Instruction::br, {Value{ValueType::fn_name, new std::string("then_block")}});
     auto* then_block = fn_body->new_basic_block("then_block");
     auto val = then_block->gen_inst(Instruction::load, {val_ptr});
     then_block->gen_inst(Instruction::ret, {val});

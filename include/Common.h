@@ -200,7 +200,7 @@ static i32 type_size(Type type) {
     }
 }
 
-enum class ValueType : i8 { none, pointer, reference, immediate, type, table_index, label };
+enum class ValueType : i8 { none, pointer, reference, immediate, type, fn_name, label };
 
 // FIXME does not work with float immediate values
 struct Value {
@@ -209,7 +209,7 @@ struct Value {
         i64 value;
         uintptr_t pointer_value;
         Type type_value;
-        std::string* label_value;
+        std::string* str_value;
     };
 
     Value(): type{ValueType::none} {}
@@ -221,7 +221,6 @@ struct Value {
     Value(ValueType type, void* ptr): type(type), pointer_value((uintptr_t)ptr) {}
     Value(ValueType type, Type type_value): type(type), type_value(type_value) {}
     Value(Type type_value): type(ValueType::type), type_value(type_value) {}
-    Value(std::string* label_name): type(ValueType::label), label_value(label_name) {}
 };
 
 struct Entry {

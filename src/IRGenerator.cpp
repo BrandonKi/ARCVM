@@ -61,12 +61,12 @@ BasicBlock* Block::new_basic_block(std::string label_name) {
 void Block::gen_if(Value cond, BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block) {
     ARCVM_PROFILE();
     auto* bblock = blocks[insertion_point];
-    auto* if_block_name = new std::string(if_block->label.name);
-    auto* else_block_name = new std::string(else_block->label.name);
-    bblock->gen_inst(Instruction::brnz, {cond,{Value{if_block_name}},{Value{else_block_name}}});
-    auto* then_block_name = new std::string(then_block->label.name);
-    if_block->gen_inst(Instruction::br, {Value{then_block_name}});
-    else_block->gen_inst(Instruction::br, {Value{then_block_name}});
+    auto if_block_name = Value{ValueType::label, new std::string(if_block->label.name)};
+    auto else_block_name = Value{ValueType::label, new std::string(else_block->label.name)};
+    bblock->gen_inst(Instruction::brnz, {cond,if_block_name,else_block_name});
+    auto then_block_name = Value{ValueType::label, new std::string(then_block->label.name)};
+    if_block->gen_inst(Instruction::br, {then_block_name});
+    else_block->gen_inst(Instruction::br, {then_block_name});
 }
 
 // TODO implement this

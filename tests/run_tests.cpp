@@ -1277,7 +1277,7 @@ inline static bool no_arg_function_call() {
 }
 
 
-inline static bool function_call_with_args() {
+inline static bool function_call_with_args_by_value() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -1286,6 +1286,46 @@ inline static bool function_call_with_args() {
     auto* fn_body1 = main->get_block();
     auto* bblock1 = fn_body1->get_bblock();
     auto ret = bblock1->gen_inst(Instruction::call, {Value{ValueType::fn_name, new std::string("add")}, Value{10}, Value{10}, Value{Type::ir_i32}});
+    bblock1->gen_inst(Instruction::ret, {ret});
+
+    auto* func = main_module->gen_function_def("add", {Type::ir_i32, Type::ir_i32}, Type::ir_i32);
+    auto* fn_body2 = func->get_block();
+    auto* bblock2 = fn_body2->get_bblock();
+    auto val_ptr = bblock2->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto sum = bblock2->gen_inst(Instruction::add, {func->get_param(0), func->get_param(1)});
+    bblock2->gen_inst(Instruction::store, {val_ptr, sum});
+    auto val = bblock2->gen_inst(Instruction::load, {val_ptr});
+
+    bblock2->gen_inst(Instruction::ret, {val});
+
+    if(noisy) {
+#ifdef POOL
+        std::unique_lock<std::mutex> lock(cout_mutex);
+#endif
+        IRPrinter::print(main_module);
+    }
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 20;
+}
+
+
+inline static bool function_call_with_args_by_ref() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body1 = main->get_block();
+    auto* bblock1 = fn_body1->get_bblock();
+    auto lhs_ptr = bblock1->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock1->gen_inst(Instruction::store, {lhs_ptr, Value{ValueType::immediate, 10}});
+    auto lhs = bblock1->gen_inst(Instruction::load, {lhs_ptr});
+    auto rhs_ptr = bblock1->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    bblock1->gen_inst(Instruction::store, {rhs_ptr, Value{ValueType::immediate, 10}});
+    auto rhs = bblock1->gen_inst(Instruction::load, {rhs_ptr});
+
+    auto ret = bblock1->gen_inst(Instruction::call, {Value{ValueType::fn_name, new std::string("add")}, lhs, rhs, Value{Type::ir_i32}});
     bblock1->gen_inst(Instruction::ret, {ret});
 
     auto* func = main_module->gen_function_def("add", {Type::ir_i32, Type::ir_i32}, Type::ir_i32);
@@ -1359,7 +1399,8 @@ int main(int argc, char *argv[]) {
     run_test(branch_api);
     run_test(branch_and_insertion_point_test);
     run_test(no_arg_function_call);
-    run_test(function_call_with_args);
+    run_test(function_call_with_args_by_value);
+    run_test(function_call_with_args_by_ref);
 
     #ifdef POOL
     test_thread_pool.~ThreadPool();

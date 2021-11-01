@@ -44,9 +44,18 @@ i32 IRInterpreter::run_entry_function() {
 Value IRInterpreter::run_function(Function* function, std::vector<Value> args) {
     ARCVM_PROFILE();
     // put args in after adding new register context
+
     ir_register.emplace_back();
     for(size_t i = 0; i < args.size(); ++i) {
-        ir_register.back()[i] = args[i];
+        // FIXME
+        // assumes it's a reference to the calling context
+        // in theory it could be from any previous context
+        if(args[i].type == ValueType::reference) {
+            auto& calling_context = ir_register.end()[-2];
+            ir_register.back()[i] = calling_context[args[i].value];
+        }
+        else    // assumes immediate
+            ir_register.back()[i] = args[i];
     }
     auto result = run_block(function->block);
     ir_register.pop_back();

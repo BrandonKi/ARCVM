@@ -25,7 +25,7 @@ class IRInterpreter {
     std::unordered_map<std::string, Function*> function_table;
     std::string entrypoint_name;
 
-    std::list<std::array<Value, 100>> ir_register;
+    std::vector<std::array<Value, 100>> ir_register;
 
     void build_jump_table(Module*);
     i32 run_module(Module*);

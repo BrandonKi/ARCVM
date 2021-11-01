@@ -1064,37 +1064,6 @@ inline static bool index_stack_buffer2() {
     return interp.run() == 200;
 }
 
-inline static bool no_arg_function_call() {
-    ARCVM_PROFILE();
-    IRGenerator gen;
-    auto* main_module = gen.create_module();
-    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
-    main->add_attribute(Attribute::entrypoint);
-    auto* fn_body1 = main->get_block();
-    auto* bblock1 = fn_body1->get_bblock();
-    auto ret = bblock1->gen_inst(Instruction::call, {Value{ValueType::fn_name, new std::string("func")}, Value{Type::ir_i32}});
-    bblock1->gen_inst(Instruction::ret, {ret});
-
-    auto* func = main_module->gen_function_def("func", {}, Type::ir_i32);
-    auto* fn_body2 = func->get_block();
-    auto* bblock2 = fn_body2->get_bblock();
-    auto val_ptr = bblock2->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
-    bblock2->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 70}});
-    auto val = bblock2->gen_inst(Instruction::load, {val_ptr});
-
-    bblock2->gen_inst(Instruction::ret, {val});
-
-    if(noisy) {
-        #ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
-        IRPrinter::print(main_module);
-    }
-
-    IRInterpreter interp(main_module);
-    return interp.run() == 70;
-}
-
 inline static bool arcvm_api_test() {
     ARCVM_PROFILE();
     IRGenerator gen;
@@ -1274,6 +1243,72 @@ inline static bool branch_and_insertion_point_test() {
     return interp.run() == 1;
 }
 
+
+inline static bool no_arg_function_call() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body1 = main->get_block();
+    auto* bblock1 = fn_body1->get_bblock();
+    auto ret = bblock1->gen_inst(Instruction::call, {Value{ValueType::fn_name, new std::string("func")}, Value{Type::ir_i32}});
+    bblock1->gen_inst(Instruction::ret, {ret});
+
+    auto* func = main_module->gen_function_def("func", {}, Type::ir_i32);
+    auto* fn_body2 = func->get_block();
+    auto* bblock2 = fn_body2->get_bblock();
+    auto val_ptr = bblock2->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    bblock2->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 70}});
+
+    auto val = bblock2->gen_inst(Instruction::load, {val_ptr});
+
+    bblock2->gen_inst(Instruction::ret, {val});
+
+    if(noisy) {
+#ifdef POOL
+        std::unique_lock<std::mutex> lock(cout_mutex);
+#endif
+        IRPrinter::print(main_module);
+    }
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 70;
+}
+
+
+inline static bool function_call_with_args() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body1 = main->get_block();
+    auto* bblock1 = fn_body1->get_bblock();
+    auto ret = bblock1->gen_inst(Instruction::call, {Value{ValueType::fn_name, new std::string("add")}, Value{10}, Value{10}, Value{Type::ir_i32}});
+    bblock1->gen_inst(Instruction::ret, {ret});
+
+    auto* func = main_module->gen_function_def("add", {Type::ir_i32, Type::ir_i32}, Type::ir_i32);
+    auto* fn_body2 = func->get_block();
+    auto* bblock2 = fn_body2->get_bblock();
+    auto val_ptr = bblock2->gen_inst(Instruction::alloc, {Value{ValueType::type, Type::ir_i32}});
+    auto sum = bblock2->gen_inst(Instruction::add, {func->get_param(0), func->get_param(1)});
+    bblock2->gen_inst(Instruction::store, {val_ptr, sum});
+    auto val = bblock2->gen_inst(Instruction::load, {val_ptr});
+
+    bblock2->gen_inst(Instruction::ret, {val});
+
+    if(noisy) {
+#ifdef POOL
+        std::unique_lock<std::mutex> lock(cout_mutex);
+#endif
+        IRPrinter::print(main_module);
+    }
+
+    IRInterpreter interp(main_module);
+    return interp.run() == 20;
+}
+
 using namespace std::literals;
 
 int main(int argc, char *argv[]) {
@@ -1318,12 +1353,13 @@ int main(int argc, char *argv[]) {
     run_test(log_xor_vars4);
     run_test(index_stack_buffer1);
     run_test(index_stack_buffer2);
-    run_test(no_arg_function_call);
     run_test(arcvm_api_test);
     run_test(brz_test);
     run_test(brnz_test);
     run_test(branch_api);
     run_test(branch_and_insertion_point_test);
+    run_test(no_arg_function_call);
+    run_test(function_call_with_args);
 
     #ifdef POOL
     test_thread_pool.~ThreadPool();

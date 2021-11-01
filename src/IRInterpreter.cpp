@@ -33,16 +33,21 @@ i32 IRInterpreter::run_module(Module* module) {
 
 i32 IRInterpreter::run_entry_function() {
     ARCVM_PROFILE();
-    Value ret_val = run_function(function_table.at(entrypoint_name));
+    // TODO pass command line arguments here
+    Value ret_val = run_function(function_table.at(entrypoint_name), {});
     if (ret_val.type != ValueType::none)
         return static_cast<i32>(ret_val.value);
     return 0;
 }
 
 // TODO be able to pass args to functions
-Value IRInterpreter::run_function(Function* function) {
+Value IRInterpreter::run_function(Function* function, std::vector<Value> args) {
     ARCVM_PROFILE();
+    // put args in after adding new register context
     ir_register.emplace_back();
+    for(size_t i = 0; i < args.size(); ++i) {
+        ir_register.back()[i] = args[i];
+    }
     auto result = run_block(function->block);
     ir_register.pop_back();
     return result;
@@ -158,8 +163,12 @@ Value IRInterpreter::run_entry(Entry* entry) {
             break;
         }
         case Instruction::call: {
-            // TODO finalize plans for symbol_table etc.
-            ir_register.back()[entry->dest.value] = run_function(function_table.at(*(entry->arguments[0].str_value)));
+            auto args = entry->arguments;
+            // remove function name
+            args.erase(args.begin(), args.begin()+1);
+            // remove return type
+            args.pop_back();
+            ir_register.back()[entry->dest.value] = run_function(function_table.at(*(entry->arguments[0].str_value)), args);
             break;
         }
         case Instruction::ret: {
@@ -204,98 +213,98 @@ Value IRInterpreter::run_entry(Entry* entry) {
             // FIXME assumes we are using references
             auto sum = ir_register.back()[entry->arguments[0].value].value +
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, sum};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, sum};
             break;
         }
         case Instruction::sub: {
             // FIXME assumes we are using references
             auto sum = ir_register.back()[entry->arguments[0].value].value -
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, sum};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, sum};
             break;
         }
         case Instruction::mul: {
             // FIXME assumes we are using references
             auto sum = ir_register.back()[entry->arguments[0].value].value *
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, sum};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, sum};
             break;
         }
         case Instruction::div: {
             // FIXME assumes we are using references
             auto sum = ir_register.back()[entry->arguments[0].value].value /
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, sum};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, sum};
             break;
         }
         case Instruction::mod: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value %
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::bin_or: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value |
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::bin_and: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value &
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::bin_xor: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value ^
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::lshift: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value <<
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::rshift: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value >>
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::lt: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value <
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::gt: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value >
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::lte: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value <=
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::gte: {
             // FIXME assumes we are using references
             auto result = ir_register.back()[entry->arguments[0].value].value >=
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::log_or: {
@@ -303,7 +312,7 @@ Value IRInterpreter::run_entry(Entry* entry) {
             // FIXME doesn't do short circuiting
             auto result = ir_register.back()[entry->arguments[0].value].value ||
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::log_and: {
@@ -311,7 +320,7 @@ Value IRInterpreter::run_entry(Entry* entry) {
             // FIXME doesn't do short circuiting
             auto result = ir_register.back()[entry->arguments[0].value].value &&
                         ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         case Instruction::log_xor: {
@@ -322,7 +331,7 @@ Value IRInterpreter::run_entry(Entry* entry) {
             auto lhs = ir_register.back()[entry->arguments[0].value].value != 0;
             auto rhs = ir_register.back()[entry->arguments[1].value].value != 0;
             auto result = lhs ^ rhs;
-            ir_register.back()[entry->dest.value] = Value{ValueType::reference, result};
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
         default:

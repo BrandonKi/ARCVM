@@ -30,7 +30,7 @@ class IRInterpreter {
     void build_jump_table(Module*);
     i32 run_module(Module*);
     i32 run_entry_function();
-    Value run_function(Function*);
+    Value run_function(Function*, std::vector<Value>);
     Value run_block(Block*);
     Value run_basicblock(BasicBlock*);
     Value run_entry(Entry*);

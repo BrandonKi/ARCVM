@@ -70,9 +70,9 @@ void Block::gen_if(Value cond, BasicBlock* if_block, BasicBlock* else_block, Bas
 }
 
 // TODO implement this
-Value Function::get_param(i32) {
+Value Function::get_param(i32 index) {
     ARCVM_PROFILE();
-    return Value{ValueType::none};
+    return Value{ValueType::reference, index};
 }
 
 Value BasicBlock::gen_inst(Instruction instruction, Value value) {

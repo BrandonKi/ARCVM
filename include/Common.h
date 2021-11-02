@@ -64,6 +64,7 @@ enum class Instruction : i8 {
     lte,
     gte,
     eq,
+    neq,
     log_or,
     log_and,
     log_xor
@@ -119,6 +120,8 @@ static std::string to_string(Instruction instruction) {
             return "gte";
         case Instruction::eq:
             return "eq";
+        case Instruction::neq:
+            return "neq";
         case Instruction::log_or:
             return "log_or";
         case Instruction::log_and:

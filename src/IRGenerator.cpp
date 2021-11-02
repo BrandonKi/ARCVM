@@ -99,6 +99,7 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values) {
         case Instruction::lte:
         case Instruction::gte:
         case Instruction::eq:
+        case Instruction::neq:
         case Instruction::log_or:
         case Instruction::log_and:
         case Instruction::log_xor:

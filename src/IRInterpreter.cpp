@@ -316,6 +316,12 @@ Value IRInterpreter::run_entry(Entry* entry) {
             ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
             break;
         }
+        case Instruction::eq: {
+            auto result = ir_register.back()[entry->arguments[0].value].value ==
+                        ir_register.back()[entry->arguments[1].value].value;
+            ir_register.back()[entry->dest.value] = Value{ValueType::immediate, result};
+            break;
+        }
         case Instruction::log_or: {
             // FIXME assumes we are using references
             // FIXME doesn't do short circuiting

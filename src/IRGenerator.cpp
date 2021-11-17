@@ -69,6 +69,8 @@ void Block::gen_if(Value cond, BasicBlock* if_block, BasicBlock* else_block, Bas
     else_block->gen_inst(Instruction::br, {then_block_name});
 }
 
+void BLock::gen_
+
 // TODO implement this
 Value Function::get_param(i32 index) {
     ARCVM_PROFILE();
@@ -112,7 +114,7 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values) {
             return entries.back()->dest;
         case Instruction::call:
             // FIXME return type is set to none
-            entries.push_back(new Entry{Value{ValueType::immediate, var_name}, instruction, values});
+            entries.push_back(new Entry{Value{ValueType::reference, var_name}, instruction, values});
             ++var_name;
             return entries.back()->dest;
         case Instruction::ret:

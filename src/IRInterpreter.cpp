@@ -64,12 +64,13 @@ Value IRInterpreter::run_function(Function* function, std::vector<Value> args) {
 
 Value IRInterpreter::run_block(Block* block) {
     ARCVM_PROFILE();
-    for (size_t i = 0; i < block->blocks.size(); ++i) {
-        auto ret_val = run_basicblock(block->blocks[i]);
-        if (ret_val.type != ValueType::none)
-            return ret_val;
-    }
-    return Value{ValueType::none};
+    return run_basicblock(block->blocks[0]);
+    //for (size_t i = 0; i < block->blocks.size(); ++i) {
+    //    auto ret_val = run_basicblock(block->blocks[i]);
+    //    if (ret_val.type != ValueType::none)
+    //        return ret_val;
+    //}
+    //return Value{ValueType::none};
 }
 
 Value IRInterpreter::run_basicblock(BasicBlock* basicblock) {

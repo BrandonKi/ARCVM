@@ -1,5 +1,7 @@
 #include "Arcvm.h"
 
+#include "PassManager.h"
+
 using namespace arcvm;
 
 Arcvm::Arcvm(Args args) : args_{std::move(args)} {}
@@ -9,6 +11,18 @@ Arcvm::Arcvm(): args_{} {}
 void Arcvm::load_module(Module* module) {
     modules_.push_back(module);
     // there's probably some work I could be doing here
+}
+
+void Arcvm::optimize() {
+    for(auto* module : modules_)
+        optimize_module(module);
+}
+
+void Arcvm::optimize_module(Module* module) {
+    PassManager<
+        CFResolutionPass
+    > pm;
+    pm.module_pass(module);
 }
 
 // run in interpret mode

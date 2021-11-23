@@ -6,6 +6,9 @@
 #include "IRGenerator.h"
 #include "IRInterpreter.h"
 
+#include "PassManager.h"
+#include "CFResolutionPass.h"
+
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -50,6 +53,9 @@ class Arcvm {
     Arcvm(Args);
 
     void load_module(Module*);
+
+    void optimize();
+    void optimize_module(Module*);
 
     i32 run();
     i32 jit();

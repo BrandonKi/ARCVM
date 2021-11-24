@@ -68,7 +68,7 @@ void CFResolutionPass::remove_dead_br(BasicBlock* bb) {
 
 
 void CFResolutionPass::add_explicit_fallthrough(BasicBlock* current, BasicBlock* next) {
-    if(current->entries.empty()) {
+    if(next && current->entries.empty()) {
         current->gen_inst(Instruction::br, {Value{ValueType::label, new std::string(next->label.name)}});
         return;
     }

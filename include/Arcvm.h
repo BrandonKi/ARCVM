@@ -61,6 +61,12 @@ class Arcvm {
     i32 jit();
     i32 compile();
 
+    template <typename P>
+    void run_pass_on_module(Module* module) {
+        P pass;
+        pass.module_pass(module);
+    }
+
     void write_file();
 
   private:

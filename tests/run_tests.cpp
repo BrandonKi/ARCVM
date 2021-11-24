@@ -1388,8 +1388,7 @@ inline static bool CF_cleanup_test() {
 
     Arcvm vm;
     vm.load_module(main_module);
-    vm.optimize();
-
+    vm.run_pass_on_module<CFResolutionPass>(main_module);
 
     if(noisy) {
 #ifdef POOL

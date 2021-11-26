@@ -1,6 +1,6 @@
 #include "Arcvm.h"
 
-#include "PassManager.h"
+#include "Passes/PassManager.h"
 
 using namespace arcvm;
 

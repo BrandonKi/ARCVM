@@ -6,8 +6,8 @@
 #include "IRGenerator.h"
 #include "IRInterpreter.h"
 
-#include "PassManager.h"
-#include "CFResolutionPass.h"
+#include "Passes/PassManager.h"
+#include "Passes/CFResolutionPass.h"
 
 #include <cstdint>
 #include <iostream>

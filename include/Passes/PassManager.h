@@ -1,7 +1,7 @@
 #ifndef ARCVM_PASS_MANAGER_H
 #define ARCVM_PASS_MANAGER_H
 
-#include "Common.h"
+#include <Common.h>
 #include "Pass.h"
 
 namespace arcvm {

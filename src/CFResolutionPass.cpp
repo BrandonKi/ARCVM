@@ -1,4 +1,4 @@
-#include "CFResolutionPass.h"
+#include "Passes/CFResolutionPass.h"
 
 using namespace arcvm;
 

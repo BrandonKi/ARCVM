@@ -13,6 +13,7 @@ add_library(arcvm_lib OBJECT
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IRPrinter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IRInterpreter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CFResolutionPass.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/x86_64_Backend.cpp
 )
 
 target_include_directories(arcvm_lib

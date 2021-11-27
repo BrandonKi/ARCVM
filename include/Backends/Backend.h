@@ -7,9 +7,7 @@ namespace arcvm {
 
 template <typename T>
 concept Backend = requires(T t) {
-    //{t.block_pass()};
-    //{t.function_pass()};
-    t.module_pass(static_cast<Module*>(nullptr));
+    t.compile_module(static_cast<Module*>(nullptr));
 };
 
 }

@@ -298,6 +298,10 @@ struct Module {
     Function* gen_aggregate_def(std::string, std::vector<Type>);
 };
 
+struct CompiledModule {
+    
+};
+
 };
 
 #endif

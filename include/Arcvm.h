@@ -72,6 +72,7 @@ class Arcvm {
   private:
     Args args_;
     std::vector<Module*> modules_;
+    std::vector<CompiledModule*> compiled_modules_;
 };
 
 };

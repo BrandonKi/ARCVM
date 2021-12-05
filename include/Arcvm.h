@@ -6,6 +6,8 @@
 #include "IRGenerator.h"
 #include "IRInterpreter.h"
 
+#include "Backends/x86_64_Backend.h"
+
 #include "Passes/PassManager.h"
 #include "Passes/CFResolutionPass.h"
 

@@ -1400,6 +1400,35 @@ inline static bool CF_cleanup_test() {
     return vm.run() == 1;
 }
 
+inline static bool test() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto val_ptr1 = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i8}});
+    auto val_ptr2 = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i16}});
+    auto val_ptr3 = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i32}});
+    auto val_ptr4 = bblock->gen_inst(Instruction::alloc, {Value{Type::ir_i64}});
+    //bblock->gen_inst(Instruction::store, {val_ptr, Value{ValueType::immediate, 10}});
+    //auto val = bblock->gen_inst(Instruction::load, {val_ptr});
+    //bblock->gen_inst(Instruction::ret, {val});
+    if(noisy) {
+#ifdef POOL
+        std::unique_lock<std::mutex> lock(cout_mutex);
+#endif
+        IRPrinter::print(main_module);
+    }
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    vm.compile();
+    return true;
+    //return interp.run() == 10;
+}
+
 using namespace std::literals;
 
 int main(int argc, char *argv[]) {
@@ -1411,6 +1440,8 @@ int main(int argc, char *argv[]) {
     ThreadPool test_thread_pool;
     #endif
 
+    run_test(test);
+/*
     run_test(create_var);
     run_test(add_vars);
     run_test(sub_vars);
@@ -1453,7 +1484,7 @@ int main(int argc, char *argv[]) {
     run_test(function_call_with_args_by_value);
     run_test(function_call_with_args_by_ref);
     run_test(CF_cleanup_test);
-
+*/
     #ifdef POOL
     test_thread_pool.~ThreadPool();
     #endif

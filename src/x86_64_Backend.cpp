@@ -37,14 +37,32 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             auto size = type_size(entry->arguments[0].type_value);
             auto disp = -size;
             disp_table[entry->dest.value] = disp;
-            auto bits = size * 8;
-            emit_mov(disp, 0, bits); // zero initialize I guess *shrug*
+            auto num_bits = size * 8;
+            emit_mov(disp, 0, num_bits); // zero initialize I guess *shrug*
             break;
         }
         case Instruction::load: {
             break;
         }
         case Instruction::store: {
+
+            i64 val;
+            if (entry->arguments[1].type == ValueType::immediate) {
+                val = entry->arguments[1].value;
+            } else if (entry->arguments[1].type == ValueType::reference) {
+                val = disp_table[entry->arguments[1].value];
+            }
+
+
+            i32 size = 8;
+            if(entry->arguments.size() > 2) {
+                size = type_size(entry->arguments[2].type_value);
+            }
+
+            auto disp = -size;
+            disp_table[entry->arguments[0].value] = disp;
+            auto num_bits = size * 8;
+            emit_mov(disp, val, num_bits); // zero initialize I guess *shrug*
             break;
         }
         case Instruction::call: {
@@ -205,7 +223,7 @@ void x86_64_Backend::emit_int3() {
 }
 
 byte x86_64_Backend::rex(bool w, bool r, bool x, bool b) {
-    return 0b01000000 | (w << 3) | (r << 2) | (x << 1) | b;
+    return rex_prefix | (w << 3) | (r << 2) | (x << 1) | b;
 }
 
 byte x86_64_Backend::modrm(byte mod, byte rm, byte reg) {

@@ -53,8 +53,13 @@ enum class Register {
 
 }
 
-class x86_64_Backend {
+constexpr byte rex_prefix = 0x40;
+constexpr byte rex_w = 0x48;
+constexpr byte rex_r = 0x44;
+constexpr byte rex_x = 0x42;
+constexpr byte rex_b = 0x41;
 
+class x86_64_Backend {
   using byte = u8;
 
   public:
@@ -97,29 +102,30 @@ class x86_64_Backend {
         emit<byte>(0xc6);
         emit<byte>(modrm(1, 5, 0));
         emit<i8>(disp);
-        emit<i8>(0);
+        emit<i8>(immediate);
     }
 
     void emit_mov16(i8 disp, i32 immediate) {
         emit<byte>(0x66);
+        emit<byte>(0xc7);
         emit<byte>(modrm(1, 5, 0));
         emit<i8>(disp);
-        emit<i16>(0);
+        emit<i16>(immediate);
     }
 
     void emit_mov32(i8 disp, i32 immediate) {
         emit<byte>(0xc7);
         emit<byte>(modrm(1, 5, 0));
         emit<i8>(disp);
-        emit<i32>(0);
+        emit<i32>(immediate);
     }
 
     void emit_mov64(i8 disp, i32 immediate) {
-        emit<byte>(rex(1, 0, 0, 0));
+        emit<byte>(rex_w);
         emit<byte>(0xc7);
         emit<byte>(modrm(1, 5, 0));
         emit<i8>(disp);
-        emit<i32>(0);
+        emit<i32>(immediate);
     }
 
     void emit_lea();

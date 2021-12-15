@@ -80,7 +80,7 @@ basicblock->gen_loop(BasicBlock, BasicBlock, BasicBlock);
 //~ Block::gen_if
 /*
 
-Value cond, BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block
+IRValue cond, BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block
 
 cond: codegen is inserted into the preceding BasicBlock
 

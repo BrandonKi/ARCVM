@@ -69,12 +69,12 @@ void CFResolutionPass::remove_dead_br(BasicBlock* bb) {
 
 void CFResolutionPass::add_explicit_fallthrough(BasicBlock* current, BasicBlock* next) {
     if(next && current->entries.empty()) {
-        current->gen_inst(Instruction::br, {Value{ValueType::label, new std::string(next->label.name)}});
+        current->gen_inst(Instruction::br, {IRValue{IRValueType::label, new std::string(next->label.name)}});
         return;
     }
     for(int i = 0; i < current->entries.size(); ++i) {
         if(i + 1 == current->entries.size() && !is_terminating_control_flow(current->entries[i]->instruction)) {
-            current->gen_inst(Instruction::br, {Value{ValueType::label, new std::string(next->label.name)}});
+            current->gen_inst(Instruction::br, {IRValue{IRValueType::label, new std::string(next->label.name)}});
         }
     }
 }

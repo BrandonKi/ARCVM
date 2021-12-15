@@ -71,7 +71,7 @@ void IRPrinter::print(Entry* entry, i32& var_name, i32 indent) {
     auto print_indent = [=]() { std::cout << std::string(indent, ' '); };
 
     print_indent();
-    if(entry->dest.type != ValueType::none)
+    if(entry->dest.type != IRValueType::none)
         std::cout << '%' << var_name++ << " = ";
     std::cout << to_string(entry->instruction) << ' ';
 
@@ -83,26 +83,26 @@ void IRPrinter::print(Entry* entry, i32& var_name, i32 indent) {
     std::cout << '\n';
 }
 
-void IRPrinter::print(Value* value, i32 indent) {
+void IRPrinter::print(IRValue* value, i32 indent) {
     ARCVM_PROFILE();
     switch(value->type) {
-        case ValueType::none:
+        case IRValueType::none:
             std::cout << "none";
             break;
-        case ValueType::immediate:
+        case IRValueType::immediate:
             std::cout << value->value;
             break;
-        case ValueType::reference:
-        case ValueType::pointer:
+        case IRValueType::reference:
+        case IRValueType::pointer:
             std::cout << "%" << value->value;
             break;
-        case ValueType::type:
+        case IRValueType::type:
             std::cout << to_string(value->type_value);
             break;
-        case ValueType::label:
+        case IRValueType::label:
             std::cout << "#" << *(value->str_value);
             break;
-        case ValueType::fn_name:
+        case IRValueType::fn_name:
             std::cout << "@" << *(value->str_value);
             break;
         default:

@@ -206,11 +206,11 @@ static i32 type_size(Type type) {
     }
 }
 
-enum class ValueType : i8 { none, pointer, reference, immediate, type, fn_name, label };
+enum class IRValueType : i8 { none, pointer, reference, immediate, type, fn_name, label };
 
 // FIXME does not work with float immediate values
-struct Value {
-    ValueType type;
+struct IRValue {
+    IRValueType type;
     union {
         i64 value;
         uintptr_t pointer_value;
@@ -218,21 +218,21 @@ struct Value {
         std::string* str_value;
     };
 
-    Value(): type{ValueType::none} {}
-    Value(ValueType type): type(type) {}
+    IRValue(): type{IRValueType::none} {}
+    IRValue(IRValueType type): type(type) {}
     template <std::integral T>
-    Value(ValueType type, T value): type(type), value(value) {}
+    IRValue(IRValueType type, T value): type(type), value(value) {}
     template <std::integral T>
-    Value(T value): type(ValueType::immediate), value(value) {}
-    Value(ValueType type, void* ptr): type(type), pointer_value((uintptr_t)ptr) {}
-    Value(ValueType type, Type type_value): type(type), type_value(type_value) {}
-    Value(Type type_value): type(ValueType::type), type_value(type_value) {}
+    IRValue(T value): type(IRValueType::immediate), value(value) {}
+    IRValue(IRValueType type, void* ptr): type(type), pointer_value((uintptr_t)ptr) {}
+    IRValue(IRValueType type, Type type_value): type(type), type_value(type_value) {}
+    IRValue(Type type_value): type(IRValueType::type), type_value(type_value) {}
 };
 
 struct Entry {
-    Value dest;
+    IRValue dest;
     Instruction instruction;
-    std::vector<Value> arguments;
+    std::vector<IRValue> arguments;
 };
 
 struct Label {
@@ -247,8 +247,8 @@ struct BasicBlock {
     BasicBlock(std::string label_name, std::vector<Entry*> entries_, i32& var_name_):
         label{label_name}, entries{entries_}, var_name{var_name_} {}
 
-    Value gen_inst(Instruction, Value);
-    Value gen_inst(Instruction, std::vector<Value>);
+    IRValue gen_inst(Instruction, IRValue);
+    IRValue gen_inst(Instruction, std::vector<IRValue>);
 };
 
 struct Block {
@@ -263,7 +263,7 @@ struct Block {
     BasicBlock* new_basic_block();
     BasicBlock* new_basic_block(std::string);
     BasicBlock* get_bblock() { return blocks[insertion_point]; }
-    void gen_if(Value, BasicBlock*, BasicBlock*, BasicBlock*);
+    void gen_if(IRValue, BasicBlock*, BasicBlock*, BasicBlock*);
 };
 
 enum class Attribute : i8 { entrypoint };
@@ -288,7 +288,7 @@ struct Function {
 
     Block* get_block() { return block; }
     void add_attribute(Attribute attribute) { attributes.push_back(attribute); }
-    Value get_param(i32);
+    IRValue get_param(i32);
 };
 
 struct Module {

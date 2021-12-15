@@ -25,15 +25,15 @@ class IRInterpreter {
     std::unordered_map<std::string, Function*> function_table;
     std::string entrypoint_name;
 
-    std::vector<std::array<Value, 100>> ir_register;
+    std::vector<std::array<IRValue, 100>> ir_register;
 
     void build_jump_table(Module*);
     i32 run_module(Module*);
     i32 run_entry_function();
-    Value run_function(Function*, std::vector<Value>);
-    Value run_block(Block*);
-    Value run_basicblock(BasicBlock*);
-    Value run_entry(Entry*);
+    IRValue run_function(Function*, std::vector<IRValue>);
+    IRValue run_block(Block*);
+    IRValue run_basicblock(BasicBlock*);
+    IRValue run_entry(Entry*);
 };
 
 };

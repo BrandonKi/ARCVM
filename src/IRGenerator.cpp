@@ -58,30 +58,30 @@ BasicBlock* Block::new_basic_block(std::string label_name) {
 
 // make sure we are done writing to if_block and else_block
 // this generates the final jump out of the block
-void Block::gen_if(Value cond, BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block) {
+void Block::gen_if(IRValue cond, BasicBlock* if_block, BasicBlock* else_block, BasicBlock* then_block) {
     ARCVM_PROFILE();
     auto* bblock = blocks[insertion_point];
-    auto if_block_name = Value{ValueType::label, new std::string(if_block->label.name)};
-    auto else_block_name = Value{ValueType::label, new std::string(else_block->label.name)};
+    auto if_block_name = IRValue{IRValueType::label, new std::string(if_block->label.name)};
+    auto else_block_name = IRValue{IRValueType::label, new std::string(else_block->label.name)};
     bblock->gen_inst(Instruction::brnz, {cond,if_block_name,else_block_name});
-    auto then_block_name = Value{ValueType::label, new std::string(then_block->label.name)};
+    auto then_block_name = IRValue{IRValueType::label, new std::string(then_block->label.name)};
     if_block->gen_inst(Instruction::br, {then_block_name});
     else_block->gen_inst(Instruction::br, {then_block_name});
 }
 
 // TODO implement this
-Value Function::get_param(i32 index) {
+IRValue Function::get_param(i32 index) {
     ARCVM_PROFILE();
-    return Value{ValueType::reference, index};
+    return IRValue{IRValueType::reference, index};
 }
 
-Value BasicBlock::gen_inst(Instruction instruction, Value value) {
+IRValue BasicBlock::gen_inst(Instruction instruction, IRValue value) {
     ARCVM_PROFILE();
     return gen_inst(instruction, std::vector{value});
 }
 
 // FIXME there is a lot of code duplication here
-Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values) {
+IRValue BasicBlock::gen_inst(Instruction instruction, std::vector<IRValue> values) {
     ARCVM_PROFILE();
     switch(instruction) {
         case Instruction::add:
@@ -103,42 +103,42 @@ Value BasicBlock::gen_inst(Instruction instruction, std::vector<Value> values) {
         case Instruction::log_or:
         case Instruction::log_and:
         case Instruction::log_xor:
-            entries.push_back(new Entry{Value{ValueType::reference, var_name}, instruction, values});
+            entries.push_back(new Entry{IRValue{IRValueType::reference, var_name}, instruction, values});
             ++var_name;
             return entries.back()->dest;
         case Instruction::index:
-            entries.push_back(new Entry{Value{ValueType::pointer, var_name}, instruction, values});
+            entries.push_back(new Entry{IRValue{IRValueType::pointer, var_name}, instruction, values});
             ++var_name;
             return entries.back()->dest;
         case Instruction::call:
             // FIXME return type is set to none
-            entries.push_back(new Entry{Value{ValueType::reference, var_name}, instruction, values});
+            entries.push_back(new Entry{IRValue{IRValueType::reference, var_name}, instruction, values});
             ++var_name;
             return entries.back()->dest;
         case Instruction::ret:
-            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            entries.push_back(new Entry{IRValue{IRValueType::none}, instruction, values});
             return entries.back()->dest;
         case Instruction::alloc:
-            entries.push_back(new Entry{Value{ValueType::pointer, var_name}, instruction, values});
+            entries.push_back(new Entry{IRValue{IRValueType::pointer, var_name}, instruction, values});
             ++var_name;
             return entries.back()->dest;
         case Instruction::load:
-            entries.push_back(new Entry{Value{ValueType::reference, var_name}, instruction, values});
+            entries.push_back(new Entry{IRValue{IRValueType::reference, var_name}, instruction, values});
             ++var_name;
             return entries.back()->dest;
         case Instruction::store:
-            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            entries.push_back(new Entry{IRValue{IRValueType::none}, instruction, values});
             return entries.back()->dest;
         case Instruction::br:
-            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            entries.push_back(new Entry{IRValue{IRValueType::none}, instruction, values});
             return entries.back()->dest;
         case Instruction::brz:
-            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            entries.push_back(new Entry{IRValue{IRValueType::none}, instruction, values});
             return entries.back()->dest;
         case Instruction::brnz:
-            entries.push_back(new Entry{Value{ValueType::none}, instruction, values});
+            entries.push_back(new Entry{IRValue{IRValueType::none}, instruction, values});
             return entries.back()->dest;
         default:
-            return Value{ValueType::none};
+            return IRValue{IRValueType::none};
     }
 }

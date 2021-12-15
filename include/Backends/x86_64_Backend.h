@@ -51,6 +51,14 @@ enum class Register {
     r15
 };
 
+struct Displacement {
+    i32 val;
+};
+
+struct Immediate {
+    i32 val;
+};
+
 }
 
 constexpr byte rex_prefix = 0x40;
@@ -70,7 +78,6 @@ class x86_64_Backend {
     int compile_entry(Entry*);
 
 
-
   private:
     // TODO use registers
     //std::vector<Register>
@@ -79,63 +86,24 @@ class x86_64_Backend {
     std::array<int, 100> disp_table;
     std::vector<byte> output;
 
-    void emit_mov(i8 disp, i32 immediate, i8 bits) {
-        switch(bits) {
-            case 8:
-                emit_mov8(disp, immediate);
-                break;
-            case 16:
-                emit_mov16(disp, immediate);
-                break;
-            case 32:
-                emit_mov32(disp, immediate);
-                break;
-            case 64:
-                emit_mov64(disp, immediate);
-                break;
-            default:
-                assert(false);
-        }
-    }
-
-    void emit_mov8(i8 disp, i32 immediate) {
-        emit<byte>(0xc6);
-        emit<byte>(modrm(1, 5, 0));
-        emit<i8>(disp);
-        emit<i8>(immediate);
-    }
-
-    void emit_mov16(i8 disp, i32 immediate) {
-        emit<byte>(0x66);
-        emit<byte>(0xc7);
-        emit<byte>(modrm(1, 5, 0));
-        emit<i8>(disp);
-        emit<i16>(immediate);
-    }
-
-    void emit_mov32(i8 disp, i32 immediate) {
-        emit<byte>(0xc7);
-        emit<byte>(modrm(1, 5, 0));
-        emit<i8>(disp);
-        emit<i32>(immediate);
-    }
-
-    void emit_mov64(i8 disp, i32 immediate) {
-        emit<byte>(rex_w);
-        emit<byte>(0xc7);
-        emit<byte>(modrm(1, 5, 0));
-        emit<i8>(disp);
-        emit<i32>(immediate);
-    }
+    void emit_mov(x86_64::Displacement, x86_64::Immediate, i8);
+    void emit_mov8(i8, i32);
+    void emit_mov16(i8, i32);
+    void emit_mov32(i8, i32);
+    void emit_mov64(i8, i32);
 
     void emit_lea();
+
     void emit_add();
+
     void emit_sub();
     void emit_div();
     void emit_idiv();
     void emit_mul();
     void emit_imul();
+
     void emit_ret();
+
     void emit_call();
     void emit_cmp();
     void emit_je();
@@ -146,6 +114,7 @@ class x86_64_Backend {
     void emit_nop();
     void emit_push();
     void emit_pop();
+
     void emit_int3();
 
     byte rex(bool w, bool r, bool x, bool b);

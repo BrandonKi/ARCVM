@@ -2,8 +2,13 @@
 
 #include <iomanip>
 
+#define D(x) Displacement(x)
+#define I(x) Immediate(x)
+
+
 using namespace arcvm;
 using namespace x86_64;
+
 using byte = u8;
 
 void x86_64_Backend::compile_module(Module* module) {
@@ -38,7 +43,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             auto disp = -size;
             disp_table[entry->dest.value] = disp;
             auto num_bits = size * 8;
-            emit_mov(disp, 0, num_bits); // zero initialize I guess *shrug*
+            emit_mov(D(disp), I(0), num_bits); // zero initialize I guess *shrug*
             break;
         }
         case Instruction::load: {
@@ -47,9 +52,9 @@ int x86_64_Backend::compile_entry(Entry* entry) {
         case Instruction::store: {
 
             i64 val;
-            if (entry->arguments[1].type == ValueType::immediate) {
+            if (entry->arguments[1].type == IRValueType::immediate) {
                 val = entry->arguments[1].value;
-            } else if (entry->arguments[1].type == ValueType::reference) {
+            } else if (entry->arguments[1].type == IRValueType::reference) {
                 val = disp_table[entry->arguments[1].value];
             }
 
@@ -62,7 +67,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             auto disp = -size;
             disp_table[entry->arguments[0].value] = disp;
             auto num_bits = size * 8;
-            emit_mov(disp, val, num_bits); // zero initialize I guess *shrug*
+            emit_mov(D(disp), I(val), num_bits); // zero initialize I guess *shrug*
             break;
         }
         case Instruction::call: {
@@ -146,6 +151,58 @@ int x86_64_Backend::compile_entry(Entry* entry) {
     return 0;
 }
 
+
+
+void x86_64_Backend::emit_mov(Displacement disp, Immediate immediate, i8 bits) {
+    switch(bits) {
+        case 8:
+            emit_mov8(disp.val, immediate.val);
+            break;
+        case 16:
+            emit_mov16(disp.val, immediate.val);
+            break;
+        case 32:
+            emit_mov32(disp.val, immediate.val);
+            break;
+        case 64:
+            emit_mov64(disp.val, immediate.val);
+            break;
+        default:
+            assert(false);
+    }
+}
+
+void x86_64_Backend::emit_mov8(i8 disp, i32 immediate) {
+    emit<byte>(0xc6);
+    emit<byte>(modrm(1, 5, 0));
+    emit<i8>(disp);
+    emit<i8>(immediate);
+}
+
+void x86_64_Backend::emit_mov16(i8 disp, i32 immediate) {
+    emit<byte>(0x66);
+    emit<byte>(0xc7);
+    emit<byte>(modrm(1, 5, 0));
+    emit<i8>(disp);
+    emit<i16>(immediate);
+}
+
+void x86_64_Backend::emit_mov32(i8 disp, i32 immediate) {
+    emit<byte>(0xc7);
+    emit<byte>(modrm(1, 5, 0));
+    emit<i8>(disp);
+    emit<i32>(immediate);
+}
+
+void x86_64_Backend::emit_mov64(i8 disp, i32 immediate) {
+    emit<byte>(rex_w);
+    emit<byte>(0xc7);
+    emit<byte>(modrm(1, 5, 0));
+    emit<i8>(disp);
+    emit<i32>(immediate);
+}
+
+/*
 void x86_64_Backend::emit_lea() {
 
 }
@@ -173,11 +230,11 @@ void x86_64_Backend::emit_mul() {
 void x86_64_Backend::emit_imul() {
 
 }
-
+*/
 void x86_64_Backend::emit_ret() {
-
+    emit<byte>(0xC3);
 }
-
+/*
 void x86_64_Backend::emit_call() {
 
 }
@@ -217,9 +274,10 @@ void x86_64_Backend::emit_push() {
 void x86_64_Backend::emit_pop() {
 
 }
+*/
 
 void x86_64_Backend::emit_int3() {
-
+    emit<byte>(0xCC);
 }
 
 byte x86_64_Backend::rex(bool w, bool r, bool x, bool b) {

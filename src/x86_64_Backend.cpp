@@ -281,7 +281,7 @@ void x86_64_Backend::emit_int3() {
 }
 
 byte x86_64_Backend::rex(bool w, bool r, bool x, bool b) {
-    return rex_prefix | (w << 3) | (r << 2) | (x << 1) | b;
+    return rex_prefix | (w << 3) | (r << 2) | (x << 1) | int(b);
 }
 
 byte x86_64_Backend::modrm(byte mod, byte rm, byte reg) {

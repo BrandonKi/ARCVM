@@ -1408,10 +1408,10 @@ inline static bool test() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i64}});
-    bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}});
-    //auto val = bblock->gen_inst(Instruction::load, {val_ptr});
-    //bblock->gen_inst(Instruction::ret, {val});
+    auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}, IRValue{Type::ir_i32}});
+    auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {val});
     if(noisy) {
 #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);

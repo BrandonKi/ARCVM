@@ -8,6 +8,7 @@
 
 using namespace arcvm;
 using namespace x86_64;
+using enum ValueType;
 
 using byte = u8;
 
@@ -41,23 +42,37 @@ int x86_64_Backend::compile_entry(Entry* entry) {
         case Instruction::alloc: {
             auto size = type_size(entry->arguments[0].type_value);
             auto disp = -size;
-            disp_table[entry->dest.value] = disp;
+            val_table[entry->dest.value] = Value{disp};
             auto num_bits = size * 8;
             emit_mov(D(disp), I(0), num_bits); // zero initialize I guess *shrug*
             break;
         }
         case Instruction::load: {
+            auto val = val_table[entry->arguments[0].value];
+
+            assert(val.type != REGISTER);
+
+            i32 size = 8;
+            if(entry->arguments.size() > 1) {
+                size = type_size(entry->arguments[1].type_value);
+            }
+
+            auto num_bits = size * 8;
+            // TODO use a free regsiter
+            auto reg = Register::rax;
+            emit_mov(reg, D(val.disp), num_bits);
+            val_table[entry->dest.value] = reg;
             break;
         }
         case Instruction::store: {
 
-            i64 val;
+            Value val;
             if (entry->arguments[1].type == IRValueType::immediate) {
-                val = entry->arguments[1].value;
+                val = Value{IMMEDIATE, i32(entry->arguments[1].value)};
             } else if (entry->arguments[1].type == IRValueType::reference) {
-                val = disp_table[entry->arguments[1].value];
+                val = val_table[entry->arguments[1].value];
+                assert(false);
             }
-
 
             i32 size = 8;
             if(entry->arguments.size() > 2) {
@@ -65,15 +80,31 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             }
 
             auto disp = -size;
-            disp_table[entry->arguments[0].value] = disp;
+            val_table[entry->arguments[0].value] = Value{disp};
             auto num_bits = size * 8;
-            emit_mov(D(disp), I(val), num_bits); // zero initialize I guess *shrug*
+            emit_mov(D(disp), I(val.imm), num_bits);
             break;
         }
         case Instruction::call: {
             break;
         }
         case Instruction::ret: {
+            Value val;
+            if(entry->arguments[0].type == IRValueType::reference)
+                val = val_table[entry->arguments[0].value];
+
+            switch(val.type) {
+                case DISPLACEMENT:
+                    emit_mov(Register::rax, D(val.disp), 64);
+                    break;
+                case REGISTER:
+                    emit_mov(Register::rax, val.reg, 64);
+                    break;
+                default:
+                    assert(false);
+            }
+
+            emit_ret();
             break;
         }
         case Instruction::br: {
@@ -154,52 +185,93 @@ int x86_64_Backend::compile_entry(Entry* entry) {
 
 
 void x86_64_Backend::emit_mov(Displacement disp, Immediate immediate, i8 bits) {
+    auto& dv = disp.val;
+    auto& imm = immediate.val;
     switch(bits) {
         case 8:
-            emit_mov8(disp.val, immediate.val);
+            emit<byte>(0xc6);
+            emit<byte>(modrm(1, 5, 0));
+            emit<i8>(dv);
+            emit<i8>(imm);
             break;
         case 16:
-            emit_mov16(disp.val, immediate.val);
+            emit<byte>(0x66);
+            emit<byte>(0xc7);
+            emit<byte>(modrm(1, 5, 0));
+            emit<i8>(dv);
+            emit<i16>(imm);
             break;
         case 32:
-            emit_mov32(disp.val, immediate.val);
+            emit<byte>(0xc7);
+            emit<byte>(modrm(1, 5, 0));
+            emit<i8>(dv);
+            emit<i32>(imm);
             break;
         case 64:
-            emit_mov64(disp.val, immediate.val);
+            emit<byte>(rex_w);
+            emit<byte>(0xc7);
+            emit<byte>(modrm(1, 5, 0));
+            emit<i8>(dv);
+            emit<i32>(imm);
             break;
         default:
             assert(false);
     }
 }
 
-void x86_64_Backend::emit_mov8(i8 disp, i32 immediate) {
-    emit<byte>(0xc6);
-    emit<byte>(modrm(1, 5, 0));
-    emit<i8>(disp);
-    emit<i8>(immediate);
+void x86_64_Backend::emit_mov(Register reg, Displacement disp, i8 bits) {
+    auto& dv = disp.val;
+    switch(bits) {
+        case 8:
+            emit<byte>(0x8A);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
+        case 16:
+            emit<byte>(0x66);
+            emit<byte>(0x8B);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
+        case 32:
+            emit<byte>(0x8B);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
+        case 64:
+            emit<byte>(rex_w);
+            emit<byte>(0x8B);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
+        default:
+            assert(false);
+    }
 }
 
-void x86_64_Backend::emit_mov16(i8 disp, i32 immediate) {
-    emit<byte>(0x66);
-    emit<byte>(0xc7);
-    emit<byte>(modrm(1, 5, 0));
-    emit<i8>(disp);
-    emit<i16>(immediate);
-}
-
-void x86_64_Backend::emit_mov32(i8 disp, i32 immediate) {
-    emit<byte>(0xc7);
-    emit<byte>(modrm(1, 5, 0));
-    emit<i8>(disp);
-    emit<i32>(immediate);
-}
-
-void x86_64_Backend::emit_mov64(i8 disp, i32 immediate) {
-    emit<byte>(rex_w);
-    emit<byte>(0xc7);
-    emit<byte>(modrm(1, 5, 0));
-    emit<i8>(disp);
-    emit<i32>(immediate);
+void x86_64_Backend::emit_mov(Register dest_reg, Register src_reg, i8 bits) {
+    switch(bits) {
+        case 8:
+            emit<byte>(0x88);
+            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            break;
+        case 16:
+            emit<byte>(0x66);
+            emit<byte>(0x89);
+            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            break;
+        case 32:
+            emit<byte>(0x89);
+            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            break;
+        case 64:
+            emit<byte>(rex_w);
+            emit<byte>(0x89);
+            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            break;
+        default:
+            assert(false);
+    }
 }
 
 /*

@@ -9,6 +9,8 @@ namespace arcvm {
 
 namespace x86_64 {
 
+using byte = u8;
+
 enum class Opcode {
     mov,
     lea,
@@ -32,11 +34,11 @@ enum class Opcode {
     int3
 };
 
-enum class Register {
+enum class Register : byte {
     rax,
-    rbx,
     rcx,
     rdx,
+    rbx,
     rbp,
     rsp,
     rsi,
@@ -59,6 +61,29 @@ struct Immediate {
     i32 val;
 };
 
+enum class ValueType : i8 {
+    NONE,
+    DISPLACEMENT,
+    REGISTER,
+    IMMEDIATE
+};
+
+struct Value {
+    using enum ValueType;
+
+    ValueType type;
+    union {
+        i32 disp;
+        Register reg;
+        i32 imm;
+    };
+
+    Value(): type(NONE), disp(0) {};
+    Value(i32 disp): type(DISPLACEMENT), disp(disp) {}
+    Value(Register reg): type(REGISTER), reg(reg) {}
+    Value(ValueType type, i32 imm): type(REGISTER), imm(imm) {}
+};
+
 }
 
 constexpr byte rex_prefix = 0x40;
@@ -68,7 +93,6 @@ constexpr byte rex_x = 0x42;
 constexpr byte rex_b = 0x41;
 
 class x86_64_Backend {
-  using byte = u8;
 
   public:
     void compile_module(Module*);
@@ -83,14 +107,13 @@ class x86_64_Backend {
     //std::vector<Register>
 
     // TODO need a vector/list/stack of these
-    std::array<int, 100> disp_table;
+    std::array<x86_64::Value, 100> val_table;
     std::vector<byte> output;
 
     void emit_mov(x86_64::Displacement, x86_64::Immediate, i8);
-    void emit_mov8(i8, i32);
-    void emit_mov16(i8, i32);
-    void emit_mov32(i8, i32);
-    void emit_mov64(i8, i32);
+    void emit_mov(x86_64::Register, x86_64::Displacement, i8);
+    void emit_mov(x86_64::Register, x86_64::Register, i8);
+
 
     void emit_lea();
 

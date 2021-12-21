@@ -81,7 +81,7 @@ struct Value {
     Value(): type(NONE), disp(0) {};
     Value(i32 disp): type(DISPLACEMENT), disp(disp) {}
     Value(Register reg): type(REGISTER), reg(reg) {}
-    Value(ValueType type, i32 imm): type(REGISTER), imm(imm) {}
+    Value(ValueType type, i32 imm): type(IMMEDIATE), imm(imm) {}
 };
 
 }
@@ -108,6 +108,7 @@ class x86_64_Backend {
 
     // TODO need a vector/list/stack of these
     std::array<x86_64::Value, 100> val_table;
+    std::vector<i32> disp_list;
     std::vector<byte> output;
 
     void emit_mov(x86_64::Displacement, x86_64::Immediate, i8);

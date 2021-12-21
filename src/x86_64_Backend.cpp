@@ -4,6 +4,7 @@
 
 #define D(x) Displacement(x)
 #define I(x) Immediate(x)
+#define local_disp disp_list.back()
 
 
 using namespace arcvm;
@@ -24,7 +25,9 @@ void x86_64_Backend::compile_module(Module* module) {
 }
 
 void x86_64_Backend::compile_function(Function* function) {
+    disp_list.emplace_back(0);
     compile_block(function->block);
+    disp_list.pop_back();
 }
 
 void x86_64_Backend::compile_block(Block* block) {
@@ -42,7 +45,9 @@ int x86_64_Backend::compile_entry(Entry* entry) {
         // TODO maybe take an option to zero intialize??
         case Instruction::alloc: {
             auto size = type_size(entry->arguments[0].type_value);
-            auto disp = -size;
+            auto disp = -size + local_disp;
+            local_disp += disp;
+
             val_table[entry->dest.value] = Value{disp};
             auto num_bits = size * 8;
             emit_mov(D(disp), I(0), num_bits);

@@ -39,12 +39,13 @@ void x86_64_Backend::compile_basicblock(BasicBlock* basicblock) {
 
 int x86_64_Backend::compile_entry(Entry* entry) {
     switch (entry->instruction) {
+        // TODO maybe take an option to zero intialize??
         case Instruction::alloc: {
             auto size = type_size(entry->arguments[0].type_value);
             auto disp = -size;
             val_table[entry->dest.value] = Value{disp};
             auto num_bits = size * 8;
-            emit_mov(D(disp), I(0), num_bits); // zero initialize I guess *shrug*
+            emit_mov(D(disp), I(0), num_bits);
             break;
         }
         case Instruction::load: {
@@ -71,7 +72,6 @@ int x86_64_Backend::compile_entry(Entry* entry) {
                 val = Value{IMMEDIATE, i32(entry->arguments[1].value)};
             } else if (entry->arguments[1].type == IRValueType::reference) {
                 val = val_table[entry->arguments[1].value];
-                assert(false);
             }
 
             i32 size = 8;
@@ -82,7 +82,12 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             auto disp = -size;
             val_table[entry->arguments[0].value] = Value{disp};
             auto num_bits = size * 8;
-            emit_mov(D(disp), I(val.imm), num_bits);
+
+            if(val.type == REGISTER)
+                emit_mov(D(disp), val.reg, num_bits);
+            else // if immediate
+                emit_mov(D(disp), I(val.imm), num_bits);
+
             break;
         }
         case Instruction::call: {
@@ -268,6 +273,37 @@ void x86_64_Backend::emit_mov(Register dest_reg, Register src_reg, i8 bits) {
             emit<byte>(rex_w);
             emit<byte>(0x89);
             emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            break;
+        default:
+            assert(false);
+    }
+}
+
+
+void x86_64_Backend::emit_mov(Displacement disp, Register reg, i8 bits) {
+    auto& dv = disp.val;
+    switch(bits) {
+        case 8:
+            emit<byte>(0x88);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
+        case 16:
+            emit<byte>(0x66);
+            emit<byte>(0x89);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
+        case 32:
+            emit<byte>(0x89);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
+        case 64:
+            emit<byte>(rex_w);
+            emit<byte>(0x89);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
             break;
         default:
             assert(false);

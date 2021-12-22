@@ -26,6 +26,7 @@ void x86_64_Backend::compile_module(Module* module) {
 
 void x86_64_Backend::compile_function(Function* function) {
     disp_list.emplace_back(0);
+    emit_mov(Register::rbp, Register::rsp, 64);
     compile_block(function->block);
     disp_list.pop_back();
 }
@@ -50,7 +51,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
 
             val_table[entry->dest.value] = Value{disp};
             auto num_bits = size * 8;
-            emit_mov(D(disp), I(0), num_bits);
+            // emit_mov(D(disp), I(0), num_bits);
             break;
         }
         case Instruction::load: {
@@ -263,21 +264,21 @@ void x86_64_Backend::emit_mov(Register dest_reg, Register src_reg, i8 bits) {
     switch(bits) {
         case 8:
         emit<byte>(0x88);
-        emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+        emit<byte>(modrm(3, byte(src_reg), byte(dest_reg)));
         break;
         case 16:
         emit<byte>(0x66);
         emit<byte>(0x89);
-        emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+        emit<byte>(modrm(3, byte(src_reg), byte(dest_reg)));
         break;
         case 32:
         emit<byte>(0x89);
-        emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+        emit<byte>(modrm(3, byte(src_reg), byte(dest_reg)));
         break;
         case 64:
         emit<byte>(rex_w);
         emit<byte>(0x89);
-        emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+        emit<byte>(modrm(3, byte(src_reg), byte(dest_reg)));
         break;
         default:
         assert(false);
@@ -380,14 +381,17 @@ void x86_64_Backend::emit_nop() {
 
 }
 
-void x86_64_Backend::emit_push() {
-
-}
-
-void x86_64_Backend::emit_pop() {
-
-}
 */
+
+// TODO add support for r8-15
+void x86_64_Backend::emit_push(Register reg) {
+    emit<byte>(0x50 + byte(reg));
+}
+
+// TODO add support for r8-15
+void x86_64_Backend::emit_pop(x86_64::Register reg) {
+    emit<byte>(0x58 + byte(reg));
+}
 
 void x86_64_Backend::emit_int3() {
     emit<byte>(0xCC);

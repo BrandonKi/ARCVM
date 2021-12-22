@@ -137,8 +137,8 @@ class x86_64_Backend {
     void emit_test();
     void emit_xor();
     void emit_nop();
-    void emit_push();
-    void emit_pop();
+    void emit_push(x86_64::Register);
+    void emit_pop(x86_64::Register);
 
     void emit_int3();
 

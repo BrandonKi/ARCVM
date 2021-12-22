@@ -26,8 +26,13 @@ void x86_64_Backend::compile_module(Module* module) {
 
 void x86_64_Backend::compile_function(Function* function) {
     disp_list.emplace_back(0);
+    emit_push(Register::rbp);
     emit_mov(Register::rbp, Register::rsp, 64);
     compile_block(function->block);
+    auto temp = output.back();
+    output.pop_back();
+    emit_pop(Register::rbp); // insert before last instruction
+    output.push_back(temp);
     disp_list.pop_back();
 }
 

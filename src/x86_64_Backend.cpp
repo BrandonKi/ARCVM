@@ -106,13 +106,13 @@ int x86_64_Backend::compile_entry(Entry* entry) {
 
             switch(val.type) {
                 case DISPLACEMENT:
-                emit_mov(Register::rax, D(val.disp), 64);
-                break;
+                    emit_mov(Register::rax, D(val.disp), 64);
+                    break;
                 case REGISTER:
-                emit_mov(Register::rax, val.reg, 64);
-                break;
+                    emit_mov(Register::rax, val.reg, 64);
+                    break;
                 default:
-                assert(false);
+                    assert(false);
             }
 
             emit_ret();
@@ -200,33 +200,33 @@ void x86_64_Backend::emit_mov(Displacement disp, Immediate immediate, i8 bits) {
     auto& imm = immediate.val;
     switch(bits) {
         case 8:
-        emit<byte>(0xc6);
-        emit<byte>(modrm(1, 5, 0));
-        emit<i8>(dv);
-        emit<i8>(imm);
-        break;
+            emit<byte>(0xc6);
+            emit<byte>(modrm(1, 5, 0));
+            emit<i8>(dv);
+            emit<i8>(imm);
+            break;
         case 16:
-        emit<byte>(0x66);
-        emit<byte>(0xc7);
-        emit<byte>(modrm(1, 5, 0));
-        emit<i8>(dv);
-        emit<i16>(imm);
-        break;
+            emit<byte>(0x66);
+            emit<byte>(0xc7);
+            emit<byte>(modrm(1, 5, 0));
+            emit<i8>(dv);
+            emit<i16>(imm);
+            break;
         case 32:
-        emit<byte>(0xc7);
-        emit<byte>(modrm(1, 5, 0));
-        emit<i8>(dv);
-        emit<i32>(imm);
-        break;
+            emit<byte>(0xc7);
+            emit<byte>(modrm(1, 5, 0));
+            emit<i8>(dv);
+            emit<i32>(imm);
+            break;
         case 64:
-        emit<byte>(rex_w);
-        emit<byte>(0xc7);
-        emit<byte>(modrm(1, 5, 0));
-        emit<i8>(dv);
-        emit<i32>(imm);
-        break;
+            emit<byte>(rex_w);
+            emit<byte>(0xc7);
+            emit<byte>(modrm(1, 5, 0));
+            emit<i8>(dv);
+            emit<i32>(imm);
+            break;
         default:
-        assert(false);
+            assert(false);
     }
 }
 
@@ -234,54 +234,54 @@ void x86_64_Backend::emit_mov(Register reg, Displacement disp, i8 bits) {
     auto& dv = disp.val;
     switch(bits) {
         case 8:
-        emit<byte>(0x8A);
-        emit<byte>(modrm(1, 5, byte(reg)));
-        emit<byte>(dv);
-        break;
+            emit<byte>(0x8A);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
         case 16:
-        emit<byte>(0x66);
-        emit<byte>(0x8B);
-        emit<byte>(modrm(1, 5, byte(reg)));
-        emit<byte>(dv);
-        break;
+            emit<byte>(0x66);
+            emit<byte>(0x8B);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
         case 32:
-        emit<byte>(0x8B);
-        emit<byte>(modrm(1, 5, byte(reg)));
-        emit<byte>(dv);
-        break;
+            emit<byte>(0x8B);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
         case 64:
-        emit<byte>(rex_w);
-        emit<byte>(0x8B);
-        emit<byte>(modrm(1, 5, byte(reg)));
-        emit<byte>(dv);
-        break;
+            emit<byte>(rex_w);
+            emit<byte>(0x8B);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
         default:
-        assert(false);
+            assert(false);
     }
 }
 
 void x86_64_Backend::emit_mov(Register dest_reg, Register src_reg, i8 bits) {
     switch(bits) {
         case 8:
-        emit<byte>(0x88);
-        emit<byte>(modrm(3, byte(src_reg), byte(dest_reg)));
-        break;
+            emit<byte>(0x88);
+            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            break;
         case 16:
-        emit<byte>(0x66);
-        emit<byte>(0x89);
-        emit<byte>(modrm(3, byte(src_reg), byte(dest_reg)));
-        break;
+            emit<byte>(0x66);
+            emit<byte>(0x89);
+            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            break;
         case 32:
-        emit<byte>(0x89);
-        emit<byte>(modrm(3, byte(src_reg), byte(dest_reg)));
-        break;
+            emit<byte>(0x89);
+            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            break;
         case 64:
-        emit<byte>(rex_w);
-        emit<byte>(0x89);
-        emit<byte>(modrm(3, byte(src_reg), byte(dest_reg)));
-        break;
+            emit<byte>(rex_w);
+            emit<byte>(0x89);
+            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            break;
         default:
-        assert(false);
+            assert(false);
     }
 }
 
@@ -290,29 +290,29 @@ void x86_64_Backend::emit_mov(Displacement disp, Register reg, i8 bits) {
     auto& dv = disp.val;
     switch(bits) {
         case 8:
-        emit<byte>(0x88);
-        emit<byte>(modrm(1, 5, byte(reg)));
-        emit<byte>(dv);
-        break;
+            emit<byte>(0x88);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
         case 16:
-        emit<byte>(0x66);
-        emit<byte>(0x89);
-        emit<byte>(modrm(1, 5, byte(reg)));
-        emit<byte>(dv);
-        break;
+            emit<byte>(0x66);
+            emit<byte>(0x89);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
         case 32:
-        emit<byte>(0x89);
-        emit<byte>(modrm(1, 5, byte(reg)));
-        emit<byte>(dv);
-        break;
+            emit<byte>(0x89);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
         case 64:
-        emit<byte>(rex_w);
-        emit<byte>(0x89);
-        emit<byte>(modrm(1, 5, byte(reg)));
-        emit<byte>(dv);
-        break;
+            emit<byte>(rex_w);
+            emit<byte>(0x89);
+            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(dv);
+            break;
         default:
-        assert(false);
+            assert(false);
     }
 }
 

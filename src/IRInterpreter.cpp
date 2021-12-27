@@ -182,6 +182,8 @@ IRValue IRInterpreter::run_entry(Entry* entry) {
             break;
         }
         case Instruction::ret: {
+            if(entry->arguments[0].type == IRValueType::immediate)
+                return entry->arguments[0].value;
             // assumes you are returning an index
             return ir_register.back()[entry->arguments[0].value];
         }

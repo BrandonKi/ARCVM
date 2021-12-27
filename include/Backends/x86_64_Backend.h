@@ -95,6 +95,8 @@ constexpr byte rex_b = 0x41;
 class x86_64_Backend {
 
   public:
+    i32 run();
+
     void compile_module(Module*);
     void compile_function(Function*);
     void compile_block(Block*);

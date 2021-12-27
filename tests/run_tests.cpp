@@ -9,6 +9,7 @@
 using namespace arcvm;
 
 //#define POOL
+// #define JIT_MODE
 
 #ifdef POOL
 #define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
@@ -66,8 +67,13 @@ inline static bool create_var() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 10;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 10;
+#else
+    return vm.run() == 10;
+#endif
 }
 
 inline static bool add_vars() {
@@ -97,8 +103,13 @@ inline static bool add_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 20;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 20;
+#else
+    return vm.run() == 20;
+#endif
 }
 
 inline static bool sub_vars() {
@@ -128,8 +139,13 @@ inline static bool sub_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 90;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 90;
+#else
+    return vm.run() == 90;
+#endif
 }
 
 inline static bool mul_vars() {
@@ -159,8 +175,13 @@ inline static bool mul_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 50;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 50;
+#else
+    return vm.run() == 50;
+#endif
 }
 
 inline static bool div_vars() {
@@ -190,8 +211,13 @@ inline static bool div_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 10;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 10;
+#else
+    return vm.run() == 10;
+#endif
 }
 
 inline static bool mod_vars() {
@@ -221,8 +247,13 @@ inline static bool mod_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 6;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 6;
+#else
+    return vm.run() == 6;
+#endif
 }
 
 inline static bool bin_or_vars() {
@@ -252,8 +283,13 @@ inline static bool bin_or_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 3;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 3;
+#else
+    return vm.run() == 3;
+#endif
 }
 
 inline static bool bin_and_vars() {
@@ -283,8 +319,13 @@ inline static bool bin_and_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 3;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 3;
+#else
+    return vm.run() == 3;
+#endif
 }
 
 inline static bool bin_xor_vars() {
@@ -314,8 +355,13 @@ inline static bool bin_xor_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 4;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 4;
+#else
+    return vm.run() == 4;
+#endif
 }
 
 inline static bool lshift_vars() {
@@ -345,8 +391,13 @@ inline static bool lshift_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 12;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 12;
+#else
+    return vm.run() == 12;
+#endif
 }
 
 inline static bool rshift_vars() {
@@ -376,8 +427,13 @@ inline static bool rshift_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 3;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 3;
+#else
+    return vm.run() == 3;
+#endif
 }
 
 inline static bool lt_vars() {
@@ -407,8 +463,13 @@ inline static bool lt_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 0;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 0;
+#else
+    return vm.run() == 0;
+#endif
 }
 
 inline static bool gt_vars() {
@@ -438,8 +499,13 @@ inline static bool gt_vars() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool lte_vars1() {
@@ -469,8 +535,13 @@ inline static bool lte_vars1() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool lte_vars2() {
@@ -500,8 +571,13 @@ inline static bool lte_vars2() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 0;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 0;
+#else
+    return vm.run() == 0;
+#endif
 }
 
 inline static bool lte_vars3() {
@@ -531,8 +607,13 @@ inline static bool lte_vars3() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool gte_vars1() {
@@ -562,8 +643,13 @@ inline static bool gte_vars1() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool gte_vars2() {
@@ -593,8 +679,13 @@ inline static bool gte_vars2() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool gte_vars3() {
@@ -624,8 +715,13 @@ inline static bool gte_vars3() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 0;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 0;
+#else
+    return vm.run() == 0;
+#endif
 }
 
 inline static bool log_or_vars1() {
@@ -654,9 +750,14 @@ inline static bool log_or_vars1() {
         #endif
         IRPrinter::print(main_module);
     }
-
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool log_or_vars2() {
@@ -686,8 +787,13 @@ inline static bool log_or_vars2() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool log_or_vars3() {
@@ -717,8 +823,13 @@ inline static bool log_or_vars3() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool log_or_vars4() {
@@ -748,8 +859,13 @@ inline static bool log_or_vars4() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 0;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 0;
+#else
+    return vm.run() == 0;
+#endif
 }
 
 inline static bool log_and_vars1() {
@@ -779,8 +895,13 @@ inline static bool log_and_vars1() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 0;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 0;
+#else
+    return vm.run() == 0;
+#endif
 }
 
 inline static bool log_and_vars2() {
@@ -810,8 +931,13 @@ inline static bool log_and_vars2() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool log_and_vars3() {
@@ -841,8 +967,13 @@ inline static bool log_and_vars3() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 0;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 0;
+#else
+    return vm.run() == 0;
+#endif
 }
 
 inline static bool log_and_vars4() {
@@ -872,8 +1003,13 @@ inline static bool log_and_vars4() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 0;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 0;
+#else
+    return vm.run() == 0;
+#endif
 }
 
 inline static bool log_xor_vars1() {
@@ -903,8 +1039,13 @@ inline static bool log_xor_vars1() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool log_xor_vars2() {
@@ -934,8 +1075,13 @@ inline static bool log_xor_vars2() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 0;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 0;
+#else
+    return vm.run() == 0;
+#endif
 }
 
 inline static bool log_xor_vars3() {
@@ -964,9 +1110,13 @@ inline static bool log_xor_vars3() {
         #endif
         IRPrinter::print(main_module);
     }
-
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool log_xor_vars4() {
@@ -996,8 +1146,13 @@ inline static bool log_xor_vars4() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 0;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 0;
+#else
+    return vm.run() == 0;
+#endif
 }
 
 inline static bool index_stack_buffer1() {
@@ -1028,8 +1183,13 @@ inline static bool index_stack_buffer1() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 200;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 200;
+#else
+    return vm.run() == 200;
+#endif
 }
 
 inline static bool index_stack_buffer2() {
@@ -1060,8 +1220,13 @@ inline static bool index_stack_buffer2() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 200;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 200;
+#else
+    return vm.run() == 200;
+#endif
 }
 
 inline static bool arcvm_api_test() {
@@ -1077,8 +1242,6 @@ inline static bool arcvm_api_test() {
     auto val = bblock->gen_inst(Instruction::load, {val_ptr});
     bblock->gen_inst(Instruction::ret, {val});
 
-    Arcvm vm;
-    vm.load_module(main_module);
 
     if(noisy) {
         #ifdef POOL
@@ -1087,7 +1250,13 @@ inline static bool arcvm_api_test() {
         IRPrinter::print(main_module);
     }
 
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 0;
+#else
     return vm.run() == 0;
+#endif
 }
 
 
@@ -1121,8 +1290,13 @@ inline static bool brz_test() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 2;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 2;
+#else
+    return vm.run() == 2;
+#endif
 }
 
 
@@ -1156,8 +1330,13 @@ inline static bool brnz_test() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 inline static bool branch_api() {
@@ -1195,8 +1374,13 @@ inline static bool branch_api() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 
@@ -1239,8 +1423,13 @@ inline static bool branch_and_insertion_point_test() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 1;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
+    return vm.run() == 1;
+#endif
 }
 
 
@@ -1272,8 +1461,13 @@ inline static bool no_arg_function_call() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 70;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 70;
+#else
+    return vm.run() == 70;
+#endif
 }
 
 
@@ -1305,8 +1499,13 @@ inline static bool function_call_with_args_by_value() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 20;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 20;
+#else
+    return vm.run() == 20;
+#endif
 }
 
 
@@ -1345,8 +1544,13 @@ inline static bool function_call_with_args_by_ref() {
         IRPrinter::print(main_module);
     }
 
-    IRInterpreter interp(main_module);
-    return interp.run() == 20;
+    Arcvm vm;
+    vm.load_module(main_module);
+#ifdef JIT_MODE
+    return vm.jit() == 20;
+#else
+    return vm.run() == 20;
+#endif
 }
 
 inline static bool CF_cleanup_test() {
@@ -1397,7 +1601,11 @@ inline static bool CF_cleanup_test() {
         IRPrinter::print(main_module);
     }
 
+#ifdef JIT_MODE
+    return vm.jit() == 1;
+#else
     return vm.run() == 1;
+#endif
 }
 
 inline static bool test() {
@@ -1421,9 +1629,11 @@ inline static bool test() {
 
     Arcvm vm;
     vm.load_module(main_module);
-    vm.compile();
-    return true;
-    //return interp.run() == 10;
+#ifdef JIT_MODE
+    return vm.jit() == 10;
+#else
+    return vm.run() == 10;
+#endif
 }
 
 using namespace std::literals;
@@ -1438,7 +1648,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     run_test(test);
-/*
+
     run_test(create_var);
     run_test(add_vars);
     run_test(sub_vars);
@@ -1481,7 +1691,7 @@ int main(int argc, char *argv[]) {
     run_test(function_call_with_args_by_value);
     run_test(function_call_with_args_by_ref);
     run_test(CF_cleanup_test);
-*/
+
     #ifdef POOL
     test_thread_pool.~ThreadPool();
     #endif

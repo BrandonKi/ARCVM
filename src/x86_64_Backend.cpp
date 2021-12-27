@@ -13,6 +13,46 @@ using enum ValueType;
 
 using byte = u8;
 
+
+static void *allocMemory(size_t size) {
+    //void *ptr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); // linux
+    void* ptr = VirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);               // windows
+    if (ptr == (void *)-1) {
+        std::cerr << "ALLOC_ERROR";
+        return nullptr;
+    }
+    return ptr;
+}
+
+static void dealloc(void *block, size_t size) {
+    //munmap(block, size);
+    VirtualFree(block, size, MEM_RELEASE);
+}
+
+static void copy(void *m, unsigned char *code, size_t size) {
+    std::memcpy(m, code, size);
+}
+
+static void *makeExecutable(void *buf) {
+
+    //mprotect(buf, sizeof(*(char *)buf), PROT_READ | PROT_EXEC); // linux
+
+    DWORD old;
+    VirtualProtect(buf, sizeof(*(char*)buf), PAGE_EXECUTE_READ, &old);  // windows
+
+    return buf;
+}
+
+i32 x86_64_Backend::run() {
+    void *block = allocMemory(output.size());
+    copy(block, output.data(), output.size());
+    typedef int (*exe)(void);
+    exe func = (exe)makeExecutable(block);
+    auto ret = func();
+    dealloc(block, output.size());
+    return ret;
+}
+
 void x86_64_Backend::compile_module(Module* module) {
     for (auto* function : module->functions)
         compile_function(function);

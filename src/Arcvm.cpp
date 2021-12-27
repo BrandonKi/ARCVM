@@ -38,7 +38,9 @@ i32 Arcvm::run() {
 
 // run in JIT mode
 i32 Arcvm::jit() {
-    return 0;
+    x86_64_Backend b;
+    b.compile_module(modules_[0]);
+    return b.run();
 }
 
 // compile to binary, does not run

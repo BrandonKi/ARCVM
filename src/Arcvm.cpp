@@ -38,14 +38,16 @@ i32 Arcvm::run() {
 
 // run in JIT mode
 i32 Arcvm::jit() {
-    x86_64_Backend b;
+    // FIXME assume windows_x64 for now
+    x86_64_Backend b{x86_64::ABIType::windows_x64};
     b.compile_module(modules_[0]);
     return b.run();
 }
 
 // compile to binary, does not run
 i32 Arcvm::compile() {
-    x86_64_Backend b;
+    // FIXME assume windows_x64 for now
+    x86_64_Backend b{x86_64::ABIType::windows_x64};
     b.compile_module(modules_[0]);
     return 0;
 }

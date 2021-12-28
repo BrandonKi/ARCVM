@@ -5,86 +5,10 @@
 
 #include "Backend.h"
 
+#include "x86_64.h"
+#include "ABI.h"
+
 namespace arcvm {
-
-namespace x86_64 {
-
-using byte = u8;
-
-enum class Opcode {
-    mov,
-    lea,
-    add,
-    sub,
-    div,
-    idiv,
-    mul,
-    imul,
-    ret,
-    call,
-    cmp,
-    je,
-    jne,
-    jmp,
-    test,
-    xor_,
-    nop,
-    push,
-    pop,
-    int3
-};
-
-enum class Register : byte {
-    rax,
-    rcx,
-    rdx,
-    rbx,
-    rsp,
-    rbp,
-    rsi,
-    rdi,
-    r8,
-    r9,
-    r10,
-    r11,
-    r12,
-    r13,
-    r14,
-    r15
-};
-
-struct Displacement {
-    i32 val;
-};
-
-struct Immediate {
-    i32 val;
-};
-
-enum class ValueType : i8 {
-    NONE,
-    DISPLACEMENT,
-    REGISTER,
-    IMMEDIATE
-};
-
-struct Value {
-    using enum ValueType;
-
-    ValueType type;
-    union {
-        i32 disp;
-        Register reg;
-        i32 imm;
-    };
-
-    Value(): type(NONE), disp(0) {};
-    Value(i32 disp): type(DISPLACEMENT), disp(disp) {}
-    Value(Register reg): type(REGISTER), reg(reg) {}
-    Value(ValueType type, i32 imm): type(IMMEDIATE), imm(imm) {}
-};
-
-}
 
 constexpr byte rex_prefix = 0x40;
 constexpr byte rex_w = 0x48;
@@ -95,7 +19,13 @@ constexpr byte rex_b = 0x41;
 class x86_64_Backend {
 
   public:
+    x86_64_Backend(x86_64::ABIType abi_type): abi{abi_type},
+        free_volatile_registers{abi.volatile_register_list()},
+        free_nonvolatile_registers{abi.nonvolatile_register_list()}
+    {}
+
     i32 run();
+    void write_file(x86_64::FileFormat);
 
     void compile_module(Module*);
     void compile_function(Function*);
@@ -105,13 +35,31 @@ class x86_64_Backend {
 
 
   private:
-    // TODO use registers
-    //std::vector<Register>
+    x86_64::ABI abi;
+    std::vector<x86_64::Register> free_volatile_registers;
+    std::vector<x86_64::Register> free_nonvolatile_registers;
 
     // TODO need a vector/list/stack of these
     std::array<x86_64::Value, 100> val_table;
     std::vector<i32> disp_list;
     std::vector<byte> output;
+
+    x86_64::Register get_fvr() {
+        if(free_volatile_registers.empty())
+            assert(false);
+        auto reg = free_volatile_registers.back();
+        free_volatile_registers.pop_back();
+        return reg;
+    }
+
+    x86_64::Register get_fnvr() {
+        if(free_nonvolatile_registers.empty())
+            assert(false);
+        auto reg = free_nonvolatile_registers.back();
+        free_nonvolatile_registers.pop_back();
+        return reg;
+    }
+
 
     void emit_mov(x86_64::Displacement, x86_64::Immediate, i8);
     void emit_mov(x86_64::Register, x86_64::Displacement, i8);
@@ -121,7 +69,8 @@ class x86_64_Backend {
 
     void emit_lea();
 
-    void emit_add();
+    void emit_add(x86_64::Displacement, x86_64::Displacement, i8);
+    void emit_add(x86_64::Register, x86_64::Register, i8);
 
     void emit_sub();
     void emit_div();
@@ -146,6 +95,8 @@ class x86_64_Backend {
 
     byte rex(bool w, bool r, bool x, bool b);
     byte modrm(byte, byte, byte);
+    byte SIB(byte, byte, byte);
+
 
     // TODO use concepts
     template<typename T__, typename std::enable_if<

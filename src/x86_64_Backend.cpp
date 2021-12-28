@@ -13,7 +13,6 @@ using enum ValueType;
 
 using byte = u8;
 
-
 static void *allocMemory(size_t size) {
     //void *ptr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); // linux
     void* ptr = VirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);               // windows
@@ -29,10 +28,6 @@ static void dealloc(void *block, size_t size) {
     VirtualFree(block, size, MEM_RELEASE);
 }
 
-static void copy(void *m, unsigned char *code, size_t size) {
-    std::memcpy(m, code, size);
-}
-
 static void *makeExecutable(void *buf) {
 
     //mprotect(buf, sizeof(*(char *)buf), PROT_READ | PROT_EXEC); // linux
@@ -43,9 +38,10 @@ static void *makeExecutable(void *buf) {
     return buf;
 }
 
+// TODO in the future just use this memory in the first place instead of copying to it
 i32 x86_64_Backend::run() {
     void *block = allocMemory(output.size());
-    copy(block, output.data(), output.size());
+    memcpy(block, output.data(), output.size());
     typedef int (*exe)(void);
     exe func = (exe)makeExecutable(block);
     auto ret = func();
@@ -57,7 +53,6 @@ void x86_64_Backend::compile_module(Module* module) {
     for (auto* function : module->functions)
         compile_function(function);
 
-
     std::cout << std::hex;
     for(byte b: output)
         std::cout << std::setw(2) << std::setfill('0') << (int)b << " ";
@@ -66,13 +61,7 @@ void x86_64_Backend::compile_module(Module* module) {
 
 void x86_64_Backend::compile_function(Function* function) {
     disp_list.emplace_back(0);
-    emit_push(Register::rbp);
-    emit_mov(Register::rbp, Register::rsp, 64);
     compile_block(function->block);
-    auto temp = output.back();
-    output.pop_back();
-    emit_pop(Register::rbp); // insert before last instruction
-    output.push_back(temp);
     disp_list.pop_back();
 }
 
@@ -111,7 +100,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
 
             auto num_bits = size * 8;
             // TODO use a free regsiter
-            auto reg = Register::rax;
+            auto reg = Register::rcx;
             emit_mov(reg, D(val.disp), num_bits);
             val_table[entry->dest.value] = reg;
             break;
@@ -176,6 +165,21 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             break;
         }
         case Instruction::add: {
+            Value dest;
+            if(entry->arguments[0].type == IRValueType::reference)
+                dest = val_table[entry->arguments[0].value];
+            else     // immediate
+                assert(false);
+                //dest = entry->arguments[0].value;
+
+            Value src;
+            if(entry->arguments[1].type == IRValueType::reference)
+                src = val_table[entry->arguments[1].value];
+            else    // immediate
+                assert(false);
+                //src = entry->arguments[1].value;
+
+            emit_add(dest.reg, src.reg, 64);
             break;
         }
         case Instruction::sub: {
@@ -246,27 +250,31 @@ void x86_64_Backend::emit_mov(Displacement disp, Immediate immediate, i8 bits) {
     switch(bits) {
         case 8:
             emit<byte>(0xc6);
-            emit<byte>(modrm(1, 5, 0));
+            emit<byte>(modrm(1, 4, 0));
+            emit<byte>(SIB(0, 4, 4));
             emit<i8>(dv);
             emit<i8>(imm);
             break;
         case 16:
             emit<byte>(0x66);
             emit<byte>(0xc7);
-            emit<byte>(modrm(1, 5, 0));
+            emit<byte>(modrm(1, 4, 0));
+            emit<byte>(SIB(0, 4, 4));
             emit<i8>(dv);
             emit<i16>(imm);
             break;
         case 32:
             emit<byte>(0xc7);
-            emit<byte>(modrm(1, 5, 0));
+            emit<byte>(modrm(1, 4, 0));
+            emit<byte>(SIB(0, 4, 4));
             emit<i8>(dv);
             emit<i32>(imm);
             break;
         case 64:
             emit<byte>(rex_w);
             emit<byte>(0xc7);
-            emit<byte>(modrm(1, 5, 0));
+            emit<byte>(modrm(1, 4, 0));
+            emit<byte>(SIB(0, 4, 4));
             emit<i8>(dv);
             emit<i32>(imm);
             break;
@@ -280,24 +288,28 @@ void x86_64_Backend::emit_mov(Register reg, Displacement disp, i8 bits) {
     switch(bits) {
         case 8:
             emit<byte>(0x8A);
-            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 16:
             emit<byte>(0x66);
             emit<byte>(0x8B);
-            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 32:
             emit<byte>(0x8B);
-            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 64:
             emit<byte>(rex_w);
             emit<byte>(0x8B);
-            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         default:
@@ -336,24 +348,28 @@ void x86_64_Backend::emit_mov(Displacement disp, Register reg, i8 bits) {
     switch(bits) {
         case 8:
             emit<byte>(0x88);
-            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 16:
             emit<byte>(0x66);
             emit<byte>(0x89);
-            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 32:
             emit<byte>(0x89);
-            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 64:
             emit<byte>(rex_w);
             emit<byte>(0x89);
-            emit<byte>(modrm(1, 5, byte(reg)));
+            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         default:
@@ -365,11 +381,24 @@ void x86_64_Backend::emit_mov(Displacement disp, Register reg, i8 bits) {
 void x86_64_Backend::emit_lea() {
 
 }
+*/
+void x86_64_Backend::emit_add(Displacement dest, Displacement src, i8 bits) {
+    emit_mov(Register::rax, src, 64);
 
-void x86_64_Backend::emit_add() {
-
+    emit<byte>(rex_w);
+    emit<byte>(0x03);
+    emit<byte>(modrm(1, 4, byte(Register::rax)));
+    emit<byte>(SIB(0, 4, 4));
+    emit<byte>(dest.val);
 }
 
+void x86_64_Backend::emit_add(Register dest, Register src, i8 bits) {
+    emit<byte>(rex_w);
+    emit<byte>(0x01);
+    emit<byte>(modrm(3, byte(dest), byte(src)));
+}
+
+/*
 void x86_64_Backend::emit_sub() {
 
 }
@@ -446,6 +475,11 @@ byte x86_64_Backend::rex(bool w, bool r, bool x, bool b) {
     return rex_prefix | (w << 3) | (r << 2) | (x << 1) | int(b);
 }
 
+// TODO remove redundancy
 byte x86_64_Backend::modrm(byte mod, byte rm, byte reg) {
     return u8(0) | ((mod & 3) << 6) | ((reg & 7) << 3) | (rm & 7);
+}
+
+byte x86_64_Backend::SIB(byte scale, byte index, byte base) {
+    return (scale << 6) | ((index & 7) << 3) | (base & 7);
 }

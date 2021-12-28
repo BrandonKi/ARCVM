@@ -9,7 +9,7 @@
 using namespace arcvm;
 
 //#define POOL
-// #define JIT_MODE
+#define JIT_MODE
 
 #ifdef POOL
 #define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
@@ -57,8 +57,8 @@ inline static bool create_var() {
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}});
-    auto val = bblock->gen_inst(Instruction::load, {val_ptr});
+    bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}, IRValue{Type::ir_i32}});
+    auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {val});
     if(noisy) {
         #ifdef POOL
@@ -87,13 +87,13 @@ inline static bool add_vars() {
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{10}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}});
-    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
-    auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{10}, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
     auto tmp = bblock->gen_inst(Instruction::add, {op1, op2});
-    bblock->gen_inst(Instruction::store, {sum_ptr, tmp});
-    auto sum = bblock->gen_inst(Instruction::load, {sum_ptr});
+    bblock->gen_inst(Instruction::store, {sum_ptr, tmp, IRValue{Type::ir_i32}});
+    auto sum = bblock->gen_inst(Instruction::load, {sum_ptr, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy) {
@@ -750,7 +750,7 @@ inline static bool log_or_vars1() {
         #endif
         IRPrinter::print(main_module);
     }
-    
+
     Arcvm vm;
     vm.load_module(main_module);
 #ifdef JIT_MODE

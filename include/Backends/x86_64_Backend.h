@@ -60,6 +60,14 @@ class x86_64_Backend {
         return reg;
     }
 
+    void put_fvr(x86_64::Register reg) {
+        free_volatile_registers.push_back(reg);
+    }
+
+    void put_fnvr(x86_64::Register reg) {
+        free_nonvolatile_registers.push_back(reg);
+    }
+
 
     void emit_mov(x86_64::Displacement, x86_64::Immediate, i8);
     void emit_mov(x86_64::Register, x86_64::Displacement, i8);

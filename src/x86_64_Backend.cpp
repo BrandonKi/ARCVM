@@ -77,7 +77,6 @@ void x86_64_Backend::compile_basicblock(BasicBlock* basicblock) {
 
 int x86_64_Backend::compile_entry(Entry* entry) {
     switch (entry->instruction) {
-        // TODO maybe take an option to zero intialize??
         case Instruction::alloc: {
             auto size = type_size(entry->arguments[0].type_value);
             auto disp = -size + local_disp;
@@ -85,6 +84,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
 
             val_table[entry->dest.value] = Value{disp};
             auto num_bits = size * 8;
+            // TODO maybe take an option to zero intialize??
             // emit_mov(D(disp), I(0), num_bits);
             break;
         }
@@ -99,8 +99,8 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             }
 
             auto num_bits = size * 8;
-            // TODO use a free regsiter
-            auto reg = Register::rcx;
+            // TODO implement lazy loading
+            auto reg = get_fvr();
             emit_mov(reg, D(val.disp), num_bits);
             val_table[entry->dest.value] = reg;
             break;
@@ -120,7 +120,6 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             }
 
             auto disp = val_table[entry->arguments[0].value].disp;
-            // val_table[entry->arguments[0].value] = Value{disp};
             auto num_bits = size * 8;
 
             if(val.type == REGISTER)
@@ -179,7 +178,14 @@ int x86_64_Backend::compile_entry(Entry* entry) {
                 assert(false);
                 //src = entry->arguments[1].value;
 
-            emit_add(dest.reg, src.reg, 64);
+            emit_add(dest.reg, src.reg, 32);
+            // TODO get rid of this when lazy loading is implemented
+            // this is very temporary
+            put_fvr(dest.reg);
+            put_fvr(src.reg);
+
+            //emit_mov(Register::rax, dest.reg, 64);
+            val_table[entry->dest.value] = dest.reg;
             break;
         }
         case Instruction::sub: {

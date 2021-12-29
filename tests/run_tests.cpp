@@ -92,9 +92,9 @@ inline static bool add_vars() {
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
     auto tmp = bblock->gen_inst(Instruction::add, {op1, op2});
-    bblock->gen_inst(Instruction::store, {sum_ptr, tmp, IRValue{Type::ir_i32}});
-    auto sum = bblock->gen_inst(Instruction::load, {sum_ptr, IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::ret, {sum});
+    //bblock->gen_inst(Instruction::store, {sum_ptr, tmp, IRValue{Type::ir_i32}});
+    //auto sum = bblock->gen_inst(Instruction::load, {sum_ptr, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {tmp});
 
     if(noisy) {
         #ifdef POOL

@@ -192,6 +192,29 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             break;
         }
         case Instruction::sub: {
+            Value dest;
+            if(entry->arguments[0].type == IRValueType::reference)
+                dest = val_table[entry->arguments[0].value];
+            else     // immediate
+                assert(false);
+            //dest = entry->arguments[0].value;
+
+            Value src;
+            if(entry->arguments[1].type == IRValueType::reference)
+                src = val_table[entry->arguments[1].value];
+            else    // immediate
+                assert(false);
+            //src = entry->arguments[1].value;
+
+            auto size = calc_op_size(dest.reg, src.reg);
+
+            emit_sub(dest.reg, src.reg, size);
+            // TODO get rid of this when lazy loading is implemented
+            // this is very temporary
+            put_fvr(dest.reg.name);
+            put_fvr(src.reg.name);
+
+            val_table[entry->dest.value] = dest.reg;
             break;
         }
         case Instruction::mul: {
@@ -391,8 +414,11 @@ void x86_64_Backend::emit_lea() {
 
 }
 */
+
 // FIXEME this works in a hacky/incorrect way
 void x86_64_Backend::emit_add(Displacement dest, Displacement src, i8 bits) {
+
+    emit_mov(Register{rax}, src, bits);
 
     switch(bits) {
         case 8:
@@ -400,16 +426,12 @@ void x86_64_Backend::emit_add(Displacement dest, Displacement src, i8 bits) {
         case 16:
             assert(false);
         case 32:
-            emit_mov(Register{rax}, src, 32);
-
             emit<byte>(0x03);
             emit<byte>(modrm(1, 4, encode(Register{rax})));
             emit<byte>(SIB(0, 4, 4));
             emit<byte>(dest.val);
             break;
         case 64:
-            emit_mov(Register{rax}, src, 64);
-
             emit<byte>(rex_w);
             emit<byte>(0x03);
             emit<byte>(modrm(1, 4, encode(Register{rax})));
@@ -419,7 +441,6 @@ void x86_64_Backend::emit_add(Displacement dest, Displacement src, i8 bits) {
         default:
             assert(false);
     }
-
 }
 
 void x86_64_Backend::emit_add(Register dest, Register src, i8 bits) {
@@ -443,30 +464,72 @@ void x86_64_Backend::emit_add(Register dest, Register src, i8 bits) {
     }
 }
 
-/*
-void x86_64_Backend::emit_sub() {
-
+void x86_64_Backend::emit_sub(Register dest, Register src, i8 bits) {
+    switch(bits) {
+        case 8:
+            assert(false);
+        case 16:
+            assert(false);
+        case 32:
+            emit<byte>(0x29);
+            emit<byte>(modrm(3, encode(dest), encode(src)));
+            break;
+        case 64:
+            emit<byte>(rex_w);
+            emit<byte>(0x29);
+            emit<byte>(modrm(3, encode(dest), encode(src)));
+            break;
+        default:
+            assert(false);
+    }
 }
 
+/*
 void x86_64_Backend::emit_div() {
-
+    switch(bits) {
+        case 8:
+        case 16:
+        case 32:
+        case 64:
+        default:
+    }
 }
 
 void x86_64_Backend::emit_idiv() {
-
+    switch(bits) {
+        case 8:
+        case 16:
+        case 32:
+        case 64:
+        default:
+    }
 }
 
 void x86_64_Backend::emit_mul() {
-
+    switch(bits) {
+        case 8:
+        case 16:
+        case 32:
+        case 64:
+        default:
+    }
 }
 
 void x86_64_Backend::emit_imul() {
-
+    switch(bits) {
+        case 8:
+        case 16:
+        case 32:
+        case 64:
+        default:
+    }
 }
 */
+
 void x86_64_Backend::emit_ret() {
     emit<byte>(0xC3);
 }
+
 /*
 void x86_64_Backend::emit_call() {
 

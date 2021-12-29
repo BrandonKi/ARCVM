@@ -85,7 +85,7 @@ class x86_64_Backend {
     void emit_div();
     void emit_idiv();
     void emit_mul();
-    void emit_imul();
+    void emit_imul(x86_64::Register, x86_64::Register, i8);
 
     void emit_ret();
 

@@ -61,9 +61,9 @@ inline static bool create_var() {
     auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {val});
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -92,14 +92,12 @@ inline static bool add_vars() {
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
     auto tmp = bblock->gen_inst(Instruction::add, {op1, op2, IRValue{Type::ir_i32}});
-    //bblock->gen_inst(Instruction::store, {sum_ptr, tmp, IRValue{Type::ir_i32}});
-    //auto sum = bblock->gen_inst(Instruction::load, {sum_ptr, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {tmp});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -128,14 +126,12 @@ inline static bool sub_vars() {
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
     auto tmp = bblock->gen_inst(Instruction::sub, {op1, op2});
-    //bblock->gen_inst(Instruction::store, {sum_ptr, tmp, IRValue{Type::ir_i32}});
-    //auto sum = bblock->gen_inst(Instruction::load, {sum_ptr});
     bblock->gen_inst(Instruction::ret, {tmp});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -159,14 +155,12 @@ inline static bool mul_vars() {
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{5}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}});
-    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
-    auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{5}, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
     auto tmp = bblock->gen_inst(Instruction::mul, {op1, op2});
-    bblock->gen_inst(Instruction::store, {sum_ptr, tmp});
-    auto sum = bblock->gen_inst(Instruction::load, {sum_ptr});
-    bblock->gen_inst(Instruction::ret, {sum});
+    bblock->gen_inst(Instruction::ret, {tmp});
 
     if(noisy) {
         #ifdef POOL

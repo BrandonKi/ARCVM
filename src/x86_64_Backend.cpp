@@ -218,6 +218,31 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             break;
         }
         case Instruction::mul: {
+            //TODO should emit imul or mul depending on types
+
+            Value dest;
+            if(entry->arguments[0].type == IRValueType::reference)
+                dest = val_table[entry->arguments[0].value];
+            else     // immediate
+                assert(false);
+            //dest = entry->arguments[0].value;
+
+            Value src;
+            if(entry->arguments[1].type == IRValueType::reference)
+                src = val_table[entry->arguments[1].value];
+            else    // immediate
+                assert(false);
+            //src = entry->arguments[1].value;
+
+            auto size = calc_op_size(dest.reg, src.reg);
+
+            emit_imul(dest.reg, src.reg, size);
+            // TODO get rid of this when lazy loading is implemented
+            // this is very temporary
+            put_fvr(dest.reg.name);
+            put_fvr(src.reg.name);
+
+            val_table[entry->dest.value] = dest.reg;
             break;
         }
         case Instruction::div: {
@@ -514,17 +539,32 @@ void x86_64_Backend::emit_mul() {
         default:
     }
 }
+*/
 
-void x86_64_Backend::emit_imul() {
+// for whatever reason src and dest are flipped for imul
+void x86_64_Backend::emit_imul(Register dest, Register src, i8 bits) {
     switch(bits) {
         case 8:
+            assert(false);
         case 16:
+            assert(false);
         case 32:
+            emit<byte>(0x0F);
+            emit<byte>(0xAF);
+            emit<byte>(modrm(3, encode(src), encode(dest)));
+            //emit<byte>(modrm(3, encode(dest), encode(src)));
+            break;
         case 64:
+            emit<byte>(rex_w);
+            emit<byte>(0x0F);
+            emit<byte>(0xAF);
+            emit<byte>(modrm(3, encode(src), encode(dest)));
+            //emit<byte>(modrm(3, encode(dest), encode(src)));
+            break;
         default:
+            assert(false);
     }
 }
-*/
 
 void x86_64_Backend::emit_ret() {
     emit<byte>(0xC3);

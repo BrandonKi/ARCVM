@@ -16,17 +16,16 @@ class ABI {
     ABI(ABIType abi_type): abi_type{abi_type} {}
 
 
-    std::vector<Register> volatile_register_list() {
+    std::vector<RegisterName> volatile_register_list() {
         if(abi_type == ABIType::windows_x64) {
-            return {Register::r11, Register::r10, Register::r9, Register::r8, Register::rdx, Register::rcx, Register::rax};
+            return {RegisterName::r11, RegisterName::r10, RegisterName::r9, RegisterName::r8, RegisterName::rdx, RegisterName::rcx, RegisterName::rax};
         }
     }
 
-    std::vector<Register> nonvolatile_register_list() {
+    std::vector<RegisterName> nonvolatile_register_list() {
         if(abi_type == ABIType::windows_x64) {
             // TODO use rbp as general purpose
-            return {/*Register::rbp,*/ Register::rbx, Register::rdi, Register::rsi, Register::r12, Register::r13, Register::r14, Register::r15};
-            return {Register::r15, Register::r14, Register::r13, Register::r12, Register::rsi, Register::rdi, Register::rbx, /*Register::rbp*/};
+            return {RegisterName::r15, RegisterName::r14, RegisterName::r13, RegisterName::r12, RegisterName::rsi, RegisterName::rdi, RegisterName::rbx, /*RegisterName::rbp*/};
         }
     }
 

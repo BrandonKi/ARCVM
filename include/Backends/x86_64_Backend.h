@@ -36,15 +36,15 @@ class x86_64_Backend {
 
   private:
     x86_64::ABI abi;
-    std::vector<x86_64::Register> free_volatile_registers;
-    std::vector<x86_64::Register> free_nonvolatile_registers;
+    std::vector<x86_64::RegisterName> free_volatile_registers;
+    std::vector<x86_64::RegisterName> free_nonvolatile_registers;
 
     // TODO need a vector/list/stack of these
     std::array<x86_64::Value, 100> val_table;
     std::vector<i32> disp_list;
     std::vector<byte> output;
 
-    x86_64::Register get_fvr() {
+    x86_64::RegisterName get_fvr() {
         if(free_volatile_registers.empty())
             assert(false);
         auto reg = free_volatile_registers.back();
@@ -52,7 +52,7 @@ class x86_64_Backend {
         return reg;
     }
 
-    x86_64::Register get_fnvr() {
+    x86_64::RegisterName get_fnvr() {
         if(free_nonvolatile_registers.empty())
             assert(false);
         auto reg = free_nonvolatile_registers.back();
@@ -60,11 +60,11 @@ class x86_64_Backend {
         return reg;
     }
 
-    void put_fvr(x86_64::Register reg) {
+    void put_fvr(x86_64::RegisterName reg) {
         free_volatile_registers.push_back(reg);
     }
 
-    void put_fnvr(x86_64::Register reg) {
+    void put_fnvr(x86_64::RegisterName reg) {
         free_nonvolatile_registers.push_back(reg);
     }
 
@@ -104,6 +104,11 @@ class x86_64_Backend {
     byte rex(bool w, bool r, bool x, bool b);
     byte modrm(byte, byte, byte);
     byte SIB(byte, byte, byte);
+
+    i8 calc_op_size(x86_64::Register r1, x86_64::Register r2) {
+        auto temp = std::max(r1.size, r2.size);
+        return temp >= 32 ? temp : 32;
+    }
 
 
     // TODO use concepts

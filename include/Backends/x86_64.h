@@ -30,7 +30,7 @@ enum class Opcode {
     int3
 };
 
-enum class Register : byte {
+enum class RegisterName : byte {
     rax,
     rcx,
     rdx,
@@ -48,6 +48,18 @@ enum class Register : byte {
     r14,
     r15
 };
+
+struct Register {
+    RegisterName name;
+    i8 size;
+
+    Register(RegisterName name): name{name}, size{0} {}
+    Register(RegisterName name, i8 size): name{name}, size{size} {}
+};
+
+inline byte encode(Register reg) {
+    return byte(reg.name);
+}
 
 struct Displacement {
     i32 val;

@@ -1,6 +1,9 @@
 #ifndef ARCVM_COMMON_H
 #define ARCVM_COMMON_H
 
+#define NOMINMAX
+//#define WIN32_LEAN_AND_MEAN
+
 #include <small_profiler.h>
 #include <color_print.h>
 #include <thread_pool.h>
@@ -299,7 +302,7 @@ struct Module {
 };
 
 struct CompiledModule {
-    
+
 };
 
 };

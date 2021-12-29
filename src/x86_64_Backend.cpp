@@ -9,7 +9,9 @@
 
 using namespace arcvm;
 using namespace x86_64;
+
 using enum ValueType;
+using enum RegisterName;
 
 using byte = u8;
 
@@ -83,7 +85,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             local_disp = disp;
 
             val_table[entry->dest.value] = Value{disp};
-            auto num_bits = size * 8;
+            i8 num_bits = size * 8;
             // TODO maybe take an option to zero intialize??
             // emit_mov(D(disp), I(0), num_bits);
             break;
@@ -98,9 +100,9 @@ int x86_64_Backend::compile_entry(Entry* entry) {
                 size = type_size(entry->arguments[1].type_value);
             }
 
-            auto num_bits = size * 8;
+            i8 num_bits = size * 8;
             // TODO implement lazy loading
-            auto reg = get_fvr();
+            auto reg = Register{get_fvr(), num_bits};
             emit_mov(reg, D(val.disp), num_bits);
             val_table[entry->dest.value] = reg;
             break;
@@ -120,7 +122,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             }
 
             auto disp = val_table[entry->arguments[0].value].disp;
-            auto num_bits = size * 8;
+            i8 num_bits = size * 8;
 
             if(val.type == REGISTER)
                 emit_mov(D(disp), val.reg, num_bits);
@@ -139,10 +141,10 @@ int x86_64_Backend::compile_entry(Entry* entry) {
 
             switch(val.type) {
                 case DISPLACEMENT:
-                    emit_mov(Register::rax, D(val.disp), 64);
+                    emit_mov(Register{rax}, D(val.disp), 64);
                     break;
                 case REGISTER:
-                    emit_mov(Register::rax, val.reg, 64);
+                    emit_mov(Register{rax}, val.reg, 64);
                     break;
                 default:
                     assert(false);
@@ -178,13 +180,14 @@ int x86_64_Backend::compile_entry(Entry* entry) {
                 assert(false);
                 //src = entry->arguments[1].value;
 
-            emit_add(dest.reg, src.reg, 32);
+            auto size = calc_op_size(dest.reg, src.reg);
+
+            emit_add(dest.reg, src.reg, size);
             // TODO get rid of this when lazy loading is implemented
             // this is very temporary
-            put_fvr(dest.reg);
-            put_fvr(src.reg);
+            put_fvr(dest.reg.name);
+            put_fvr(src.reg.name);
 
-            //emit_mov(Register::rax, dest.reg, 64);
             val_table[entry->dest.value] = dest.reg;
             break;
         }
@@ -243,7 +246,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             break;
         }
         default:
-        break;
+            break;
     }
     return 0;
 }
@@ -294,27 +297,27 @@ void x86_64_Backend::emit_mov(Register reg, Displacement disp, i8 bits) {
     switch(bits) {
         case 8:
             emit<byte>(0x8A);
-            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(modrm(1, 4, encode(reg)));
             emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 16:
             emit<byte>(0x66);
             emit<byte>(0x8B);
-            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(modrm(1, 4, encode(reg)));
             emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 32:
             emit<byte>(0x8B);
-            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(modrm(1, 4, encode(reg)));
             emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 64:
             emit<byte>(rex_w);
             emit<byte>(0x8B);
-            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(modrm(1, 4, encode(reg)));
             emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
@@ -327,21 +330,21 @@ void x86_64_Backend::emit_mov(Register dest_reg, Register src_reg, i8 bits) {
     switch(bits) {
         case 8:
             emit<byte>(0x88);
-            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            emit<byte>(modrm(3, encode(dest_reg), encode(src_reg)));
             break;
         case 16:
             emit<byte>(0x66);
             emit<byte>(0x89);
-            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            emit<byte>(modrm(3, encode(dest_reg), encode(src_reg)));
             break;
         case 32:
             emit<byte>(0x89);
-            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            emit<byte>(modrm(3, encode(dest_reg), encode(src_reg)));
             break;
         case 64:
             emit<byte>(rex_w);
             emit<byte>(0x89);
-            emit<byte>(modrm(3, byte(dest_reg), byte(src_reg)));
+            emit<byte>(modrm(3, encode(dest_reg), encode(src_reg)));
             break;
         default:
             assert(false);
@@ -354,27 +357,27 @@ void x86_64_Backend::emit_mov(Displacement disp, Register reg, i8 bits) {
     switch(bits) {
         case 8:
             emit<byte>(0x88);
-            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(modrm(1, 4, encode(reg)));
             emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 16:
             emit<byte>(0x66);
             emit<byte>(0x89);
-            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(modrm(1, 4, encode(reg)));
             emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 32:
             emit<byte>(0x89);
-            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(modrm(1, 4, encode(reg)));
             emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
         case 64:
             emit<byte>(rex_w);
             emit<byte>(0x89);
-            emit<byte>(modrm(1, 4, byte(reg)));
+            emit<byte>(modrm(1, 4, encode(reg)));
             emit<byte>(SIB(0, 4, 4));
             emit<byte>(dv);
             break;
@@ -388,20 +391,56 @@ void x86_64_Backend::emit_lea() {
 
 }
 */
+// FIXEME this works in a hacky/incorrect way
 void x86_64_Backend::emit_add(Displacement dest, Displacement src, i8 bits) {
-    emit_mov(Register::rax, src, 64);
 
-    emit<byte>(rex_w);
-    emit<byte>(0x03);
-    emit<byte>(modrm(1, 4, byte(Register::rax)));
-    emit<byte>(SIB(0, 4, 4));
-    emit<byte>(dest.val);
+    switch(bits) {
+        case 8:
+            assert(false);
+        case 16:
+            assert(false);
+        case 32:
+            emit_mov(Register{rax}, src, 32);
+
+            emit<byte>(0x03);
+            emit<byte>(modrm(1, 4, encode(Register{rax})));
+            emit<byte>(SIB(0, 4, 4));
+            emit<byte>(dest.val);
+            break;
+        case 64:
+            emit_mov(Register{rax}, src, 64);
+
+            emit<byte>(rex_w);
+            emit<byte>(0x03);
+            emit<byte>(modrm(1, 4, encode(Register{rax})));
+            emit<byte>(SIB(0, 4, 4));
+            emit<byte>(dest.val);
+            break;
+        default:
+            assert(false);
+    }
+
 }
 
 void x86_64_Backend::emit_add(Register dest, Register src, i8 bits) {
-    emit<byte>(rex_w);
-    emit<byte>(0x01);
-    emit<byte>(modrm(3, byte(dest), byte(src)));
+
+    switch(bits) {
+        case 8:
+            assert(false);
+        case 16:
+            assert(false);
+        case 32:
+            emit<byte>(0x01);
+            emit<byte>(modrm(3, encode(dest), encode(src)));
+            break;
+        case 64:
+            emit<byte>(rex_w);
+            emit<byte>(0x01);
+            emit<byte>(modrm(3, encode(dest), encode(src)));
+            break;
+        default:
+            assert(false);
+    }
 }
 
 /*
@@ -465,12 +504,12 @@ void x86_64_Backend::emit_nop() {
 
 // TODO add support for r8-15
 void x86_64_Backend::emit_push(Register reg) {
-    emit<byte>(0x50 + byte(reg));
+    emit<byte>(0x50 + encode(reg));
 }
 
 // TODO add support for r8-15
 void x86_64_Backend::emit_pop(x86_64::Register reg) {
-    emit<byte>(0x58 + byte(reg));
+    emit<byte>(0x58 + encode(reg));
 }
 
 void x86_64_Backend::emit_int3() {

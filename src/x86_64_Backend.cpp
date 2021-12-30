@@ -77,6 +77,7 @@ void x86_64_Backend::compile_basicblock(BasicBlock* basicblock) {
         compile_entry(entry);
 }
 
+// TODO make this void? I don't remember why it returns an int
 int x86_64_Backend::compile_entry(Entry* entry) {
     switch (entry->instruction) {
         case Instruction::alloc: {
@@ -138,13 +139,14 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             Value val;
             if(entry->arguments[0].type == IRValueType::reference)
                 val = val_table[entry->arguments[0].value];
-
+            // TODO keep type info around so it can be used here
             switch(val.type) {
                 case DISPLACEMENT:
                     emit_mov(Register{rax}, D(val.disp), 64);
                     break;
                 case REGISTER:
-                    emit_mov(Register{rax}, val.reg, 64);
+                    if(val.reg.name != RegisterName::rax)
+                        emit_mov(Register{rax}, val.reg, calc_op_size(val.reg));
                     break;
                 default:
                     assert(false);
@@ -256,6 +258,29 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             break;
         }
         case Instruction::bin_xor: {
+            Value dest;
+            if(entry->arguments[0].type == IRValueType::reference)
+                dest = val_table[entry->arguments[0].value];
+            else     // immediate
+                assert(false);
+            //dest = entry->arguments[0].value;
+
+            Value src;
+            if(entry->arguments[1].type == IRValueType::reference)
+                src = val_table[entry->arguments[1].value];
+            else    // immediate
+                assert(false);
+            //src = entry->arguments[1].value;
+
+            auto size = calc_op_size(dest.reg, src.reg);
+
+            emit_xor(dest.reg, src.reg, size);
+            // TODO get rid of this when lazy loading is implemented
+            // this is very temporary
+            put_fvr(dest.reg.name);
+            put_fvr(src.reg.name);
+
+            val_table[entry->dest.value] = dest.reg;
             break;
         }
         case Instruction::lshift: {
@@ -429,7 +454,8 @@ void x86_64_Backend::emit_lea() {
 }
 */
 
-// FIXEME this works in a hacky/incorrect way
+// FIXME this works in a hacky/incorrect way
+// probably should remove this
 void x86_64_Backend::emit_add(Displacement dest, Displacement src, i8 bits) {
 
     emit_mov(Register{rax}, src, bits);
@@ -545,6 +571,26 @@ void x86_64_Backend::emit_imul(Register dest, Register src, i8 bits) {
     }
 }
 
+void x86_64_Backend::emit_xor(Register dest, Register src, i8 bits) {
+    switch(bits) {
+        case 8:
+            assert(false);
+        case 16:
+            assert(false);
+        case 32:
+            emit<byte>(0x33);
+            emit<byte>(modrm(3, encode(src), encode(dest)));
+            break;
+        case 64:
+            emit<byte>(rex_w);
+            emit<byte>(0x33);
+            emit<byte>(modrm(3, encode(src), encode(dest)));
+            break;
+        default:
+            assert(false);
+    }
+}
+
 void x86_64_Backend::emit_ret() {
     emit<byte>(0xC3);
 }
@@ -571,10 +617,6 @@ void x86_64_Backend::emit_jmp() {
 }
 
 void x86_64_Backend::emit_test() {
-
-}
-
-void x86_64_Backend::emit_xor() {
 
 }
 

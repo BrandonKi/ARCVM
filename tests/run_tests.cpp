@@ -9,7 +9,7 @@
 using namespace arcvm;
 
 //#define POOL
-//#define JIT_MODE
+#define JIT_MODE
 
 #ifdef POOL
 #define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
@@ -333,14 +333,12 @@ inline static bool bin_xor_vars() {
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto result_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{3}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{7}});
-    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
-    auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{3}, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{7}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
     auto tmp = bblock->gen_inst(Instruction::bin_xor, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
-    bblock->gen_inst(Instruction::ret, {result});
+    bblock->gen_inst(Instruction::ret, {tmp});
 
     if(noisy) {
         #ifdef POOL
@@ -727,7 +725,7 @@ inline static bool index_stack_buffer1() {
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
     auto op1_op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i64}});
-    auto op1_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, IRValue{ 0}});
+    auto op1_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, IRValue{0}});
     auto op2_ptr = bblock->gen_inst(Instruction::index, {op1_op2_ptr, IRValue{4}});
     auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{100}, IRValue{Type::ir_i32}});
@@ -1216,10 +1214,12 @@ int main(int argc, char *argv[]) {
     run_test(add_vars);
     run_test(sub_vars);
     run_test(mul_vars);
+ /*
     run_test(div_vars);
     run_test(mod_vars);
     run_test(bin_or_vars);
     run_test(bin_and_vars);
+*/
     run_test(bin_xor_vars);
     run_test(lshift_vars);
     run_test(rshift_vars);

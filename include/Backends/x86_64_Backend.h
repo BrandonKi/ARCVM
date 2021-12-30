@@ -95,7 +95,7 @@ class x86_64_Backend {
     void emit_jne();
     void emit_jmp();
     void emit_test();
-    void emit_xor();
+    void emit_xor(x86_64::Register, x86_64::Register, i8);
     void emit_nop();
     void emit_push(x86_64::Register);
     void emit_pop(x86_64::Register);
@@ -111,6 +111,9 @@ class x86_64_Backend {
         return temp >= 32 ? temp : 32;
     }
 
+    i8 calc_op_size(x86_64::Register r1) {
+        return r1.size >= 32 ? r1.size : 32;
+    }
 
     // TODO use concepts
     template<typename T__, typename std::enable_if<

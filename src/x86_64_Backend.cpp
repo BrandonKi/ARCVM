@@ -218,8 +218,6 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             break;
         }
         case Instruction::mul: {
-            //TODO should emit imul or mul depending on types
-
             Value dest;
             if(entry->arguments[0].type == IRValueType::reference)
                 dest = val_table[entry->arguments[0].value];
@@ -282,15 +280,6 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             break;
         }
         case Instruction::neq: {
-            break;
-        }
-        case Instruction::log_or: {
-            break;
-        }
-        case Instruction::log_and: {
-            break;
-        }
-        case Instruction::log_xor: {
             break;
         }
         default:
@@ -529,19 +518,11 @@ void x86_64_Backend::emit_idiv() {
         default:
     }
 }
-
-void x86_64_Backend::emit_mul() {
-    switch(bits) {
-        case 8:
-        case 16:
-        case 32:
-        case 64:
-        default:
-    }
-}
 */
 
 // for whatever reason src and dest are flipped for imul
+// also imul can be used for signed/unsigned division
+// so a seperate version is not needed
 void x86_64_Backend::emit_imul(Register dest, Register src, i8 bits) {
     switch(bits) {
         case 8:
@@ -552,14 +533,12 @@ void x86_64_Backend::emit_imul(Register dest, Register src, i8 bits) {
             emit<byte>(0x0F);
             emit<byte>(0xAF);
             emit<byte>(modrm(3, encode(src), encode(dest)));
-            //emit<byte>(modrm(3, encode(dest), encode(src)));
             break;
         case 64:
             emit<byte>(rex_w);
             emit<byte>(0x0F);
             emit<byte>(0xAF);
             emit<byte>(modrm(3, encode(src), encode(dest)));
-            //emit<byte>(modrm(3, encode(dest), encode(src)));
             break;
         default:
             assert(false);

@@ -331,33 +331,6 @@ IRValue IRInterpreter::run_entry(Entry* entry) {
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
-        case Instruction::log_or: {
-            // FIXME assumes we are using references
-            // FIXME doesn't do short circuiting
-            auto result = ir_register.back()[entry->arguments[0].value].value ||
-                        ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
-            break;
-        }
-        case Instruction::log_and: {
-            // FIXME assumes we are using references
-            // FIXME doesn't do short circuiting
-            auto result = ir_register.back()[entry->arguments[0].value].value &&
-                        ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
-            break;
-        }
-        case Instruction::log_xor: {
-            // FIXME assumes we are using references
-            // FIXME doesn't do short circuiting
-            // actually I'm pretty sure logical xor can't do short circuiting
-            // both operands need to be evaluated
-            auto lhs = ir_register.back()[entry->arguments[0].value].value != 0;
-            auto rhs = ir_register.back()[entry->arguments[1].value].value != 0;
-            auto result = lhs ^ rhs;
-            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
-            break;
-        }
         default:
             return IRValue{};
     }

@@ -9,7 +9,7 @@
 using namespace arcvm;
 
 //#define POOL
-#define JIT_MODE
+//#define JIT_MODE
 
 #ifdef POOL
 #define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
@@ -91,8 +91,8 @@ inline static bool add_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
-    auto tmp = bblock->gen_inst(Instruction::add, {op1, op2, IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::ret, {tmp});
+    auto result = bblock->gen_inst(Instruction::add, {op1, op2, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
 #ifdef POOL
@@ -125,8 +125,8 @@ inline static bool sub_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
-    auto tmp = bblock->gen_inst(Instruction::sub, {op1, op2});
-    bblock->gen_inst(Instruction::ret, {tmp});
+    auto result = bblock->gen_inst(Instruction::sub, {op1, op2});
+    bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
 #ifdef POOL
@@ -159,13 +159,13 @@ inline static bool mul_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
-    auto tmp = bblock->gen_inst(Instruction::mul, {op1, op2});
-    bblock->gen_inst(Instruction::ret, {tmp});
+    auto result = bblock->gen_inst(Instruction::mul, {op1, op2});
+    bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -193,15 +193,13 @@ inline static bool div_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{7}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::div, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::div, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -229,15 +227,13 @@ inline static bool mod_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{7}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::mod, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::mod, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -265,15 +261,13 @@ inline static bool bin_or_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{2}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::bin_or, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::bin_or, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -301,15 +295,13 @@ inline static bool bin_and_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{7}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::bin_and, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::bin_and, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -337,13 +329,13 @@ inline static bool bin_xor_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{7}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
-    auto tmp = bblock->gen_inst(Instruction::bin_xor, {op1, op2});
-    bblock->gen_inst(Instruction::ret, {tmp});
+    auto result = bblock->gen_inst(Instruction::bin_xor, {op1, op2});
+    bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -371,15 +363,13 @@ inline static bool lshift_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{2}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::lshift, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::lshift, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -407,15 +397,13 @@ inline static bool rshift_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::rshift, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::rshift, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -443,15 +431,13 @@ inline static bool lt_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::lt, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::lt, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -479,15 +465,13 @@ inline static bool gt_vars() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::gt, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::gt, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -515,15 +499,13 @@ inline static bool lte_vars1() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{25}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::lte, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::lte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -551,15 +533,13 @@ inline static bool lte_vars2() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::lte, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::lte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -587,15 +567,13 @@ inline static bool lte_vars3() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{25}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::lte, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::lte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -623,15 +601,13 @@ inline static bool gte_vars1() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{25}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::gte, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::gte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -659,15 +635,13 @@ inline static bool gte_vars2() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{1}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::gte, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::gte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -695,15 +669,13 @@ inline static bool gte_vars3() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{25}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto tmp = bblock->gen_inst(Instruction::gte, {op1, op2});
-    bblock->gen_inst(Instruction::store, {result_ptr, tmp});
-    auto result = bblock->gen_inst(Instruction::load, {result_ptr});
+    auto result = bblock->gen_inst(Instruction::gte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -732,15 +704,13 @@ inline static bool index_stack_buffer1() {
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{100}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
-    auto tmp = bblock->gen_inst(Instruction::add, {op1, op2});
-    bblock->gen_inst(Instruction::store, {sum_ptr, tmp});
-    auto sum = bblock->gen_inst(Instruction::load, {sum_ptr});
+    auto sum = bblock->gen_inst(Instruction::add, {op1, op2});
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -769,15 +739,13 @@ inline static bool index_stack_buffer2() {
     bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{100}, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
-    auto tmp = bblock->gen_inst(Instruction::add, {op1, op2});
-    bblock->gen_inst(Instruction::store, {sum_ptr, tmp});
-    auto sum = bblock->gen_inst(Instruction::load, {sum_ptr});
+    auto sum = bblock->gen_inst(Instruction::add, {op1, op2});
     bblock->gen_inst(Instruction::ret, {sum});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -805,9 +773,9 @@ inline static bool arcvm_api_test() {
 
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -833,7 +801,7 @@ inline static bool brz_test() {
     auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     bblock->gen_inst(Instruction::store, {cond_ptr, IRValue{1}});
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::brz, {cond_val,{IRValue{IRValueType::label, new std::string("if_block")}},{IRValue{IRValueType::label, new std::string("else_block")}}});
+    bblock->gen_inst(Instruction::brz, {cond_val,{IRValue{IRValueType::label, new std::string("if_block")}}, {IRValue{IRValueType::label, new std::string("else_block")}}});
     auto* if_block = fn_body->new_basic_block("if_block");
     if_block->gen_inst(Instruction::store, {val_ptr, IRValue{1}});
     if_block->gen_inst(Instruction::br, {IRValue{IRValueType::label, new std::string("then_block")}});
@@ -845,9 +813,9 @@ inline static bool brz_test() {
     then_block->gen_inst(Instruction::ret, {val});
 
     if(noisy) {
-        #ifdef POOL
+#ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
-        #endif
+#endif
         IRPrinter::print(main_module);
     }
 
@@ -1214,12 +1182,12 @@ int main(int argc, char *argv[]) {
     run_test(add_vars);
     run_test(sub_vars);
     run_test(mul_vars);
- /*
+ ///*
     run_test(div_vars);
     run_test(mod_vars);
     run_test(bin_or_vars);
     run_test(bin_and_vars);
-*/
+//*/
     run_test(bin_xor_vars);
     run_test(lshift_vars);
     run_test(rshift_vars);

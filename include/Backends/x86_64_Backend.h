@@ -95,6 +95,8 @@ class x86_64_Backend {
     void emit_jne();
     void emit_jmp();
     void emit_test();
+    void emit_or(x86_64::Register, x86_64::Register, i8);
+    void emit_and(x86_64::Register, x86_64::Register, i8);
     void emit_xor(x86_64::Register, x86_64::Register, i8);
     void emit_nop();
     void emit_push(x86_64::Register);

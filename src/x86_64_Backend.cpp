@@ -102,7 +102,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             }
 
             i8 num_bits = size * 8;
-            // TODO implement lazy loading
+
             auto reg = Register{get_fvr(), num_bits};
             emit_mov(reg, D(val.disp), num_bits);
             val_table[entry->dest.value] = reg;
@@ -169,11 +169,13 @@ int x86_64_Backend::compile_entry(Entry* entry) {
         }
         case Instruction::add: {
             Value dest;
-            if(entry->arguments[0].type == IRValueType::reference)
+            if(entry->arguments[0].type == IRValueType::reference) {
                 dest = val_table[entry->arguments[0].value];
-            else     // immediate
+            }
+            else {     // immediate
                 assert(false);
                 //dest = entry->arguments[0].value;
+            }
 
             Value src;
             if(entry->arguments[1].type == IRValueType::reference)
@@ -185,8 +187,8 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             auto size = calc_op_size(dest.reg, src.reg);
 
             emit_add(dest.reg, src.reg, size);
-            // TODO get rid of this when lazy loading is implemented
-            // this is very temporary
+
+            // TODO waiting for register allocator
             put_fvr(dest.reg.name);
             put_fvr(src.reg.name);
 
@@ -211,8 +213,8 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             auto size = calc_op_size(dest.reg, src.reg);
 
             emit_sub(dest.reg, src.reg, size);
-            // TODO get rid of this when lazy loading is implemented
-            // this is very temporary
+
+            // TODO waiting for register allocator
             put_fvr(dest.reg.name);
             put_fvr(src.reg.name);
 
@@ -237,8 +239,8 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             auto size = calc_op_size(dest.reg, src.reg);
 
             emit_imul(dest.reg, src.reg, size);
-            // TODO get rid of this when lazy loading is implemented
-            // this is very temporary
+
+            // TODO waiting for register allocator
             put_fvr(dest.reg.name);
             put_fvr(src.reg.name);
 
@@ -269,8 +271,8 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             auto size = calc_op_size(dest.reg, src.reg);
 
             emit_or(dest.reg, src.reg, size);
-            // TODO get rid of this when lazy loading is implemented
-            // this is very temporary
+
+            // TODO waiting for register allocator
             put_fvr(dest.reg.name);
             put_fvr(src.reg.name);
 
@@ -295,8 +297,8 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             auto size = calc_op_size(dest.reg, src.reg);
 
             emit_and(dest.reg, src.reg, size);
-            // TODO get rid of this when lazy loading is implemented
-            // this is very temporary
+
+            // TODO waiting for register allocator
             put_fvr(dest.reg.name);
             put_fvr(src.reg.name);
 
@@ -321,8 +323,8 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             auto size = calc_op_size(dest.reg, src.reg);
 
             emit_xor(dest.reg, src.reg, size);
-            // TODO get rid of this when lazy loading is implemented
-            // this is very temporary
+
+            // TODO waiting for register allocator
             put_fvr(dest.reg.name);
             put_fvr(src.reg.name);
 
@@ -358,8 +360,6 @@ int x86_64_Backend::compile_entry(Entry* entry) {
     }
     return 0;
 }
-
-
 
 void x86_64_Backend::emit_mov(Displacement disp, Immediate immediate, i8 bits) {
     auto& dv = disp.val;
@@ -685,11 +685,13 @@ void x86_64_Backend::emit_ret() {
 void x86_64_Backend::emit_call() {
 
 }
+*/
 
 void x86_64_Backend::emit_cmp() {
 
 }
 
+/*
 void x86_64_Backend::emit_je() {
 
 }
@@ -705,12 +707,12 @@ void x86_64_Backend::emit_jmp() {
 void x86_64_Backend::emit_test() {
 
 }
+*/
 
 void x86_64_Backend::emit_nop() {
-
+    emit<byte>(0x90);
 }
 
-*/
 
 // TODO add support for r8-15
 void x86_64_Backend::emit_push(Register reg) {
@@ -732,7 +734,7 @@ byte x86_64_Backend::rex(bool w, bool r, bool x, bool b) {
 
 // TODO remove redundancy
 byte x86_64_Backend::modrm(byte mod, byte rm, byte reg) {
-    return u8(0) | ((mod & 3) << 6) | ((reg & 7) << 3) | (rm & 7);
+    return (mod << 6) | ((reg & 7) << 3) | (rm & 7);
 }
 
 byte x86_64_Backend::SIB(byte scale, byte index, byte base) {

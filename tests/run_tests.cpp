@@ -1180,15 +1180,16 @@ int main(int argc, char *argv[]) {
 
     run_test(create_var);
     run_test(add_vars);
-    run_test(sub_vars);
-    run_test(mul_vars);
+    run_test(sub_vars);    // p
+    run_test(mul_vars);    // p
 /*
     run_test(div_vars);
     run_test(mod_vars);
 */
-    run_test(bin_or_vars);
-    run_test(bin_and_vars);
-    run_test(bin_xor_vars);
+    run_test(bin_or_vars);     // p
+    run_test(bin_and_vars);    // p
+    run_test(bin_xor_vars);    // p
+/*
     run_test(lshift_vars);
     run_test(rshift_vars);
     run_test(lt_vars);
@@ -1210,6 +1211,7 @@ int main(int argc, char *argv[]) {
     run_test(function_call_with_args_by_value);
     run_test(function_call_with_args_by_ref);
     run_test(CF_cleanup_test);
+*/
 
 #ifdef POOL
     test_thread_pool.~ThreadPool();

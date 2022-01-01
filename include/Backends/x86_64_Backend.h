@@ -104,6 +104,8 @@ class x86_64_Backend {
 
     void emit_int3();
 
+    void emit_neg(x86_64::Register, i8);
+
     byte rex(bool w, bool r, bool x, bool b);
     byte modrm(byte, byte, byte);
     byte SIB(byte, byte, byte);

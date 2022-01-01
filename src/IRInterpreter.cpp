@@ -331,8 +331,15 @@ IRValue IRInterpreter::run_entry(Entry* entry) {
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
+        case Instruction::neg: {
+            auto result = -ir_register.back()[entry->arguments[0].value].value;
+            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+            break;
+        }
         default:
+            assert(false);
             return IRValue{};
     }
+    assert(false);
     return IRValue{};
 }

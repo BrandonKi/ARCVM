@@ -1148,7 +1148,8 @@ inline static bool test() {
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}, IRValue{Type::ir_i32}});
     auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::ret, {val});
+    auto neg_val = bblock->gen_inst(Instruction::neg, {val});
+    bblock->gen_inst(Instruction::ret, {neg_val});
     if(noisy) {
 #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
@@ -1159,9 +1160,9 @@ inline static bool test() {
     Arcvm vm;
     vm.load_module(main_module);
 #ifdef JIT_MODE
-    return vm.jit() == 10;
+    return vm.jit() == -10;
 #else
-    return vm.run() == 10;
+    return vm.run() == -10;
 #endif
 }
 

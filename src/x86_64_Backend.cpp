@@ -355,16 +355,34 @@ int x86_64_Backend::compile_entry(Entry* entry) {
         case Instruction::neq: {
             break;
         }
+        case Instruction::neg: {
+            Value dest;
+            if(entry->arguments[0].type == IRValueType::reference)
+                dest = val_table[entry->arguments[0].value];
+            else     // immediate
+                assert(false);
+            //dest = entry->arguments[0].value;
+
+            auto size = calc_op_size(dest.reg);
+
+            emit_neg(dest.reg, size);
+
+            // TODO waiting for register allocator
+            put_fvr(dest.reg.name);
+
+            val_table[entry->dest.value] = dest.reg;
+            break;
+        }
         default:
             break;
     }
     return 0;
 }
 
-void x86_64_Backend::emit_mov(Displacement disp, Immediate immediate, i8 bits) {
+void x86_64_Backend::emit_mov(Displacement disp, Immediate immediate, i8 size) {
     auto& dv = disp.val;
     auto& imm = immediate.val;
-    switch(bits) {
+    switch(size) {
         case 8:
             emit<byte>(0xc6);
             emit<byte>(modrm(1, 4, 0));
@@ -400,9 +418,9 @@ void x86_64_Backend::emit_mov(Displacement disp, Immediate immediate, i8 bits) {
     }
 }
 
-void x86_64_Backend::emit_mov(Register reg, Displacement disp, i8 bits) {
+void x86_64_Backend::emit_mov(Register reg, Displacement disp, i8 size) {
     auto& dv = disp.val;
-    switch(bits) {
+    switch(size) {
         case 8:
             emit<byte>(0x8A);
             emit<byte>(modrm(1, 4, encode(reg)));
@@ -434,8 +452,8 @@ void x86_64_Backend::emit_mov(Register reg, Displacement disp, i8 bits) {
     }
 }
 
-void x86_64_Backend::emit_mov(Register dest_reg, Register src_reg, i8 bits) {
-    switch(bits) {
+void x86_64_Backend::emit_mov(Register dest_reg, Register src_reg, i8 size) {
+    switch(size) {
         case 8:
             emit<byte>(0x88);
             emit<byte>(modrm(3, encode(dest_reg), encode(src_reg)));
@@ -460,9 +478,9 @@ void x86_64_Backend::emit_mov(Register dest_reg, Register src_reg, i8 bits) {
 }
 
 
-void x86_64_Backend::emit_mov(Displacement disp, Register reg, i8 bits) {
+void x86_64_Backend::emit_mov(Displacement disp, Register reg, i8 size) {
     auto& dv = disp.val;
-    switch(bits) {
+    switch(size) {
         case 8:
             emit<byte>(0x88);
             emit<byte>(modrm(1, 4, encode(reg)));
@@ -502,11 +520,11 @@ void x86_64_Backend::emit_lea() {
 
 // FIXME this works in a hacky/incorrect way
 // probably should remove this
-void x86_64_Backend::emit_add(Displacement dest, Displacement src, i8 bits) {
+void x86_64_Backend::emit_add(Displacement dest, Displacement src, i8 size) {
 
-    emit_mov(Register{rax}, src, bits);
+    emit_mov(Register{rax}, src, size);
 
-    switch(bits) {
+    switch(size) {
         case 8:
             assert(false);
         case 16:
@@ -529,9 +547,9 @@ void x86_64_Backend::emit_add(Displacement dest, Displacement src, i8 bits) {
     }
 }
 
-void x86_64_Backend::emit_add(Register dest, Register src, i8 bits) {
+void x86_64_Backend::emit_add(Register dest, Register src, i8 size) {
 
-    switch(bits) {
+    switch(size) {
         case 8:
             assert(false);
         case 16:
@@ -550,8 +568,8 @@ void x86_64_Backend::emit_add(Register dest, Register src, i8 bits) {
     }
 }
 
-void x86_64_Backend::emit_sub(Register dest, Register src, i8 bits) {
-    switch(bits) {
+void x86_64_Backend::emit_sub(Register dest, Register src, i8 size) {
+    switch(size) {
         case 8:
             assert(false);
         case 16:
@@ -572,7 +590,7 @@ void x86_64_Backend::emit_sub(Register dest, Register src, i8 bits) {
 
 /*
 void x86_64_Backend::emit_div() {
-    switch(bits) {
+    switch(size) {
         case 8:
         case 16:
         case 32:
@@ -582,7 +600,7 @@ void x86_64_Backend::emit_div() {
 }
 
 void x86_64_Backend::emit_idiv() {
-    switch(bits) {
+    switch(size) {
         case 8:
         case 16:
         case 32:
@@ -595,8 +613,8 @@ void x86_64_Backend::emit_idiv() {
 // for whatever reason src and dest are flipped for imul
 // also imul can be used for signed/unsigned division
 // so a seperate version is not needed
-void x86_64_Backend::emit_imul(Register dest, Register src, i8 bits) {
-    switch(bits) {
+void x86_64_Backend::emit_imul(Register dest, Register src, i8 size) {
+    switch(size) {
         case 8:
             assert(false);
         case 16:
@@ -617,8 +635,8 @@ void x86_64_Backend::emit_imul(Register dest, Register src, i8 bits) {
     }
 }
 
-void x86_64_Backend::emit_or(Register dest, Register src, i8 bits) {
-    switch(bits) {
+void x86_64_Backend::emit_or(Register dest, Register src, i8 size) {
+    switch(size) {
         case 8:
             assert(false);
         case 16:
@@ -637,8 +655,8 @@ void x86_64_Backend::emit_or(Register dest, Register src, i8 bits) {
     }
 }
 
-void x86_64_Backend::emit_and(Register dest, Register src, i8 bits) {
-    switch(bits) {
+void x86_64_Backend::emit_and(Register dest, Register src, i8 size) {
+    switch(size) {
         case 8:
             assert(false);
         case 16:
@@ -657,8 +675,8 @@ void x86_64_Backend::emit_and(Register dest, Register src, i8 bits) {
     }
 }
 
-void x86_64_Backend::emit_xor(Register dest, Register src, i8 bits) {
-    switch(bits) {
+void x86_64_Backend::emit_xor(Register dest, Register src, i8 size) {
+    switch(size) {
         case 8:
             assert(false);
         case 16:
@@ -720,12 +738,32 @@ void x86_64_Backend::emit_push(Register reg) {
 }
 
 // TODO add support for r8-15
-void x86_64_Backend::emit_pop(x86_64::Register reg) {
+void x86_64_Backend::emit_pop(Register reg) {
     emit<byte>(0x58 + encode(reg));
 }
 
 void x86_64_Backend::emit_int3() {
     emit<byte>(0xCC);
+}
+
+void x86_64_Backend::emit_neg(Register dest, i8 size) {
+    switch(size) {
+        case 8:
+            assert(false);
+        case 16:
+            assert(false);
+        case 32:
+            emit<byte>(0xF7);
+            emit<byte>(modrm(3, 0, 3 + encode(dest)));
+            break;
+        case 64:
+            emit<byte>(rex_w);
+            emit<byte>(0xF7);
+            emit<byte>(modrm(3, 0, 3 + encode(dest)));
+            break;
+        default:
+            assert(false);
+    }
 }
 
 byte x86_64_Backend::rex(bool w, bool r, bool x, bool b) {

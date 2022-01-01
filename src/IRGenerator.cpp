@@ -100,6 +100,7 @@ IRValue BasicBlock::gen_inst(Instruction instruction, std::vector<IRValue> value
         case Instruction::gte:
         case Instruction::eq:
         case Instruction::neq:
+        case Instruction::neg:
             entries.push_back(new Entry{IRValue{IRValueType::reference, var_name}, instruction, values});
             ++var_name;
             return entries.back()->dest;

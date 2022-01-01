@@ -68,6 +68,8 @@ enum class Instruction : i8 {
     gte,
     eq,
     neq,
+
+    neg,
 };
 
 static std::string to_string(Instruction instruction) {
@@ -122,6 +124,8 @@ static std::string to_string(Instruction instruction) {
             return "eq";
         case Instruction::neq:
             return "neq";
+        case Instruction::neg:
+            return "neg";
         default:
             return "";
     }

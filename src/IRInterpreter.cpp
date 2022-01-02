@@ -340,6 +340,5 @@ IRValue IRInterpreter::run_entry(Entry* entry) {
             assert(false);
             return IRValue{};
     }
-    assert(false);
     return IRValue{};
 }

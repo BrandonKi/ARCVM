@@ -79,6 +79,7 @@ class x86_64_Backend {
 
     void emit_add(x86_64::Displacement, x86_64::Displacement, i8);
     void emit_add(x86_64::Register, x86_64::Register, i8);
+    void emit_add(x86_64::Register, x86_64::Immediate, i8);
 
     void emit_sub(x86_64::Displacement, x86_64::Displacement, i8);
     void emit_sub(x86_64::Register, x86_64::Register, i8);

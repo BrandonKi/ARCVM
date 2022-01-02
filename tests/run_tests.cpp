@@ -1149,7 +1149,8 @@ inline static bool test() {
     bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}, IRValue{Type::ir_i32}});
     auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i32}});
     auto neg_val = bblock->gen_inst(Instruction::neg, {val});
-    bblock->gen_inst(Instruction::ret, {neg_val});
+    auto sum = bblock->gen_inst(Instruction::add, {neg_val, 15});
+    bblock->gen_inst(Instruction::ret, {sum});
     if(noisy) {
 #ifdef POOL
         std::unique_lock<std::mutex> lock(cout_mutex);
@@ -1159,10 +1160,11 @@ inline static bool test() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    vm.optimize();
 #ifdef JIT_MODE
-    return vm.jit() == -10;
+    return vm.jit() == 5;
 #else
-    return vm.run() == -10;
+    return vm.run() == 5;
 #endif
 }
 
@@ -1179,18 +1181,18 @@ int main(int argc, char *argv[]) {
 
     run_test(test);
 
+/*
     run_test(create_var);
     run_test(add_vars);
     run_test(sub_vars);    // p
     run_test(mul_vars);    // p
-/*
     run_test(div_vars);
     run_test(mod_vars);
 */
+/*
     run_test(bin_or_vars);     // p
     run_test(bin_and_vars);    // p
     run_test(bin_xor_vars);    // p
-/*
     run_test(lshift_vars);
     run_test(rshift_vars);
     run_test(lt_vars);

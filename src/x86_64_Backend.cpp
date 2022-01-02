@@ -172,25 +172,29 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             if(entry->arguments[0].type == IRValueType::reference) {
                 dest = val_table[entry->arguments[0].value];
             }
-            else {     // immediate
+            else {
                 assert(false);
-                //dest = entry->arguments[0].value;
             }
 
             Value src;
-            if(entry->arguments[1].type == IRValueType::reference)
+            if(entry->arguments[1].type == IRValueType::reference) {
                 src = val_table[entry->arguments[1].value];
-            else    // immediate
+                auto size = calc_op_size(dest.reg, src.reg);
+                emit_add(dest.reg, src.reg, size);
+
+                // TODO waiting for register allocator
+                put_fvr(dest.reg.name);
+                put_fvr(src.reg.name);
+            }
+            else if(entry->arguments[1].type == IRValueType::immediate) {
+                src = entry->arguments[1].value;
+                emit_add(dest.reg, I(src.imm), 32);    // TODO need to keep size metadata with imm
+
+                // TODO waiting for register allocator
+                put_fvr(dest.reg.name);
+            }
+            else
                 assert(false);
-                //src = entry->arguments[1].value;
-
-            auto size = calc_op_size(dest.reg, src.reg);
-
-            emit_add(dest.reg, src.reg, size);
-
-            // TODO waiting for register allocator
-            put_fvr(dest.reg.name);
-            put_fvr(src.reg.name);
 
             val_table[entry->dest.value] = dest.reg;
             break;
@@ -562,6 +566,39 @@ void x86_64_Backend::emit_add(Register dest, Register src, i8 size) {
             emit<byte>(rex_w);
             emit<byte>(0x01);
             emit<byte>(modrm(3, encode(dest), encode(src)));
+            break;
+        default:
+            assert(false);
+    }
+}
+
+void x86_64_Backend::emit_add(Register dest, Immediate imm, i8 size) {
+
+    switch(size) {
+        case 8:
+            assert(false);
+        case 16:
+            assert(false);
+        case 32:
+            if(dest.name == RegisterName::rax) {
+                emit<byte>(0x05);
+            }
+            else {
+                emit<byte>(0x81);
+                emit<byte>(modrm(3, 1, encode(dest) - 1));
+            }
+            emit<i32>(imm.val);
+            break;
+        case 64:
+            emit<byte>(rex_w);
+            if(dest.name == RegisterName::rax) {
+                emit<byte>(0x05);
+            }
+            else {
+                emit<byte>(0x81);
+                emit<byte>(modrm(3, 1, encode(dest) - 1));
+            }
+            emit<i32>(imm.val);    // 64 bit immediates need an extra instruction
             break;
         default:
             assert(false);

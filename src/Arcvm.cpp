@@ -20,7 +20,8 @@ void Arcvm::optimize() {
 
 void Arcvm::optimize_module(Module* module) {
     PassManager<
-        CFResolutionPass
+        CFResolutionPass,
+        ConstantPropogation
     > pm;
     pm.module_pass(module);
 }

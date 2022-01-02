@@ -10,6 +10,7 @@
 
 #include "Passes/PassManager.h"
 #include "Passes/CFResolutionPass.h"
+#include "Passes/ConstantPropogation.h"
 
 #include <cstdint>
 #include <iostream>

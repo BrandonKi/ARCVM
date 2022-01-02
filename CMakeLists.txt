@@ -13,6 +13,7 @@ add_library(arcvm_lib OBJECT
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IRPrinter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IRInterpreter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Passes/CFResolutionPass.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Passes/ConstantPropogation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/x86_64_Backend.cpp
 )
 

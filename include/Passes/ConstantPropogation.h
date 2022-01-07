@@ -1,3 +1,5 @@
+// TODO
+/*
 #ifndef ARCVM_CONSTANT_PROPOGATION_H
 #define ARCVM_CONSTANT_PROPOGATION_H
 
@@ -22,3 +24,4 @@ namespace arcvm {
 };
 
 #endif //ARCVM_CONSTANT_PROPOGATION_H
+*/

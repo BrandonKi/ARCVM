@@ -19,6 +19,14 @@ class IRInterpreter {
 
     i32 run();
 
+    void build_jump_table(Module*);
+    i32 run_module(Module*);
+    i32 run_entry_function();
+    IRValue run_function(Function*, std::vector<IRValue>);
+    IRValue run_block(Block*);
+    IRValue run_basicblock(BasicBlock*);
+    IRValue run_entry(Entry*);
+
   private:
     Module* module_;
     std::unordered_map<std::string, BasicBlock*> jump_table;
@@ -27,13 +35,6 @@ class IRInterpreter {
 
     std::vector<std::array<IRValue, 100>> ir_register;
 
-    void build_jump_table(Module*);
-    i32 run_module(Module*);
-    i32 run_entry_function();
-    IRValue run_function(Function*, std::vector<IRValue>);
-    IRValue run_block(Block*);
-    IRValue run_basicblock(BasicBlock*);
-    IRValue run_entry(Entry*);
 };
 
 };

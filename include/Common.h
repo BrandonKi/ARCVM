@@ -2,6 +2,7 @@
 #define ARCVM_COMMON_H
 
 #define NOMINMAX
+// FIXME this somehow breaks stuff
 //#define WIN32_LEAN_AND_MEAN
 
 #include <small_profiler.h>
@@ -46,6 +47,8 @@ enum class Instruction : i8 {
     call,
     ret,
 
+    phi,
+    dup,
     index,
 
     br,
@@ -84,6 +87,10 @@ static std::string to_string(Instruction instruction) {
             return "call";
         case Instruction::ret:
             return "ret";
+        case Instruction::phi:
+            return "phi";
+        case Instruction::dup:
+            return "dup";
         case Instruction::index:
             return "index";
         case Instruction::br:

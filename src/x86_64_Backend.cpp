@@ -164,6 +164,12 @@ int x86_64_Backend::compile_entry(Entry* entry) {
         case Instruction::brnz: {
             break;
         }
+        case Instruction::phi: {
+            break;
+        }
+        case Instruction::dup: {
+            break;
+        }
         case Instruction::index: {
             break;
         }

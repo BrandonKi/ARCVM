@@ -203,6 +203,14 @@ IRValue IRInterpreter::run_entry(Entry* entry) {
             else
                 return run_basicblock(jump_table[*label_name2]);
         }
+        case Instruction::phi: {
+            assert(false);
+            break;
+        }
+        case Instruction::dup: {
+            ir_register.back()[entry->dest.value] = unpack(entry->arguments[0]);
+            break;
+        }
         case Instruction::index: {
             // TODO clean this up
             auto* ptr = reinterpret_cast<i8*>(ir_register.back()[entry->arguments[0].value].pointer_value);

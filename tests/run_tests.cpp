@@ -9,7 +9,7 @@
 using namespace arcvm;
 
 //#define POOL
-#define JIT_MODE
+//#define JIT_MODE
 
 #ifdef POOL
 #define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
@@ -1137,7 +1137,7 @@ inline static bool CF_cleanup_test() {
 #endif
 }
 
-inline static bool test() {
+inline static bool negate_test() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -1168,6 +1168,36 @@ inline static bool test() {
 #endif
 }
 
+inline static bool test() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}, IRValue{Type::ir_i32}});
+    auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i32}});
+    auto sum  = bblock->gen_inst(Instruction::add, {10, 10});
+    bblock->gen_inst(Instruction::ret, {sum});
+    if(noisy) {
+#ifdef POOL
+        std::unique_lock<std::mutex> lock(cout_mutex);
+#endif
+        IRPrinter::print(main_module);
+    }
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    vm.optimize();
+#ifdef JIT_MODE
+    return vm.jit() == 20;
+#else
+    return vm.run() == 20;
+#endif
+}
+
 using namespace std::literals;
 
 int main(int argc, char *argv[]) {
@@ -1181,15 +1211,15 @@ int main(int argc, char *argv[]) {
 
     run_test(test);
 
-/*
+///*
     run_test(create_var);
     run_test(add_vars);
     run_test(sub_vars);    // p
     run_test(mul_vars);    // p
     run_test(div_vars);
     run_test(mod_vars);
-*/
-/*
+//*/
+///*
     run_test(bin_or_vars);     // p
     run_test(bin_and_vars);    // p
     run_test(bin_xor_vars);    // p
@@ -1214,7 +1244,8 @@ int main(int argc, char *argv[]) {
     run_test(function_call_with_args_by_value);
     run_test(function_call_with_args_by_ref);
     run_test(CF_cleanup_test);
-*/
+    run_test(negate_test);
+//*/
 
 #ifdef POOL
     test_thread_pool.~ThreadPool();

@@ -65,12 +65,6 @@ IRValue IRInterpreter::run_function(Function* function, std::vector<IRValue> arg
 IRValue IRInterpreter::run_block(Block* block) {
     ARCVM_PROFILE();
     return run_basicblock(block->blocks[0]);
-    //for (size_t i = 0; i < block->blocks.size(); ++i) {
-    //    auto ret_val = run_basicblock(block->blocks[i]);
-    //    if (ret_val.type != IRValueType::none)
-    //        return ret_val;
-    //}
-    //return IRValue{IRValueType::none};
 }
 
 IRValue IRInterpreter::run_basicblock(BasicBlock* basicblock) {
@@ -222,117 +216,87 @@ IRValue IRInterpreter::run_entry(Entry* entry) {
             break;
         }
         case Instruction::add: {
-            // FIXME assumes we are using references
-            auto sum = ir_register.back()[entry->arguments[0].value].value +
-                        ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, sum};
+            auto result = unpack(entry->arguments[0]) + unpack(entry->arguments[1]);
+            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::sub: {
-            // FIXME assumes we are using references
-            auto sum = ir_register.back()[entry->arguments[0].value].value -
-                        ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, sum};
+            auto result = unpack(entry->arguments[0]) - unpack(entry->arguments[1]);
+            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::mul: {
-            // FIXME assumes we are using references
-            auto sum = ir_register.back()[entry->arguments[0].value].value *
-                        ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, sum};
+            auto result = unpack(entry->arguments[0]) * unpack(entry->arguments[1]);
+            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::div: {
-            // FIXME assumes we are using references
-            auto sum = ir_register.back()[entry->arguments[0].value].value /
-                        ir_register.back()[entry->arguments[1].value].value;
-            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, sum};
+            auto result = unpack(entry->arguments[0]) / unpack(entry->arguments[1]);
+            ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::mod: {
-            // FIXME assumes we are using references
-            auto result = ir_register.back()[entry->arguments[0].value].value %
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) % unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::bin_or: {
-            // FIXME assumes we are using references
-            auto result = ir_register.back()[entry->arguments[0].value].value |
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) | unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::bin_and: {
-            // FIXME assumes we are using references
-            auto result = ir_register.back()[entry->arguments[0].value].value &
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) & unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::bin_xor: {
-            // FIXME assumes we are using references
-            auto result = ir_register.back()[entry->arguments[0].value].value ^
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) ^ unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::lshift: {
-            // FIXME assumes we are using references
-            auto result = ir_register.back()[entry->arguments[0].value].value <<
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) << unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::rshift: {
-            // FIXME assumes we are using references
-            auto result = ir_register.back()[entry->arguments[0].value].value >>
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) >> unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::lt: {
-            // FIXME assumes we are using references
-            auto result = ir_register.back()[entry->arguments[0].value].value <
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) < unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::gt: {
-            // FIXME assumes we are using references
-            auto result = ir_register.back()[entry->arguments[0].value].value >
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) > unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::lte: {
-            // FIXME assumes we are using references
-            auto result = ir_register.back()[entry->arguments[0].value].value <=
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) <= unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::gte: {
-            // FIXME assumes we are using references
-            auto result = ir_register.back()[entry->arguments[0].value].value >=
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) >= unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::eq: {
-            auto result = ir_register.back()[entry->arguments[0].value].value ==
-                        ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) == unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::neq: {
-            auto result = ir_register.back()[entry->arguments[0].value].value !=
-                ir_register.back()[entry->arguments[1].value].value;
+            auto result = unpack(entry->arguments[0]) != unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::neg: {
-            auto result = -ir_register.back()[entry->arguments[0].value].value;
+            auto result = -unpack(entry->arguments[0]);
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
@@ -341,4 +305,14 @@ IRValue IRInterpreter::run_entry(Entry* entry) {
             return IRValue{};
     }
     return IRValue{};
+}
+
+i64 IRInterpreter::unpack(IRValue value) {
+    if(value.type == IRValueType::reference)
+        return ir_register.back()[value.value].value;
+    else if(value.type == IRValueType::immediate)
+        return value.value;
+    else
+        assert(false);
+    return -1;
 }

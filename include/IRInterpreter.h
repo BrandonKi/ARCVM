@@ -35,6 +35,7 @@ class IRInterpreter {
 
     std::vector<std::array<IRValue, 100>> ir_register;
 
+    i64 unpack(IRValue);
 };
 
 };

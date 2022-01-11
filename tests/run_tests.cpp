@@ -40,7 +40,8 @@ inline static int execute(Arcvm& vm) {
 }
 
 void print_report() {
-    std::cout << passed_tests << "/" << (passed_tests + failed_tests) << " tests passed\n";
+    std::cout << passed_tests << "/" << (passed_tests + failed_tests) <<
+        " (" << ((float)passed_tests / (passed_tests + failed_tests) * 100) << "%) tests passed\n";
 }
 
 // there's a lot of lock contention here, not much I can do about it though
@@ -64,7 +65,7 @@ void run_named_test(std::string_view name, T test) {
     }
 }
 
-inline static bool create_var() {
+inline static bool g_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -84,7 +85,47 @@ inline static bool create_var() {
     return execute(vm) == 10;
 }
 
-inline static bool add_vars() {
+inline static bool g_2() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i64}});
+    bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 512}, IRValue{Type::ir_i64}});
+    auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i8}});
+    bblock->gen_inst(Instruction::ret, {val});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 0;
+}
+
+inline static bool g_3() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i64}});
+    bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 513}, IRValue{Type::ir_i64}});
+    auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i8}});
+    bblock->gen_inst(Instruction::ret, {val});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 1;
+}
+
+inline static bool add_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -109,7 +150,67 @@ inline static bool add_vars() {
     return execute(vm) == 20;
 }
 
-inline static bool sub_vars() {
+inline static bool add_2() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{10}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::add, {op1, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 25;
+}
+
+inline static bool add_3() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::add, {90, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 105;
+}
+
+inline static bool add_4() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::add, {100, 29, IRValue{Type::ir_i8}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 1;
+}
+
+inline static bool sub_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -134,7 +235,7 @@ inline static bool sub_vars() {
     return execute(vm) == 90;
 }
 
-inline static bool mul_vars() {
+inline static bool mul_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -159,7 +260,7 @@ inline static bool mul_vars() {
     return execute(vm) == 50;
 }
 
-inline static bool div_vars() {
+inline static bool div_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -184,7 +285,7 @@ inline static bool div_vars() {
     return execute(vm) == 10;
 }
 
-inline static bool mod_vars() {
+inline static bool mod_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -209,7 +310,7 @@ inline static bool mod_vars() {
     return execute(vm) == 6;
 }
 
-inline static bool bin_or_vars() {
+inline static bool bin_or_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -234,7 +335,7 @@ inline static bool bin_or_vars() {
     return execute(vm) == 3;
 }
 
-inline static bool bin_and_vars() {
+inline static bool bin_and_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -259,7 +360,7 @@ inline static bool bin_and_vars() {
     return execute(vm) == 3;
 }
 
-inline static bool bin_xor_vars() {
+inline static bool bin_xor_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -284,7 +385,7 @@ inline static bool bin_xor_vars() {
     return execute(vm) == 4;
 }
 
-inline static bool lshift_vars() {
+inline static bool lshift_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -309,7 +410,7 @@ inline static bool lshift_vars() {
     return execute(vm) == 12;
 }
 
-inline static bool rshift_vars() {
+inline static bool rshift_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -334,7 +435,7 @@ inline static bool rshift_vars() {
     return execute(vm) == 3;
 }
 
-inline static bool lt_vars() {
+inline static bool lt_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -359,7 +460,7 @@ inline static bool lt_vars() {
     return execute(vm) == 0;
 }
 
-inline static bool gt_vars() {
+inline static bool gt_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -384,7 +485,7 @@ inline static bool gt_vars() {
     return execute(vm) == 1;
 }
 
-inline static bool lte_vars1() {
+inline static bool lte_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -409,7 +510,7 @@ inline static bool lte_vars1() {
     return execute(vm) == 1;
 }
 
-inline static bool lte_vars2() {
+inline static bool lte_2() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -434,7 +535,7 @@ inline static bool lte_vars2() {
     return execute(vm) == 0;
 }
 
-inline static bool lte_vars3() {
+inline static bool lte_3() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -459,7 +560,7 @@ inline static bool lte_vars3() {
     return execute(vm) == 1;
 }
 
-inline static bool gte_vars1() {
+inline static bool gte_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -484,7 +585,7 @@ inline static bool gte_vars1() {
     return execute(vm) == 1;
 }
 
-inline static bool gte_vars2() {
+inline static bool gte_2() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -509,7 +610,7 @@ inline static bool gte_vars2() {
     return execute(vm) == 1;
 }
 
-inline static bool gte_vars3() {
+inline static bool gte_3() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -534,7 +635,7 @@ inline static bool gte_vars3() {
     return execute(vm) == 0;
 }
 
-inline static bool index_stack_buffer1() {
+inline static bool index_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -560,7 +661,7 @@ inline static bool index_stack_buffer1() {
     return execute(vm) == 200;
 }
 
-inline static bool index_stack_buffer2() {
+inline static bool index_2() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -586,7 +687,7 @@ inline static bool index_stack_buffer2() {
     return execute(vm) == 200;
 }
 
-inline static bool arcvm_api_test() {
+inline static bool arcvm_api_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -607,7 +708,7 @@ inline static bool arcvm_api_test() {
 }
 
 
-inline static bool brz_test() {
+inline static bool brz_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -638,7 +739,7 @@ inline static bool brz_test() {
 }
 
 
-inline static bool brnz_test() {
+inline static bool brnz_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -668,7 +769,7 @@ inline static bool brnz_test() {
     return execute(vm) == 1;
 }
 
-inline static bool branch_api() {
+inline static bool branch_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -704,7 +805,7 @@ inline static bool branch_api() {
 }
 
 
-inline static bool branch_and_insertion_point_test() {
+inline static bool branch_2() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -744,7 +845,7 @@ inline static bool branch_and_insertion_point_test() {
 }
 
 
-inline static bool no_arg_function_call() {
+inline static bool function_call_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -773,7 +874,7 @@ inline static bool no_arg_function_call() {
 }
 
 
-inline static bool function_call_with_args_by_value() {
+inline static bool function_call_2() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -802,7 +903,7 @@ inline static bool function_call_with_args_by_value() {
 }
 
 
-inline static bool function_call_with_args_by_ref() {
+inline static bool function_call_3() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -837,7 +938,7 @@ inline static bool function_call_with_args_by_ref() {
     return execute(vm) == 20;
 }
 
-inline static bool CF_cleanup_test() {
+inline static bool CF_cleanup_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -882,7 +983,7 @@ inline static bool CF_cleanup_test() {
     return execute(vm) == 1;
 }
 
-inline static bool negate_test() {
+inline static bool negate_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -904,7 +1005,7 @@ inline static bool negate_test() {
     return execute(vm) == 5;
 }
 
-inline static bool dup_test() {
+inline static bool dup_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -965,38 +1066,43 @@ int main(int argc, char *argv[]) {
 // most of these special cases aren't handled properly at the moment
 
 ///*
-    run_test(create_var);
-    run_test(add_vars);
-    run_test(sub_vars);    // p
-    run_test(mul_vars);    // p
-    run_test(div_vars);
-    run_test(mod_vars);
-    run_test(bin_or_vars);     // p
-    run_test(bin_and_vars);    // p
-    run_test(bin_xor_vars);    // p
-    run_test(lshift_vars);
-    run_test(rshift_vars);
-    run_test(lt_vars);
-    run_test(gt_vars);
-    run_test(lte_vars1);
-    run_test(lte_vars2);
-    run_test(lte_vars3);
-    run_test(gte_vars1);
-    run_test(gte_vars2);
-    run_test(gte_vars3);
-    run_test(index_stack_buffer1);
-    run_test(index_stack_buffer2);
-    run_test(arcvm_api_test);
-    run_test(brz_test);
-    run_test(brnz_test);
-    run_test(branch_api);
-    run_test(branch_and_insertion_point_test);
-    run_test(no_arg_function_call);
-    run_test(function_call_with_args_by_value);
-    run_test(function_call_with_args_by_ref);
-    run_test(CF_cleanup_test);
-    run_test(negate_test);
-    run_test(dup_test);
+    run_test(g_1);    // p
+    run_test(g_2);
+    run_test(g_3);
+    run_test(add_1);    // p
+    run_test(add_2);
+    run_test(add_3);
+    run_test(add_4);
+    run_test(sub_1);    // p
+    run_test(mul_1);    // p
+    run_test(div_1);
+    run_test(mod_1);
+    run_test(bin_or_1);     // p
+    run_test(bin_and_1);    // p
+    run_test(bin_xor_1);    // p
+    run_test(lshift_1);
+    run_test(rshift_1);
+    run_test(lt_1);
+    run_test(gt_1);
+    run_test(lte_1);
+    run_test(lte_2);
+    run_test(lte_3);
+    run_test(gte_1);
+    run_test(gte_2);
+    run_test(gte_3);
+    run_test(index_1);
+    run_test(index_2);
+    run_test(arcvm_api_1);
+    run_test(brz_1);
+    run_test(brnz_1);
+    run_test(branch_1);
+    run_test(branch_2);
+    run_test(function_call_1);
+    run_test(function_call_2);
+    run_test(function_call_3);
+    run_test(CF_cleanup_1);
+    run_test(negate_1);
+    run_test(dup_1);
 //*/
 
 #ifdef POOL
@@ -1004,4 +1110,10 @@ int main(int argc, char *argv[]) {
 #endif
 
     print_report();
+
+    // TODO repl-like CLI with basic QOL functionality
+    // view failed tests
+    // rerun individual tests
+    // rerun all failed tests
+    // print IR for a specific test
 }

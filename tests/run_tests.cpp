@@ -798,8 +798,8 @@ inline static bool brz_test() {
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
     auto cond_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     bblock->gen_inst(Instruction::store, {cond_ptr, IRValue{1}});
+    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::brz, {cond_val,{IRValue{IRValueType::label, new std::string("if_block")}}, {IRValue{IRValueType::label, new std::string("else_block")}}});
     auto* if_block = fn_body->new_basic_block("if_block");
@@ -838,8 +838,8 @@ inline static bool brnz_test() {
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
     auto cond_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     bblock->gen_inst(Instruction::store, {cond_ptr, IRValue{1}});
+    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::brnz, {cond_val,{IRValue{IRValueType::label, new std::string("if_block")}},{IRValue{IRValueType::label, new std::string("else_block")}}});
     auto* if_block = fn_body->new_basic_block("if_block");
@@ -877,8 +877,8 @@ inline static bool branch_api() {
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
     auto cond_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {cond_ptr, IRValue{1}});
     auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
+    bblock->gen_inst(Instruction::store, {cond_ptr, IRValue{1}});
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
 
     auto* if_block = fn_body->new_basic_block("if_block");
@@ -922,8 +922,8 @@ inline static bool branch_and_insertion_point_test() {
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
     auto cond_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     bblock->gen_inst(Instruction::store, {cond_ptr, IRValue{1}});
+    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto* if_block = fn_body->new_basic_block("if_block");
     auto* else_block = fn_body->new_basic_block("else_block");
@@ -1091,8 +1091,8 @@ inline static bool CF_cleanup_test() {
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
     auto cond_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     bblock->gen_inst(Instruction::store, {cond_ptr, IRValue{1}});
+    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto* test_block = fn_body->new_basic_block("test");
     auto* if_block = fn_body->new_basic_block("if_block");
@@ -1241,7 +1241,11 @@ int main(int argc, char *argv[]) {
     ThreadPool test_thread_pool;
 #endif
 
+    run_test(CF_cleanup_test);
     run_test(test);
+
+// TODO create tests for combinations of immediates and references
+// most of these special cases aren't handled properly at the moment
 
 ///*
     run_test(create_var);

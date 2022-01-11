@@ -40,7 +40,6 @@ i32 IRInterpreter::run_entry_function() {
     return 0;
 }
 
-// TODO be able to pass args to functions
 IRValue IRInterpreter::run_function(Function* function, std::vector<IRValue> args) {
     ARCVM_PROFILE();
     // put args in after adding new register context

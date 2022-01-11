@@ -22,6 +22,23 @@ static std::atomic<i32> passed_tests = 0;
 static std::atomic<i32> failed_tests = 0;
 static std::mutex cout_mutex;
 
+inline static void print_module_if_noisy(Module* main_module) {
+    if(noisy) {
+#ifdef POOL
+        std::unique_lock<std::mutex> lock(cout_mutex);
+#endif
+        IRPrinter::print(main_module);
+    }
+}
+
+inline static int execute(Arcvm& vm) {
+#ifdef JIT_MODE
+    return vm.jit();
+#else
+    return vm.run();
+#endif
+}
+
 void print_report() {
     std::cout << passed_tests << "/" << (passed_tests + failed_tests) << " tests passed\n";
 }
@@ -47,7 +64,6 @@ void run_named_test(std::string_view name, T test) {
     }
 }
 
-
 inline static bool create_var() {
     ARCVM_PROFILE();
     IRGenerator gen;
@@ -60,20 +76,12 @@ inline static bool create_var() {
     bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}, IRValue{Type::ir_i32}});
     auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {val});
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 10;
-#else
-    return vm.run() == 10;
-#endif
+    return execute(vm) == 10;
 }
 
 inline static bool add_vars() {
@@ -94,20 +102,11 @@ inline static bool add_vars() {
     auto result = bblock->gen_inst(Instruction::add, {op1, op2, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 20;
-#else
-    return vm.run() == 20;
-#endif
+    return execute(vm) == 20;
 }
 
 inline static bool sub_vars() {
@@ -128,20 +127,11 @@ inline static bool sub_vars() {
     auto result = bblock->gen_inst(Instruction::sub, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 90;
-#else
-    return vm.run() == 90;
-#endif
+    return execute(vm) == 90;
 }
 
 inline static bool mul_vars() {
@@ -162,20 +152,11 @@ inline static bool mul_vars() {
     auto result = bblock->gen_inst(Instruction::mul, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 50;
-#else
-    return vm.run() == 50;
-#endif
+    return execute(vm) == 50;
 }
 
 inline static bool div_vars() {
@@ -196,20 +177,11 @@ inline static bool div_vars() {
     auto result = bblock->gen_inst(Instruction::div, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 10;
-#else
-    return vm.run() == 10;
-#endif
+    return execute(vm) == 10;
 }
 
 inline static bool mod_vars() {
@@ -230,20 +202,11 @@ inline static bool mod_vars() {
     auto result = bblock->gen_inst(Instruction::mod, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 6;
-#else
-    return vm.run() == 6;
-#endif
+    return execute(vm) == 6;
 }
 
 inline static bool bin_or_vars() {
@@ -264,20 +227,11 @@ inline static bool bin_or_vars() {
     auto result = bblock->gen_inst(Instruction::bin_or, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 3;
-#else
-    return vm.run() == 3;
-#endif
+    return execute(vm) == 3;
 }
 
 inline static bool bin_and_vars() {
@@ -298,20 +252,11 @@ inline static bool bin_and_vars() {
     auto result = bblock->gen_inst(Instruction::bin_and, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 3;
-#else
-    return vm.run() == 3;
-#endif
+    return execute(vm) == 3;
 }
 
 inline static bool bin_xor_vars() {
@@ -332,20 +277,11 @@ inline static bool bin_xor_vars() {
     auto result = bblock->gen_inst(Instruction::bin_xor, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 4;
-#else
-    return vm.run() == 4;
-#endif
+    return execute(vm) == 4;
 }
 
 inline static bool lshift_vars() {
@@ -366,20 +302,11 @@ inline static bool lshift_vars() {
     auto result = bblock->gen_inst(Instruction::lshift, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 12;
-#else
-    return vm.run() == 12;
-#endif
+    return execute(vm) == 12;
 }
 
 inline static bool rshift_vars() {
@@ -400,20 +327,11 @@ inline static bool rshift_vars() {
     auto result = bblock->gen_inst(Instruction::rshift, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 3;
-#else
-    return vm.run() == 3;
-#endif
+    return execute(vm) == 3;
 }
 
 inline static bool lt_vars() {
@@ -434,20 +352,11 @@ inline static bool lt_vars() {
     auto result = bblock->gen_inst(Instruction::lt, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 0;
-#else
-    return vm.run() == 0;
-#endif
+    return execute(vm) == 0;
 }
 
 inline static bool gt_vars() {
@@ -468,20 +377,11 @@ inline static bool gt_vars() {
     auto result = bblock->gen_inst(Instruction::gt, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 1;
-#else
-    return vm.run() == 1;
-#endif
+    return execute(vm) == 1;
 }
 
 inline static bool lte_vars1() {
@@ -502,20 +402,11 @@ inline static bool lte_vars1() {
     auto result = bblock->gen_inst(Instruction::lte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 1;
-#else
-    return vm.run() == 1;
-#endif
+    return execute(vm) == 1;
 }
 
 inline static bool lte_vars2() {
@@ -536,20 +427,11 @@ inline static bool lte_vars2() {
     auto result = bblock->gen_inst(Instruction::lte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 0;
-#else
-    return vm.run() == 0;
-#endif
+    return execute(vm) == 0;
 }
 
 inline static bool lte_vars3() {
@@ -570,20 +452,11 @@ inline static bool lte_vars3() {
     auto result = bblock->gen_inst(Instruction::lte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 1;
-#else
-    return vm.run() == 1;
-#endif
+    return execute(vm) == 1;
 }
 
 inline static bool gte_vars1() {
@@ -604,20 +477,11 @@ inline static bool gte_vars1() {
     auto result = bblock->gen_inst(Instruction::gte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 1;
-#else
-    return vm.run() == 1;
-#endif
+    return execute(vm) == 1;
 }
 
 inline static bool gte_vars2() {
@@ -638,20 +502,11 @@ inline static bool gte_vars2() {
     auto result = bblock->gen_inst(Instruction::gte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 1;
-#else
-    return vm.run() == 1;
-#endif
+    return execute(vm) == 1;
 }
 
 inline static bool gte_vars3() {
@@ -672,20 +527,11 @@ inline static bool gte_vars3() {
     auto result = bblock->gen_inst(Instruction::gte, {op1, op2});
     bblock->gen_inst(Instruction::ret, {result});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 0;
-#else
-    return vm.run() == 0;
-#endif
+    return execute(vm) == 0;
 }
 
 inline static bool index_stack_buffer1() {
@@ -707,20 +553,11 @@ inline static bool index_stack_buffer1() {
     auto sum = bblock->gen_inst(Instruction::add, {op1, op2});
     bblock->gen_inst(Instruction::ret, {sum});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 200;
-#else
-    return vm.run() == 200;
-#endif
+    return execute(vm) == 200;
 }
 
 inline static bool index_stack_buffer2() {
@@ -742,20 +579,11 @@ inline static bool index_stack_buffer2() {
     auto sum = bblock->gen_inst(Instruction::add, {op1, op2});
     bblock->gen_inst(Instruction::ret, {sum});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 200;
-#else
-    return vm.run() == 200;
-#endif
+    return execute(vm) == 200;
 }
 
 inline static bool arcvm_api_test() {
@@ -771,21 +599,11 @@ inline static bool arcvm_api_test() {
     auto val = bblock->gen_inst(Instruction::load, {val_ptr});
     bblock->gen_inst(Instruction::ret, {val});
 
-
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 0;
-#else
-    return vm.run() == 0;
-#endif
+    return execute(vm) == 0;
 }
 
 
@@ -812,20 +630,11 @@ inline static bool brz_test() {
     auto val = then_block->gen_inst(Instruction::load, {val_ptr});
     then_block->gen_inst(Instruction::ret, {val});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 2;
-#else
-    return vm.run() == 2;
-#endif
+    return execute(vm) == 2;
 }
 
 
@@ -852,20 +661,11 @@ inline static bool brnz_test() {
     auto val = then_block->gen_inst(Instruction::load, {val_ptr});
     then_block->gen_inst(Instruction::ret, {val});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 1;
-#else
-    return vm.run() == 1;
-#endif
+    return execute(vm) == 1;
 }
 
 inline static bool branch_api() {
@@ -877,8 +677,8 @@ inline static bool branch_api() {
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
     auto cond_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     bblock->gen_inst(Instruction::store, {cond_ptr, IRValue{1}});
+    auto cond_val = bblock->gen_inst(Instruction::load, {cond_ptr});
     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
 
     auto* if_block = fn_body->new_basic_block("if_block");
@@ -896,20 +696,11 @@ inline static bool branch_api() {
     fn_body->gen_if(cond_val, if_block, else_block, then_block);
     then_block->gen_inst(Instruction::ret, {val});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 1;
-#else
-    return vm.run() == 1;
-#endif
+    return execute(vm) == 1;
 }
 
 
@@ -945,20 +736,11 @@ inline static bool branch_and_insertion_point_test() {
     auto val = t_block->gen_inst(Instruction::load, {val_ptr});
     t_block->gen_inst(Instruction::ret, {val});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 1;
-#else
-    return vm.run() == 1;
-#endif
+    return execute(vm) == 1;
 }
 
 
@@ -983,20 +765,11 @@ inline static bool no_arg_function_call() {
 
     bblock2->gen_inst(Instruction::ret, {val});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 70;
-#else
-    return vm.run() == 70;
-#endif
+    return execute(vm) == 70;
 }
 
 
@@ -1021,20 +794,11 @@ inline static bool function_call_with_args_by_value() {
 
     bblock2->gen_inst(Instruction::ret, {val});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 20;
-#else
-    return vm.run() == 20;
-#endif
+    return execute(vm) == 20;
 }
 
 
@@ -1066,20 +830,11 @@ inline static bool function_call_with_args_by_ref() {
 
     bblock2->gen_inst(Instruction::ret, {val});
 
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-#ifdef JIT_MODE
-    return vm.jit() == 20;
-#else
-    return vm.run() == 20;
-#endif
+    return execute(vm) == 20;
 }
 
 inline static bool CF_cleanup_test() {
@@ -1119,22 +874,12 @@ inline static bool CF_cleanup_test() {
     auto val = t_block->gen_inst(Instruction::load, {val_ptr});
     t_block->gen_inst(Instruction::ret, {val});
 
+    print_module_if_noisy(main_module);
+
     Arcvm vm;
     vm.load_module(main_module);
     vm.run_pass_on_module<CFResolutionPass>(main_module);
-
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
-
-#ifdef JIT_MODE
-    return vm.jit() == 1;
-#else
-    return vm.run() == 1;
-#endif
+    return execute(vm) == 1;
 }
 
 inline static bool negate_test() {
@@ -1151,21 +896,12 @@ inline static bool negate_test() {
     auto neg_val = bblock->gen_inst(Instruction::neg, {val});
     auto sum = bblock->gen_inst(Instruction::add, {neg_val, 15});
     bblock->gen_inst(Instruction::ret, {sum});
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-    vm.optimize();
-#ifdef JIT_MODE
-    return vm.jit() == 5;
-#else
-    return vm.run() == 5;
-#endif
+    return execute(vm) == 5;
 }
 
 inline static bool dup_test() {
@@ -1182,21 +918,12 @@ inline static bool dup_test() {
     auto val2 = bblock->gen_inst(Instruction::dup, {val});
     auto sum  = bblock->gen_inst(Instruction::add, {val, val2});
     bblock->gen_inst(Instruction::ret, {sum});
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-    vm.optimize();
-#ifdef JIT_MODE
-    return vm.jit() == 20;
-#else
-    return vm.run() == 20;
-#endif
+    return execute(vm) == 20;
 }
 
 inline static bool test() {
@@ -1213,21 +940,12 @@ inline static bool test() {
     auto val2 = bblock->gen_inst(Instruction::dup, {val});
     auto sum  = bblock->gen_inst(Instruction::add, {val, val2});
     bblock->gen_inst(Instruction::ret, {sum});
-    if(noisy) {
-#ifdef POOL
-        std::unique_lock<std::mutex> lock(cout_mutex);
-#endif
-        IRPrinter::print(main_module);
-    }
+
+    print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-    vm.optimize();
-#ifdef JIT_MODE
-    return vm.jit() == 20;
-#else
-    return vm.run() == 20;
-#endif
+    return execute(vm) == 20;
 }
 
 using namespace std::literals;
@@ -1241,10 +959,9 @@ int main(int argc, char *argv[]) {
     ThreadPool test_thread_pool;
 #endif
 
-    run_test(CF_cleanup_test);
     run_test(test);
 
-// TODO create tests for combinations of immediates and references
+// TODO create tests for combinations of immediates and references in instruction operands
 // most of these special cases aren't handled properly at the moment
 
 ///*

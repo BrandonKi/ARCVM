@@ -211,14 +211,8 @@ IRValue IRInterpreter::run_entry(Entry* entry) {
             break;
         }
         case Instruction::index: {
-            // TODO clean this up
             auto* ptr = reinterpret_cast<i8*>(ir_register.back()[entry->arguments[0].value].pointer_value);
-            if(entry->arguments[1].type == IRValueType::immediate) {
-                ptr += entry->arguments[1].value;
-            }
-            else if(entry->arguments[1].type == IRValueType::reference) {
-                ptr += ir_register.back()[entry->arguments[1].value].value;
-            }
+            ptr += unpack(entry->arguments[1]);
             ir_register.back()[entry->dest.value].pointer_value = (uintptr_t)ptr;
             break;
         }

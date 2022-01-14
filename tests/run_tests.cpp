@@ -12,9 +12,9 @@ using namespace arcvm;
 //#define JIT_MODE
 
 #ifdef POOL
-#define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
+    #define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
 #else
-#define run_test(name) run_named_test(#name, name)
+    #define run_test(name) run_named_test(#name, name)
 #endif
 
 static bool noisy = false;

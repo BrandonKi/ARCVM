@@ -15,7 +15,7 @@ using enum RegisterName;
 
 using byte = u8;
 
-static void *allocMemory(size_t size) {
+static void *alloc_memory(size_t size) {
     //void *ptr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); // linux
     void* ptr = VirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);               // windows
     if (ptr == (void *)-1) {
@@ -30,7 +30,7 @@ static void dealloc(void *block, size_t size) {
     VirtualFree(block, size, MEM_RELEASE);
 }
 
-static void *makeExecutable(void *buf) {
+static void *make_executable(void *buf) {
 
     //mprotect(buf, sizeof(*(char *)buf), PROT_READ | PROT_EXEC); // linux
 
@@ -42,10 +42,10 @@ static void *makeExecutable(void *buf) {
 
 // TODO in the future just use this memory in the first place instead of copying to it
 i32 x86_64_Backend::run() {
-    void *block = allocMemory(output.size());
+    void *block = alloc_memory(output.size());
     memcpy(block, output.data(), output.size());
-    typedef int (*exe)(void);
-    exe func = (exe)makeExecutable(block);
+    using exe = int(*)();
+    exe func = (exe)make_executable(block);
     auto ret = func();
     dealloc(block, output.size());
     return ret;
@@ -193,7 +193,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
                 put_fvr(src.reg.name);
             }
             else if(entry->arguments[1].type == IRValueType::immediate) {
-                src = entry->arguments[1].value;
+                src = static_cast<i32>(entry->arguments[1].value);
                 emit_add(dest.reg, I(src.imm), 32);    // TODO need to keep size metadata with imm
 
                 // TODO waiting for register allocator

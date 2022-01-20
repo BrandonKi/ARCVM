@@ -1,5 +1,33 @@
 #include "IRInterpreter.h"
 
+
+// TODO cleanup and turn into a function
+#define CAST_IF_TYPED_BIN_OP() do {                                                \
+                                   if(entry->arguments.size() == 3)                \
+                                       switch(entry->arguments[2].type_value) {    \
+                                           case Type::ir_b1:                       \
+                                           case Type::ir_b8:                       \
+                                           case Type::ir_i8:                       \
+                                               return (i8)result;                  \
+                                           case Type::ir_u8:                       \
+                                               return (u8)result;                  \
+                                           case Type::ir_i16:                      \
+                                               return (i16)result;                 \
+                                           case Type::ir_u16:                      \
+                                               return (u16)result;                 \
+                                           case Type::ir_i32:                      \
+                                               return (i32)result;                 \
+                                           case Type::ir_u32:                      \
+                                               return (u32)result;                 \
+                                           case Type::ir_i64:                      \
+                                               return (i64)result;                 \
+                                           case Type::ir_u64:                      \
+                                               return (u64)result;                 \
+                                           default:                                \
+                                               assert(false);                      \
+                                       }                                           \
+                               } while(false)                                      \
+
 using namespace arcvm;
 
 IRInterpreter::IRInterpreter(Module* module)
@@ -218,86 +246,102 @@ IRValue IRInterpreter::run_entry(Entry* entry) {
         }
         case Instruction::add: {
             auto result = unpack(entry->arguments[0]) + unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::sub: {
             auto result = unpack(entry->arguments[0]) - unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::mul: {
             auto result = unpack(entry->arguments[0]) * unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::div: {
             auto result = unpack(entry->arguments[0]) / unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::mod: {
             auto result = unpack(entry->arguments[0]) % unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::bin_or: {
             auto result = unpack(entry->arguments[0]) | unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::bin_and: {
             auto result = unpack(entry->arguments[0]) & unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::bin_xor: {
             auto result = unpack(entry->arguments[0]) ^ unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::lshift: {
             auto result = unpack(entry->arguments[0]) << unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::rshift: {
             auto result = unpack(entry->arguments[0]) >> unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::lt: {
             auto result = unpack(entry->arguments[0]) < unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::gt: {
             auto result = unpack(entry->arguments[0]) > unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::lte: {
             auto result = unpack(entry->arguments[0]) <= unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::gte: {
             auto result = unpack(entry->arguments[0]) >= unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::eq: {
             auto result = unpack(entry->arguments[0]) == unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::neq: {
             auto result = unpack(entry->arguments[0]) != unpack(entry->arguments[1]);
+            CAST_IF_TYPED_BIN_OP();
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }
         case Instruction::neg: {
-            auto result = -unpack(entry->arguments[0]);
+            auto result = -unpack(entry->arguments[0]);    // TODO use type info if provided
             ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
             break;
         }

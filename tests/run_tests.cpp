@@ -135,7 +135,6 @@ inline static bool add_1() {
     auto* bblock = fn_body->get_bblock();
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{10}, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
@@ -159,7 +158,6 @@ inline static bool add_2() {
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{10}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto result = bblock->gen_inst(Instruction::add, {op1, 15, IRValue{Type::ir_i32}});
@@ -180,7 +178,6 @@ inline static bool add_3() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto result = bblock->gen_inst(Instruction::add, {90, 15, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {result});
 
@@ -199,7 +196,6 @@ inline static bool add_4() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto result = bblock->gen_inst(Instruction::add, {100, 29, IRValue{Type::ir_i8}});
     bblock->gen_inst(Instruction::ret, {result});
 
@@ -207,7 +203,7 @@ inline static bool add_4() {
 
     Arcvm vm;
     vm.load_module(main_module);
-    return execute(vm) == 1;
+    return execute(vm) == -127;    // NOTE pedantic test
 }
 
 inline static bool sub_1() {
@@ -220,12 +216,11 @@ inline static bool sub_1() {
     auto* bblock = fn_body->get_bblock();
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{100}, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
-    auto result = bblock->gen_inst(Instruction::sub, {op1, op2});
+    auto result = bblock->gen_inst(Instruction::sub, {op1, op2, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {result});
 
     print_module_if_noisy(main_module);
@@ -233,6 +228,63 @@ inline static bool sub_1() {
     Arcvm vm;
     vm.load_module(main_module);
     return execute(vm) == 90;
+}
+
+inline static bool sub_2() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{10}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::sub, {op1, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == -5;
+}
+
+inline static bool sub_3() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::sub, {90, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 75;
+}
+
+inline static bool sub_4() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::sub, {-100, 29, IRValue{Type::ir_i8}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 127;    // NOTE pedantic test
 }
 
 inline static bool mul_1() {
@@ -245,19 +297,75 @@ inline static bool mul_1() {
     auto* bblock = fn_body->get_bblock();
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto sum_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{5}, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{100}, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
-    auto result = bblock->gen_inst(Instruction::mul, {op1, op2});
+    auto result = bblock->gen_inst(Instruction::mul, {op1, op2, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {result});
 
     print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-    return execute(vm) == 50;
+    return execute(vm) == 1000;
+}
+
+inline static bool mul_2() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{10}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::mul, {op1, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 150;
+}
+
+inline static bool mul_3() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::mul, {90, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 1350;
+}
+
+inline static bool mul_4() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::mul, {3, 43, IRValue{Type::ir_i8}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == -127;    // NOTE pedantic test
 }
 
 inline static bool div_1() {
@@ -270,12 +378,11 @@ inline static bool div_1() {
     auto* bblock = fn_body->get_bblock();
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{70}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{7}});
-    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
-    auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto result = bblock->gen_inst(Instruction::div, {op1, op2});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{100}, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::div, {op1, op2, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {result});
 
     print_module_if_noisy(main_module);
@@ -283,6 +390,63 @@ inline static bool div_1() {
     Arcvm vm;
     vm.load_module(main_module);
     return execute(vm) == 10;
+}
+
+inline static bool div_2() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{15}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::div, {op1, 10, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 1;
+}
+
+inline static bool div_3() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::div, {90, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 6;
+}
+
+inline static bool div_4() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::div, {-9, 4, IRValue{Type::ir_i8}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == -2;    // NOTE pedantic test
 }
 
 inline static bool mod_1() {
@@ -295,19 +459,75 @@ inline static bool mod_1() {
     auto* bblock = fn_body->get_bblock();
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{76}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{7}});
-    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr});
-    auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr});
-    auto result = bblock->gen_inst(Instruction::mod, {op1, op2});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{109}, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{10}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::mod, {op1, op2, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {result});
 
     print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-    return execute(vm) == 6;
+    return execute(vm) == 9;
+}
+
+inline static bool mod_2() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{10}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::mod, {op1, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 10;
+}
+
+inline static bool mod_3() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::mod, {98, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 8;
+}
+
+inline static bool mod_4() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::mod, {9, -3, IRValue{Type::ir_i8}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    return execute(vm) == 0;
 }
 
 inline static bool bin_or_1() {
@@ -1074,9 +1294,21 @@ int main(int argc, char *argv[]) {
     run_test(add_3);
     run_test(add_4);
     run_test(sub_1);    // p
+    run_test(sub_2);
+    run_test(sub_3);
+    run_test(sub_4);
     run_test(mul_1);    // p
+    run_test(mul_2);
+    run_test(mul_3);
+    run_test(mul_4);
     run_test(div_1);
+    run_test(div_2);
+    run_test(div_3);
+    run_test(div_4);
     run_test(mod_1);
+    run_test(mod_2);
+    run_test(mod_3);
+    run_test(mod_4);
     run_test(bin_or_1);     // p
     run_test(bin_and_1);    // p
     run_test(bin_xor_1);    // p

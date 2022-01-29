@@ -307,6 +307,14 @@ struct CompiledModule {
 
 };
 
+// TODO use allocator
+inline void replace_entry(std::vector<Entry*>& entries, size_t index, Entry new_entry) {
+    delete entries[index];
+    entries[index] = new Entry{new_entry};
+}
+
+
 };
+
 
 #endif

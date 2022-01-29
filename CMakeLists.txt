@@ -14,13 +14,14 @@ add_library(arcvm_lib OBJECT
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IRInterpreter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Passes/CFResolutionPass.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Passes/ConstantPropogation.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Passes/ImmediateCanonicalization.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/x86_64_Backend.cpp
 )
 
 target_include_directories(arcvm_lib
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib
-) 
+)
 
 set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp

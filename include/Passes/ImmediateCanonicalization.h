@@ -1,16 +1,16 @@
 // TODO
-/*
-#ifndef ARCVM_CONSTANT_FOLD_H
-#define ARCVM_CONSTANT_FOLD_H
+#ifndef ARCVM_IMMEDIATE_CANONICALIZATION_H
+#define ARCVM_IMMEDIATE_CANONICALIZATION_H
 
-// just constant folding does no propogation
+// transforms instructions that operate only on immediates to a 'dup' instruction
+//
 
 #include "Pass.h"
 #include "Common.h"
 
 namespace arcvm {
 
-    class ConstantFold {
+    class ImmediateCanonicalization {
         public:
         void block_pass(Block* block);
         void function_pass(Function* function);
@@ -23,5 +23,4 @@ namespace arcvm {
 
 };
 
-#endif //ARCVM_CONSTANT_FOLD_H
-*/
+#endif //ARCVM_IMMEDIATE_CANONICALIZATION_H

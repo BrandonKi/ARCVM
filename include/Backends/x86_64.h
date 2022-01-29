@@ -89,7 +89,7 @@ struct Value {
     Value(): type(NONE), disp(0) {};
     Value(i32 disp): type(DISPLACEMENT), disp(disp) {}
     Value(Register reg): type(REGISTER), reg(reg) {}
-    Value(ValueType type, i32 imm): type(IMMEDIATE), imm(imm) {}
+    Value(ValueType type, i32 imm): type(type), imm(imm) {}
 };
 
 enum class FileFormat : byte {

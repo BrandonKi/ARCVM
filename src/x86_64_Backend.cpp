@@ -148,6 +148,9 @@ int x86_64_Backend::compile_entry(Entry* entry) {
                     if(val.reg.name != RegisterName::rax)
                         emit_mov(Register{rax}, val.reg, calc_op_size(val.reg));
                     break;
+                case IMMEDIATE:
+                    emit_mov(Register{rax}, I(val.imm), 64); // need type info
+                    break;
                 default:
                     assert(false);
             }
@@ -168,6 +171,10 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             break;
         }
         case Instruction::dup: {
+            if(entry->arguments[0].type == IRValueType::reference)
+                val_table[entry->dest.value] = val_table[entry->arguments[0].value];
+            else
+                val_table[entry->dest.value] = Value{IMMEDIATE, i32(entry->arguments[0].value)};
             break;
         }
         case Instruction::index: {
@@ -393,14 +400,14 @@ void x86_64_Backend::emit_mov(Displacement disp, Immediate immediate, i8 size) {
     auto& dv = disp.val;
     auto& imm = immediate.val;
     switch(size) {
-        case 8:
+        case 8:    // TODO need to sign extend
             emit<byte>(0xc6);
             emit<byte>(modrm(1, 4, 0));
             emit<byte>(SIB(0, 4, 4));
             emit<i8>(dv);
             emit<i8>(imm);
             break;
-        case 16:
+        case 16:     // TODO need to sign extend
             emit<byte>(0x66);
             emit<byte>(0xc7);
             emit<byte>(modrm(1, 4, 0));
@@ -422,6 +429,33 @@ void x86_64_Backend::emit_mov(Displacement disp, Immediate immediate, i8 size) {
             emit<byte>(SIB(0, 4, 4));
             emit<i8>(dv);
             emit<i32>(imm);
+            break;
+        default:
+            assert(false);
+    }
+}
+
+
+void x86_64_Backend::emit_mov(Register reg, Immediate immediate, i8 size) {
+    auto& imm = immediate.val;
+    switch(size) {
+        case 8:
+            emit<byte>(0xB0 + encode(reg));
+            emit<byte>(imm);
+            break;
+        case 16:
+            emit<byte>(0x66);
+            emit<byte>(0xB8 + encode(reg));
+            emit<i16>(imm);
+            break;
+        case 32:
+            emit<byte>(0xB8 + encode(reg));
+            emit<i32>(imm);
+            break;
+        case 64:
+            emit<byte>(rex_w);
+            emit<byte>(0xB8 + encode(reg));
+            emit<i64>(imm);
             break;
         default:
             assert(false);

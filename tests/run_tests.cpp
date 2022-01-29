@@ -31,6 +31,11 @@ inline static void print_module_if_noisy(Module* main_module) {
     }
 }
 
+inline static void run_passes(Arcvm& vm) {
+    // TODO add options to enable optimizations for all tests
+    vm.run_canonicalization_passes();
+}
+
 inline static int execute(Arcvm& vm) {
 #ifdef JIT_MODE
     return vm.jit();
@@ -82,6 +87,7 @@ inline static bool g_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 10;
 }
 
@@ -102,6 +108,7 @@ inline static bool g_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 0;
 }
 
@@ -122,6 +129,7 @@ inline static bool g_3() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -146,6 +154,7 @@ inline static bool add_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 20;
 }
 
@@ -167,6 +176,7 @@ inline static bool add_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 25;
 }
 
@@ -185,6 +195,7 @@ inline static bool add_3() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 105;
 }
 
@@ -203,6 +214,7 @@ inline static bool add_4() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == -127;    // NOTE pedantic test
 }
 
@@ -227,6 +239,7 @@ inline static bool sub_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 90;
 }
 
@@ -248,6 +261,7 @@ inline static bool sub_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == -5;
 }
 
@@ -266,6 +280,7 @@ inline static bool sub_3() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 75;
 }
 
@@ -284,6 +299,7 @@ inline static bool sub_4() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 127;    // NOTE pedantic test
 }
 
@@ -308,6 +324,7 @@ inline static bool mul_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1000;
 }
 
@@ -329,6 +346,7 @@ inline static bool mul_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 150;
 }
 
@@ -347,6 +365,7 @@ inline static bool mul_3() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1350;
 }
 
@@ -365,6 +384,7 @@ inline static bool mul_4() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == -127;    // NOTE pedantic test
 }
 
@@ -389,6 +409,7 @@ inline static bool div_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 10;
 }
 
@@ -410,6 +431,7 @@ inline static bool div_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -428,6 +450,7 @@ inline static bool div_3() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 6;
 }
 
@@ -446,6 +469,7 @@ inline static bool div_4() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == -2;    // NOTE pedantic test
 }
 
@@ -470,6 +494,7 @@ inline static bool mod_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 9;
 }
 
@@ -491,6 +516,7 @@ inline static bool mod_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 10;
 }
 
@@ -509,6 +535,7 @@ inline static bool mod_3() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 8;
 }
 
@@ -527,6 +554,7 @@ inline static bool mod_4() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 0;
 }
 
@@ -540,19 +568,79 @@ inline static bool bin_or_1() {
     auto* bblock = fn_body->get_bblock();
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{1}, IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{2}, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{77}, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{16}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
-    auto result = bblock->gen_inst(Instruction::bin_or, {op1, op2});
+    auto result = bblock->gen_inst(Instruction::bin_or, {op1, op2, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {result});
 
     print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-    return execute(vm) == 3;
+    run_passes(vm);
+    return execute(vm) == 93;
+}
+
+inline static bool bin_or_2() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{11}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::bin_or, {op1, 16, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    run_passes(vm);
+    return execute(vm) == 27;
+}
+
+inline static bool bin_or_3() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::bin_or, {98, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    run_passes(vm);
+    return execute(vm) == 111;
+}
+
+inline static bool bin_or_4() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::bin_or, {2, -3, IRValue{Type::ir_i8}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    run_passes(vm);
+    return execute(vm) == -1;
 }
 
 inline static bool bin_and_1() {
@@ -565,19 +653,79 @@ inline static bool bin_and_1() {
     auto* bblock = fn_body->get_bblock();
     auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
     auto op2_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    auto result_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{3}, IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{7}, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{77}, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op2_ptr, IRValue{121}, IRValue{Type::ir_i32}});
     auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
     auto op2 = bblock->gen_inst(Instruction::load, {op2_ptr, IRValue{Type::ir_i32}});
-    auto result = bblock->gen_inst(Instruction::bin_and, {op1, op2});
+    auto result = bblock->gen_inst(Instruction::bin_and, {op1, op2, IRValue{Type::ir_i32}});
     bblock->gen_inst(Instruction::ret, {result});
 
     print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
+    return execute(vm) == 73;
+}
+
+inline static bool bin_and_2() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto op1_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::store, {op1_ptr, IRValue{11}, IRValue{Type::ir_i32}});
+    auto op1 = bblock->gen_inst(Instruction::load, {op1_ptr, IRValue{Type::ir_i32}});
+    auto result = bblock->gen_inst(Instruction::bin_and, {op1, 19, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 3;
+}
+
+inline static bool bin_and_3() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::bin_and, {98, 15, IRValue{Type::ir_i32}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    run_passes(vm);
+    return execute(vm) == 2;
+}
+
+inline static bool bin_and_4() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto result = bblock->gen_inst(Instruction::bin_and, {67, -23, IRValue{Type::ir_i8}});
+    bblock->gen_inst(Instruction::ret, {result});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    run_passes(vm);
+    return execute(vm) == 65;
 }
 
 inline static bool bin_xor_1() {
@@ -602,6 +750,7 @@ inline static bool bin_xor_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 4;
 }
 
@@ -627,6 +776,7 @@ inline static bool lshift_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 12;
 }
 
@@ -652,6 +802,7 @@ inline static bool rshift_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 3;
 }
 
@@ -677,6 +828,7 @@ inline static bool lt_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 0;
 }
 
@@ -702,6 +854,7 @@ inline static bool gt_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -727,6 +880,7 @@ inline static bool lte_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -752,6 +906,7 @@ inline static bool lte_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 0;
 }
 
@@ -777,6 +932,7 @@ inline static bool lte_3() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -802,6 +958,7 @@ inline static bool gte_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -827,6 +984,7 @@ inline static bool gte_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -852,6 +1010,7 @@ inline static bool gte_3() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 0;
 }
 
@@ -878,6 +1037,7 @@ inline static bool index_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 200;
 }
 
@@ -904,6 +1064,7 @@ inline static bool index_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 200;
 }
 
@@ -924,6 +1085,7 @@ inline static bool arcvm_api_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 0;
 }
 
@@ -955,6 +1117,7 @@ inline static bool brz_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 2;
 }
 
@@ -986,6 +1149,7 @@ inline static bool brnz_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -1021,6 +1185,7 @@ inline static bool branch_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -1061,6 +1226,7 @@ inline static bool branch_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -1090,6 +1256,7 @@ inline static bool function_call_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 70;
 }
 
@@ -1119,6 +1286,7 @@ inline static bool function_call_2() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 20;
 }
 
@@ -1155,6 +1323,7 @@ inline static bool function_call_3() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 20;
 }
 
@@ -1199,7 +1368,7 @@ inline static bool CF_cleanup_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
-    vm.run_pass_on_module<CFResolutionPass>(main_module);
+    run_passes(vm);
     return execute(vm) == 1;
 }
 
@@ -1222,6 +1391,7 @@ inline static bool negate_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 5;
 }
 
@@ -1244,6 +1414,7 @@ inline static bool dup_1() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 20;
 }
 
@@ -1266,6 +1437,7 @@ inline static bool test() {
 
     Arcvm vm;
     vm.load_module(main_module);
+    run_passes(vm);
     return execute(vm) == 20;
 }
 
@@ -1310,7 +1482,13 @@ int main(int argc, char *argv[]) {
     run_test(mod_3);
     run_test(mod_4);
     run_test(bin_or_1);     // p
+    run_test(bin_or_2);
+    run_test(bin_or_3);
+    run_test(bin_or_4);
     run_test(bin_and_1);    // p
+    run_test(bin_and_2);
+    run_test(bin_and_3);
+    run_test(bin_and_4);
     run_test(bin_xor_1);    // p
     run_test(lshift_1);
     run_test(rshift_1);

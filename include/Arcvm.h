@@ -11,6 +11,7 @@
 #include "Passes/PassManager.h"
 #include "Passes/CFResolutionPass.h"
 #include "Passes/ConstantPropogation.h"
+#include "Passes/ImmediateCanonicalization.h"
 
 #include <cstdint>
 #include <iostream>
@@ -59,6 +60,8 @@ class Arcvm {
 
     void optimize();
     void optimize_module(Module*);
+
+    void run_canonicalization_passes();
 
     i32 run();
     i32 jit();

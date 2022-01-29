@@ -20,10 +20,20 @@ void Arcvm::optimize() {
 
 void Arcvm::optimize_module(Module* module) {
     PassManager<
-        CFResolutionPass
+        CFResolutionPass,
+        ImmediateCanonicalization
         //ConstantPropogation
     > pm;
     pm.module_pass(module);
+}
+
+void Arcvm::run_canonicalization_passes() {
+    PassManager<
+        CFResolutionPass,
+        ImmediateCanonicalization
+    > pm;
+    for(auto* module : modules_)
+        pm.module_pass(module);
 }
 
 // run in interpret mode

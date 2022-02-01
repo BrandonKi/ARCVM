@@ -196,7 +196,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
                 emit_add(dest.reg, src.reg, size);
 
                 // TODO waiting for register allocator
-                put_fvr(dest.reg.name);
+                //put_fvr(dest.reg.name);
                 put_fvr(src.reg.name);
             }
             else if(entry->arguments[1].type == IRValueType::immediate) {
@@ -204,7 +204,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
                 emit_add(dest.reg, I(src.imm), 32);    // TODO need to keep size metadata with imm
 
                 // TODO waiting for register allocator
-                put_fvr(dest.reg.name);
+                //put_fvr(dest.reg.name);
             }
             else
                 assert(false);
@@ -226,7 +226,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
 
                 emit_sub(dest.reg, src.reg, size);
                 // TODO waiting for register allocator
-                put_fvr(dest.reg.name);
+                //put_fvr(dest.reg.name);
                 put_fvr(src.reg.name);
             }
             else {    // immediate
@@ -235,7 +235,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
 
                 emit_sub(dest.reg, I(src.imm), size);
                 // TODO waiting for register allocator
-                put_fvr(dest.reg.name);
+                //put_fvr(dest.reg.name);
             }
 
             val_table[entry->dest.value] = dest.reg;
@@ -261,7 +261,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             emit_imul(dest.reg, src.reg, size);
 
             // TODO waiting for register allocator
-            put_fvr(dest.reg.name);
+            //put_fvr(dest.reg.name);
             put_fvr(src.reg.name);
 
             val_table[entry->dest.value] = dest.reg;
@@ -293,7 +293,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             emit_or(dest.reg, src.reg, size);
 
             // TODO waiting for register allocator
-            put_fvr(dest.reg.name);
+            //put_fvr(dest.reg.name);
             put_fvr(src.reg.name);
 
             val_table[entry->dest.value] = dest.reg;
@@ -319,7 +319,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             emit_and(dest.reg, src.reg, size);
 
             // TODO waiting for register allocator
-            put_fvr(dest.reg.name);
+            //put_fvr(dest.reg.name);
             put_fvr(src.reg.name);
 
             val_table[entry->dest.value] = dest.reg;
@@ -345,7 +345,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             emit_xor(dest.reg, src.reg, size);
 
             // TODO waiting for register allocator
-            put_fvr(dest.reg.name);
+            //put_fvr(dest.reg.name);
             put_fvr(src.reg.name);
 
             val_table[entry->dest.value] = dest.reg;
@@ -388,7 +388,7 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             emit_neg(dest.reg, size);
 
             // TODO waiting for register allocator
-            put_fvr(dest.reg.name);
+            //put_fvr(dest.reg.name);
 
             val_table[entry->dest.value] = dest.reg;
             break;

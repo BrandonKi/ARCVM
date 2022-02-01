@@ -218,22 +218,25 @@ int x86_64_Backend::compile_entry(Entry* entry) {
                 dest = val_table[entry->arguments[0].value];
             else     // immediate
                 assert(false);
-            //dest = entry->arguments[0].value;
 
             Value src;
-            if(entry->arguments[1].type == IRValueType::reference)
+            if(entry->arguments[1].type == IRValueType::reference) {
                 src = val_table[entry->arguments[1].value];
-            else    // immediate
-                assert(false);
-            //src = entry->arguments[1].value;
+                auto size = calc_op_size(dest.reg, src.reg);
 
-            auto size = calc_op_size(dest.reg, src.reg);
+                emit_sub(dest.reg, src.reg, size);
+                // TODO waiting for register allocator
+                put_fvr(dest.reg.name);
+                put_fvr(src.reg.name);
+            }
+            else {    // immediate
+                src = entry->arguments[1].value;
+                auto size = calc_op_size(dest.reg);
 
-            emit_sub(dest.reg, src.reg, size);
-
-            // TODO waiting for register allocator
-            put_fvr(dest.reg.name);
-            put_fvr(src.reg.name);
+                emit_sub(dest.reg, I(src.imm), size);
+                // TODO waiting for register allocator
+                put_fvr(dest.reg.name);
+            }
 
             val_table[entry->dest.value] = dest.reg;
             break;
@@ -659,6 +662,41 @@ void x86_64_Backend::emit_sub(Register dest, Register src, i8 size) {
             emit<byte>(rex_w);
             emit<byte>(0x29);
             emit<byte>(modrm(3, encode(dest), encode(src)));
+            break;
+        default:
+            assert(false);
+    }
+}
+
+void x86_64_Backend::emit_sub(Register dest, Immediate immediate, i8 size) {
+    auto imm = immediate.val;
+    switch(size) {
+        case 8:
+            assert(false);
+        case 16:
+            assert(false);
+        case 32:
+            if(dest.name == RegisterName::rax) {
+                emit<byte>(0x2d);
+                emit<i32>(imm);
+            }
+            else {
+                emit<byte>(0x81);
+                emit<byte>(modrm(3, 1, encode(dest) - 1));
+                emit<i32>(imm);
+            }
+            break;
+        case 64:
+            emit<byte>(rex_w);
+            if(dest.name == RegisterName::rax) {
+                emit<byte>(0x2d);
+                emit<i32>(imm);
+            }
+            else {
+                emit<byte>(0x81);
+                emit<byte>(modrm(3, 1, encode(dest) - 1));
+                emit<i32>(imm);
+            }
             break;
         default:
             assert(false);

@@ -9,7 +9,7 @@
 using namespace arcvm;
 
 //#define POOL
-//#define JIT_MODE
+#define JIT_MODE
 
 #ifdef POOL
     #define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})

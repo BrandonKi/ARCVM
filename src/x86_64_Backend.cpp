@@ -139,6 +139,9 @@ int x86_64_Backend::compile_entry(Entry* entry) {
             Value val;
             if(entry->arguments[0].type == IRValueType::reference)
                 val = val_table[entry->arguments[0].value];
+            else if(entry->arguments[0].type == IRValueType::immediate)
+                val = Value{IMMEDIATE, i32(entry->arguments[0].value)};
+
             // TODO keep type info around so it can be used here
             switch(val.type) {
                 case DISPLACEMENT:
@@ -173,8 +176,16 @@ int x86_64_Backend::compile_entry(Entry* entry) {
         case Instruction::dup: {
             if(entry->arguments[0].type == IRValueType::reference)
                 val_table[entry->dest.value] = val_table[entry->arguments[0].value];
+            else if(entry->arguments[0].type == IRValueType::immediate) {
+                auto imm  = I(entry->arguments[0].value);
+                // TODO use type info or calcualte smallest bit width
+                i8 num_bits = 64;
+                auto reg = Register{get_fvr(), num_bits};
+                emit_mov(reg, imm, num_bits);
+                val_table[entry->dest.value] = reg;
+            }
             else
-                val_table[entry->dest.value] = Value{IMMEDIATE, i32(entry->arguments[0].value)};
+                assert(false);
             break;
         }
         case Instruction::index: {

@@ -21,8 +21,8 @@ void Arcvm::optimize() {
 void Arcvm::optimize_module(Module* module) {
     PassManager<
         CFResolutionPass,
-        ImmediateCanonicalization
-        //ConstantPropogation
+        ImmediateCanonicalization,
+        ConstantPropogation
     > pm;
     pm.module_pass(module);
 }

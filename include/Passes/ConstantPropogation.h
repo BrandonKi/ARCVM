@@ -1,5 +1,5 @@
 // TODO
-/*
+
 #ifndef ARCVM_CONSTANT_PROPOGATION_H
 #define ARCVM_CONSTANT_PROPOGATION_H
 
@@ -10,6 +10,11 @@
 
 namespace arcvm {
 
+    struct WrappedIRValue {
+        IRValue value;
+        bool    is_constant;
+    };
+
     class ConstantPropogation {
         public:
             void block_pass(Block* block);
@@ -19,9 +24,22 @@ namespace arcvm {
         private:
             void process_function(Function*);
             void process_block(Block*);
+
+            void propogate_constants(BasicBlock*);
+
+            bool isConstant(WrappedIRValue value) {
+                return value.is_constant;
+            }
+
+            bool isImmediate(IRValue value) {
+                return value.type == IRValueType::immediate;
+            }
+
+            bool isReference(IRValue value) {
+                return value.type == IRValueType::reference;
+            }
     };
 
 };
 
 #endif //ARCVM_CONSTANT_PROPOGATION_H
-*/

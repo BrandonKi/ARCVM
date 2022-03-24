@@ -313,6 +313,10 @@ inline void replace_entry(std::vector<Entry*>& entries, size_t index, Entry new_
     entries[index] = new Entry{new_entry};
 }
 
+inline void remove_entry(std::vector<Entry*>& entries, size_t index) {
+    entries.erase(entries.begin() + index);
+}
+
 
 };
 

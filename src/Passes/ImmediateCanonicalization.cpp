@@ -56,6 +56,9 @@ void ImmediateCanonicalization::process_block(Block* block) {
         for(int i = 0; i < bblock->entries.size(); ++i) {
             auto* entry = bblock->entries[i];
 
+            if(entry->arguments.size() <= 1)
+                continue;
+
             // TODO only works for binary operations
             if(entry->arguments[0].type != IRValueType::immediate || entry->arguments[1].type != IRValueType::immediate)
                 break;

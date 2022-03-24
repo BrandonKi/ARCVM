@@ -1418,6 +1418,30 @@ inline static bool dup_1() {
     return execute(vm) == 20;
 }
 
+// inline static bool test() {
+//     ARCVM_PROFILE();
+//     IRGenerator gen;
+//     auto* main_module = gen.create_module();
+//     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+//     main->add_attribute(Attribute::entrypoint);
+//     auto* fn_body = main->get_block();
+//     auto* bblock = fn_body->get_bblock();
+//     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
+//     bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}, IRValue{Type::ir_i32}});
+//     auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i32}});
+//     auto val2 = bblock->gen_inst(Instruction::dup, {val});
+//     auto sum  = bblock->gen_inst(Instruction::add, {val, val2});
+//     bblock->gen_inst(Instruction::ret, {sum});
+
+//     print_module_if_noisy(main_module);
+
+//     Arcvm vm;
+//     vm.load_module(main_module);
+//     run_passes(vm);
+//     return execute(vm) == 20;
+// }
+
+
 inline static bool test() {
     ARCVM_PROFILE();
     IRGenerator gen;
@@ -1426,19 +1450,19 @@ inline static bool test() {
     main->add_attribute(Attribute::entrypoint);
     auto* fn_body = main->get_block();
     auto* bblock = fn_body->get_bblock();
-    auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-    bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}, IRValue{Type::ir_i32}});
-    auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i32}});
-    auto val2 = bblock->gen_inst(Instruction::dup, {val});
-    auto sum  = bblock->gen_inst(Instruction::add, {val, val2});
+    auto val1 = bblock->gen_inst(Instruction::dup, {{IRValueType::immediate, 10}});
+    auto val2 = bblock->gen_inst(Instruction::dup, {{IRValueType::immediate, 20}});
+    auto sum  = bblock->gen_inst(Instruction::add, {val1, val2});
     bblock->gen_inst(Instruction::ret, {sum});
 
     print_module_if_noisy(main_module);
 
     Arcvm vm;
     vm.load_module(main_module);
-    run_passes(vm);
-    return execute(vm) == 20;
+    // run_passes(vm);
+    vm.optimize();
+    print_module_if_noisy(main_module);
+    return execute(vm) == 30;
 }
 
 using namespace std::literals;
@@ -1457,7 +1481,7 @@ int main(int argc, char *argv[]) {
 // TODO create tests for combinations of immediates and references in instruction operands
 // most of these special cases aren't handled properly at the moment
 
-///*
+/*
     run_test(g_1);    // p
     run_test(g_2);
     run_test(g_3);
@@ -1513,7 +1537,7 @@ int main(int argc, char *argv[]) {
     run_test(CF_cleanup_1);
     run_test(negate_1);
     run_test(dup_1);
-//*/
+*/
 
 #ifdef POOL
     test_thread_pool.~ThreadPool();

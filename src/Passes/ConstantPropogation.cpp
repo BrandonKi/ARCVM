@@ -4,6 +4,20 @@
 
 using namespace arcvm;
 
+#define CP_BIN_OP(op)                                                                                                   \
+                    auto lhs = entry->arguments[0];                                                                     \
+                    auto rhs = entry->arguments[1];                                                                     \
+                    i64 result;                                                                                         \
+                                                                                                                        \
+                    if(isImmediate(lhs) && isImmediate(rhs))                                                            \
+                        result = lhs.value op rhs.value;                                                                \
+                    else {                                                                                              \
+                        assert(false);                                                                                  \
+                    }                                                                                                   \
+                    ir_registers[entry->dest.value] = WrappedIRValue{IRValue{IRValueType::immediate, result}, true};    \
+                    remove_entry(bblock->entries, i);                                                                   \
+                    i -= 1
+
 void ConstantPropogation::module_pass(Module* module) {
     for(auto* fn : module->functions) {
         process_function(fn);
@@ -89,11 +103,11 @@ void ConstantPropogation::propogate_constants(BasicBlock* bblock) {
 
                 if(isImmediate(lhs) && isImmediate(rhs))
                     result = lhs.value + rhs.value;
-                else if(isImmediate(rhs) && isConstant(ir_registers[lhs.value]))
-                    result = ir_registers[lhs.value].value.value + rhs.value;
-                else if(isReference(rhs) && isConstant(ir_registers[lhs.value]) && isConstant(ir_registers[rhs.value])) {
-                    result = ir_registers[lhs.value].value.value + ir_registers[rhs.value].value.value;
-                }
+                // else if(isImmediate(rhs) && isConstant(ir_registers[lhs.value]))
+                //     result = ir_registers[lhs.value].value.value + rhs.value;
+                // else if(isReference(rhs) && isConstant(ir_registers[lhs.value]) && isConstant(ir_registers[rhs.value])) {
+                //     result = ir_registers[lhs.value].value.value + ir_registers[rhs.value].value.value;
+                // }
                 else {
                     assert(false); // tbh if it gets here idk what went wrong
                 }
@@ -104,114 +118,89 @@ void ConstantPropogation::propogate_constants(BasicBlock* bblock) {
                 // replace_entry(bblock->entries, i, Entry{IRValue{IRValueType::immediate, entry->dest.value}, Instruction::dup, {result}});
                 break;
             }
-            /*case Instruction::sub: {
-                // FIXME assumes we are using references
-                auto sum = ir_register.back()[entry->arguments[0].value].value -
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, sum};
+            case Instruction::sub: {
+                auto lhs = entry->arguments[0];
+                auto rhs = entry->arguments[1];
+                i64 result;
+
+                if(isImmediate(lhs) && isImmediate(rhs))
+                    result = lhs.value + rhs.value;
+                // else if(isImmediate(rhs) && isConstant(ir_registers[lhs.value]))
+                //     result = ir_registers[lhs.value].value.value + rhs.value;
+                // else if(isReference(rhs) && isConstant(ir_registers[lhs.value]) && isConstant(ir_registers[rhs.value])) {
+                //     result = ir_registers[lhs.value].value.value + ir_registers[rhs.value].value.value;
+                // }
+                else {
+                    assert(false); // tbh if it gets here idk what went wrong
+                }
+                ir_registers[entry->dest.value] = WrappedIRValue{IRValue{IRValueType::immediate, result}, true};
+                remove_entry(bblock->entries, i);
+                i -= 1;
+                // TODO should be safe just removing the entry, but keeping this here until I double check
+                // replace_entry(bblock->entries, i, Entry{IRValue{IRValueType::immediate, entry->dest.value}, Instruction::dup, {result}});
                 break;
             }
             case Instruction::mul: {
-                // FIXME assumes we are using references
-                auto sum = ir_register.back()[entry->arguments[0].value].value *
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, sum};
+                CP_BIN_OP(*);
                 break;
             }
             case Instruction::div: {
-                // FIXME assumes we are using references
-                auto sum = ir_register.back()[entry->arguments[0].value].value /
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, sum};
+                CP_BIN_OP(/);
                 break;
             }
             case Instruction::mod: {
-                // FIXME assumes we are using references
-                auto result = ir_register.back()[entry->arguments[0].value].value %
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(%);
                 break;
             }
             case Instruction::bin_or: {
-                // FIXME assumes we are using references
-                auto result = ir_register.back()[entry->arguments[0].value].value |
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(|);
                 break;
             }
             case Instruction::bin_and: {
-                // FIXME assumes we are using references
-                auto result = ir_register.back()[entry->arguments[0].value].value &
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(&);
                 break;
             }
             case Instruction::bin_xor: {
-                // FIXME assumes we are using references
-                auto result = ir_register.back()[entry->arguments[0].value].value ^
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(^);
                 break;
             }
             case Instruction::lshift: {
-                // FIXME assumes we are using references
-                auto result = ir_register.back()[entry->arguments[0].value].value <<
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(<<);
                 break;
             }
             case Instruction::rshift: {
-                // FIXME assumes we are using references
-                auto result = ir_register.back()[entry->arguments[0].value].value >>
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(>>);
                 break;
             }
             case Instruction::lt: {
-                // FIXME assumes we are using references
-                auto result = ir_register.back()[entry->arguments[0].value].value <
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(<);
                 break;
             }
             case Instruction::gt: {
-                // FIXME assumes we are using references
-                auto result = ir_register.back()[entry->arguments[0].value].value >
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(>);
                 break;
             }
             case Instruction::lte: {
-                // FIXME assumes we are using references
-                auto result = ir_register.back()[entry->arguments[0].value].value <=
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(<=);
                 break;
             }
             case Instruction::gte: {
-                // FIXME assumes we are using references
-                auto result = ir_register.back()[entry->arguments[0].value].value >=
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(>=);
                 break;
             }
             case Instruction::eq: {
-                auto result = ir_register.back()[entry->arguments[0].value].value ==
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(==);
                 break;
             }
             case Instruction::neq: {
-                auto result = ir_register.back()[entry->arguments[0].value].value !=
-                    ir_register.back()[entry->arguments[1].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                CP_BIN_OP(-);
                 break;
             }
             case Instruction::neg: {
-                auto result = -ir_register.back()[entry->arguments[0].value].value;
-                ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
+                // auto result = -ir_register.back()[entry->arguments[0].value].value;
+                // ir_register.back()[entry->dest.value] = IRValue{IRValueType::immediate, result};
                 break;
-            }*/
+            }
             default:
                 assert(false);
         }

@@ -1,5 +1,5 @@
 # ARCVM
-(Work in Progress)
+(Not complete, this is a work in progress)
 
 replacement for https://github.com/BrandonKi/ARCVM-old
 

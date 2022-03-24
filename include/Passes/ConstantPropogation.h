@@ -5,6 +5,8 @@
 
 // constant folding and propogation
 
+// TODO get rid of the weird *.value.value pattern
+
 #include "Pass.h"
 #include "Common.h"
 
@@ -12,7 +14,7 @@ namespace arcvm {
 
     struct WrappedIRValue {
         IRValue value;
-        bool    is_constant;
+        bool    is_constant = false;
     };
 
     class ConstantPropogation {
@@ -37,6 +39,11 @@ namespace arcvm {
 
             bool isReference(IRValue value) {
                 return value.type == IRValueType::reference;
+            }
+
+            // TODO remove *.value.value pattern
+            bool isValidValue(WrappedIRValue value) {
+                return value.value.type != IRValueType::none;
             }
     };
 

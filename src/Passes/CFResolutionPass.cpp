@@ -8,6 +8,7 @@ using namespace arcvm;
 // could use a CFG but these are so trivial is doesn't matter
 
 static bool is_control_flow(Instruction inst) {
+    ARCVM_PROFILE();
     switch(inst) {
         case Instruction::br:
         case Instruction::brz:
@@ -21,6 +22,7 @@ static bool is_control_flow(Instruction inst) {
 }
 
 static bool is_terminating_control_flow(Instruction inst) {
+    ARCVM_PROFILE();
     switch(inst) {
         case Instruction::br:
         case Instruction::brz:
@@ -33,16 +35,19 @@ static bool is_terminating_control_flow(Instruction inst) {
 }
 
 void CFResolutionPass::module_pass(Module* module) {
+    ARCVM_PROFILE();
     for(auto* fn : module->functions) {
         process_function(fn);
     }
 }
 
 void CFResolutionPass::process_function(Function* function) {
+    ARCVM_PROFILE();
     process_block(function->block);
 }
 
 void CFResolutionPass::process_block(Block* block) {
+    ARCVM_PROFILE();
     for(int i = 0; i < block->blocks.size(); ++i) {
         auto* current_block = block->blocks[i];
         BasicBlock* next_block = nullptr;
@@ -55,6 +60,7 @@ void CFResolutionPass::process_block(Block* block) {
 }
 
 void CFResolutionPass::remove_dead_br(BasicBlock* bb) {
+    ARCVM_PROFILE();
     if(bb->entries.size() <= 1) // not our job to handle this
         return;
     for(int i = 0; i < bb->entries.size(); ++i) {
@@ -68,6 +74,7 @@ void CFResolutionPass::remove_dead_br(BasicBlock* bb) {
 
 
 void CFResolutionPass::add_explicit_fallthrough(BasicBlock* current, BasicBlock* next) {
+    ARCVM_PROFILE();
     if(next && current->entries.empty()) {
         current->gen_inst(Instruction::br, {IRValue{IRValueType::label, new std::string(next->label.name)}});
         return;

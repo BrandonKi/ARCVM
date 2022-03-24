@@ -9,7 +9,7 @@
 using namespace arcvm;
 
 //#define POOL
-#define JIT_MODE
+// #define JIT_MODE
 
 #ifdef POOL
     #define run_test(name) test_thread_pool.push_work([=]{run_named_test(#name, name);})
@@ -33,7 +33,8 @@ inline static void print_module_if_noisy(Module* main_module) {
 
 inline static void run_passes(Arcvm& vm) {
     // TODO add options to enable optimizations for all tests
-    vm.run_canonicalization_passes();
+    // vm.run_canonicalization_passes();
+    vm.optimize();
 }
 
 inline static int execute(Arcvm& vm) {
@@ -88,6 +89,8 @@ inline static bool g_1() {
     Arcvm vm;
     vm.load_module(main_module);
     run_passes(vm);
+    print_module_if_noisy(main_module);
+
     return execute(vm) == 10;
 }
 
@@ -1415,6 +1418,7 @@ inline static bool dup_1() {
     Arcvm vm;
     vm.load_module(main_module);
     run_passes(vm);
+    print_module_if_noisy(main_module);
     return execute(vm) == 20;
 }
 
@@ -1452,8 +1456,13 @@ inline static bool test() {
     auto* bblock = fn_body->get_bblock();
     auto val1 = bblock->gen_inst(Instruction::dup, {{IRValueType::immediate, 10}});
     auto val2 = bblock->gen_inst(Instruction::dup, {{IRValueType::immediate, 20}});
-    auto sum  = bblock->gen_inst(Instruction::add, {val1, val2});
-    bblock->gen_inst(Instruction::ret, {sum});
+    auto sum1  = bblock->gen_inst(Instruction::add, {val1, val2});
+    auto sum2  = bblock->gen_inst(Instruction::add, {sum1, val2});
+    auto product  = bblock->gen_inst(Instruction::mul, {sum1, sum2});
+    auto quotient  = bblock->gen_inst(Instruction::div, {product, IRValue{IRValueType::immediate, 10}});
+    auto i_result1  = bblock->gen_inst(Instruction::lshift, {quotient, IRValue{IRValueType::immediate, 4}});
+    auto i_result2  = bblock->gen_inst(Instruction::mod, {i_result1, IRValue{IRValueType::immediate, 7}});
+    bblock->gen_inst(Instruction::ret, {i_result2});
 
     print_module_if_noisy(main_module);
 
@@ -1462,7 +1471,7 @@ inline static bool test() {
     // run_passes(vm);
     vm.optimize();
     print_module_if_noisy(main_module);
-    return execute(vm) == 30;
+    return execute(vm) == 6;
 }
 
 using namespace std::literals;
@@ -1476,12 +1485,11 @@ int main(int argc, char *argv[]) {
     ThreadPool test_thread_pool;
 #endif
 
-    run_test(test);
+    // run_test(test);
 
 // TODO create tests for combinations of immediates and references in instruction operands
 // most of these special cases aren't handled properly at the moment
 
-/*
     run_test(g_1);    // p
     run_test(g_2);
     run_test(g_3);
@@ -1537,6 +1545,7 @@ int main(int argc, char *argv[]) {
     run_test(CF_cleanup_1);
     run_test(negate_1);
     run_test(dup_1);
+/*
 */
 
 #ifdef POOL

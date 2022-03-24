@@ -42,16 +42,19 @@ using namespace arcvm;
 
 
 void ImmediateCanonicalization::module_pass(Module* module) {
+    ARCVM_PROFILE();
     for(auto* fn : module->functions) {
         process_function(fn);
     }
 }
 
 void ImmediateCanonicalization::process_function(Function* function) {
+    ARCVM_PROFILE();
     process_block(function->block);
 }
 
 void ImmediateCanonicalization::process_block(Block* block) {
+    ARCVM_PROFILE();
     for(auto* bblock : block->blocks) {
         for(int i = 0; i < bblock->entries.size(); ++i) {
             auto* entry = bblock->entries[i];

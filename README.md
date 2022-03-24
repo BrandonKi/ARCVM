@@ -14,7 +14,7 @@ Pointers represent an integer value that points to a block of memory called a pr
 
 References are the main type that will be used for the whole IR. Each reference is essentially a virtual register that will get properly renamed/mapped to physical registers or may be elided completely.
 
-Immediates are relatively self-explanatory. They represent a constant value and can be put into any instruction.
+Immediates represent a constant value and can be put into any instruction.
 
 Labels have identical functionality to labels in assembly languages. They represent a location that can be jumped/branched to.
 

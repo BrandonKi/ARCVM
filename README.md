@@ -1,4 +1,5 @@
 # ARCVM
+(Work in Progress)
 
 replacement for https://github.com/BrandonKi/ARCVM-old
 
@@ -9,7 +10,7 @@ Provides a C++ API for IR generation. The IR is LLVM inspired three-address-code
 ## IR Type System
 There are four main IR types: pointer, reference, immediate, and label.
 
-Pointers represent an integer value that points to a block of memory called a provenance. If the pointer leaves it's provenance then the program is invalid. This will be useful for alias analysis and other optimizations. To create a new pointer into an existing provenance it must be registered by the previous existing pointer.
+Pointers represent an integer value that points to a block of memory called a provenance. If the pointer leaves it's provenance then the program is invalid. This will be useful for alias analysis and other optimizations. To create a new pointer into an existing provenance it must be derived from an existing pointer.
 
 References are the main type that will be used for the whole IR. Each reference is essentially a virtual register that will get properly renamed/mapped to physical registers or may be elided completely.
 

@@ -42,6 +42,7 @@ static void *make_executable(void *buf) {
 
 // TODO in the future just use this memory in the first place instead of copying to it
 i32 x86_64_Backend::run() {
+    ARCVM_PROFILE();
     void *block = alloc_memory(output.size());
     memcpy(block, output.data(), output.size());
     using exe = int(*)();
@@ -52,6 +53,7 @@ i32 x86_64_Backend::run() {
 }
 
 void x86_64_Backend::compile_module(Module* module) {
+    ARCVM_PROFILE();
     for (auto* function : module->functions)
         compile_function(function);
 
@@ -62,17 +64,20 @@ void x86_64_Backend::compile_module(Module* module) {
 }
 
 void x86_64_Backend::compile_function(Function* function) {
+    ARCVM_PROFILE();
     disp_list.emplace_back(0);
     compile_block(function->block);
     disp_list.pop_back();
 }
 
 void x86_64_Backend::compile_block(Block* block) {
+    ARCVM_PROFILE();
     for(auto* basicblock : block->blocks)
         compile_basicblock(basicblock);
 }
 
 void x86_64_Backend::compile_basicblock(BasicBlock* basicblock) {
+    ARCVM_PROFILE();
     for(auto* entry : basicblock->entries)
         compile_entry(entry);
 }

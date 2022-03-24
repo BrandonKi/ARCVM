@@ -8,7 +8,7 @@
 
 using namespace arcvm;
 
-//#define POOL
+// #define POOL
 // #define JIT_MODE
 
 #ifdef POOL
@@ -1418,7 +1418,6 @@ inline static bool dup_1() {
     Arcvm vm;
     vm.load_module(main_module);
     run_passes(vm);
-    print_module_if_noisy(main_module);
     return execute(vm) == 20;
 }
 

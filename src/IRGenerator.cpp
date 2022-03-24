@@ -22,12 +22,14 @@ Function* Module::gen_function_def(std::string name, std::vector<Type> parameter
 // Function* gen_aggregate_def(std::string, std::vector<Type>);
 
 void Block::set_insertion_point(BasicBlock* bb) {
+    ARCVM_PROFILE();
     for(i32 i = 0; i < blocks.size(); ++i)
         if(blocks[i] == bb)
             insertion_point = i;
 }
 
 void Block::set_insertion_point(std::string label) {
+    ARCVM_PROFILE();
     for(i32 i = 0; i < blocks.size(); ++i)
         if(blocks[i]->label.name == label)
             insertion_point = i;

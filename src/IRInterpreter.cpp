@@ -31,7 +31,7 @@
 using namespace arcvm;
 
 IRInterpreter::IRInterpreter(Module* module)
-    : module_{module}, jump_table{}, function_table{}, entrypoint_name{}, ir_register{} {}
+    : module_{module}, jump_table{}, function_table{}, entrypoint_name{}, predecessor_stack{}, ir_register{} {}
 
 i32 IRInterpreter::run() {
     ARCVM_PROFILE();
@@ -96,6 +96,7 @@ IRValue IRInterpreter::run_block(Block* block) {
 
 IRValue IRInterpreter::run_basicblock(BasicBlock* basicblock) {
     ARCVM_PROFILE();
+    current_block_name = basicblock->label.name;
     for (size_t i = 0; i < basicblock->entries.size(); ++i) {
         auto ret_val = run_entry(basicblock->entries[i]);
         if (ret_val.type != IRValueType::none)
@@ -199,39 +200,61 @@ IRValue IRInterpreter::run_entry(Entry* entry) {
             args.erase(args.begin(), args.begin()+1);
             // remove return type
             args.pop_back();
-            ir_register.back()[entry->dest.value] = run_function(function_table.at(*(entry->arguments[0].str_value)), args);
+            auto label_name = *(entry->arguments[0].str_value);
+            ir_register.back()[entry->dest.value] = run_function(function_table.at(label_name), args);
             break;
         }
         case Instruction::ret: {
             if(entry->arguments[0].type == IRValueType::immediate)
                 return entry->arguments[0].value;
+            remove_predecessor();
             // assumes you are returning an index
             return ir_register.back()[entry->arguments[0].value];
         }
         case Instruction::br: {
-            auto* label_name = entry->arguments[0].str_value;
-            return run_basicblock(jump_table[*label_name]);
+            auto label_name = *(entry->arguments[0].str_value);
+            add_predecessor(current_block_name);
+            return run_basicblock(jump_table[label_name]);
         }
         case Instruction::brz: {
             auto val = ir_register.back()[entry->arguments[0].value].value;
-            auto* label_name = entry->arguments[1].str_value;
-            auto* label_name2 = entry->arguments[2].str_value;
+            auto label_name = *(entry->arguments[1].str_value);
+            auto label_name2 = *(entry->arguments[2].str_value);
+
+            add_predecessor(current_block_name);
             if(val == 0)
-                return run_basicblock(jump_table[*label_name]);
+                return run_basicblock(jump_table[label_name]);
             else
-                return run_basicblock(jump_table[*label_name2]);
+                return run_basicblock(jump_table[label_name2]);
         }
         case Instruction::brnz: {
             auto val = ir_register.back()[entry->arguments[0].value].value;
-            auto* label_name = entry->arguments[1].str_value;
-            auto* label_name2 = entry->arguments[2].str_value;
+            auto label_name = *(entry->arguments[1].str_value);
+            auto label_name2 = *(entry->arguments[2].str_value);
+
+            add_predecessor(current_block_name);
             if(val != 0)
-                return run_basicblock(jump_table[*label_name]);
+                return run_basicblock(jump_table[label_name]);
             else
-                return run_basicblock(jump_table[*label_name2]);
+                return run_basicblock(jump_table[label_name2]);
         }
         case Instruction::phi: {
-            assert(false);
+            if(entry->arguments.size() & 1)
+                assert(false);  // TODO handle casts and change how they function for all instructions
+
+            bool found_bblock_name = false;
+
+            for(int i = 0; i < entry->arguments.size(); i += 2) {
+                auto label_name = *(entry->arguments[i].str_value);
+                if(label_name == predecessor()) {
+                    found_bblock_name = true;
+                    auto result = unpack(entry->arguments[i + 1]);
+                    ir_register.back()[entry->dest.value] = result;
+                    break;
+                }
+            }
+            if(!found_bblock_name)
+                assert(false);  // could not find basic block name
             break;
         }
         case Instruction::dup: {

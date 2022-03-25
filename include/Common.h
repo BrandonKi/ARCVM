@@ -232,6 +232,7 @@ struct IRValue {
     IRValue(IRValueType type, void* ptr): type(type), pointer_value((uintptr_t)ptr) {}
     IRValue(IRValueType type, Type type_value): type(type), type_value(type_value) {}
     IRValue(Type type_value): type(IRValueType::type), type_value(type_value) {}
+    IRValue(std::string* str): type(IRValueType::label), str_value(str) {}
 };
 
 struct Entry {

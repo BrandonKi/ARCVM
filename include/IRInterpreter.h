@@ -31,11 +31,26 @@ class IRInterpreter {
     Module* module_;
     std::unordered_map<std::string, BasicBlock*> jump_table;
     std::unordered_map<std::string, Function*> function_table;
+    std::vector<std::string> predecessor_stack;
+    std::string current_block_name;
     std::string entrypoint_name;
 
     std::vector<std::array<IRValue, 100>> ir_register;
 
     i64 unpack(IRValue);
+
+    inline std::string predecessor() {
+        return predecessor_stack.back();
+    }
+
+    inline void add_predecessor(std::string name) {
+        predecessor_stack.push_back(std::move(name));
+    }
+
+    inline void remove_predecessor() {
+        if(!predecessor_stack.empty())
+            predecessor_stack.pop_back();
+    }
 };
 
 };

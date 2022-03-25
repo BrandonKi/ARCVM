@@ -1421,31 +1421,7 @@ inline static bool dup_1() {
     return execute(vm) == 20;
 }
 
-// inline static bool test() {
-//     ARCVM_PROFILE();
-//     IRGenerator gen;
-//     auto* main_module = gen.create_module();
-//     auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
-//     main->add_attribute(Attribute::entrypoint);
-//     auto* fn_body = main->get_block();
-//     auto* bblock = fn_body->get_bblock();
-//     auto val_ptr = bblock->gen_inst(Instruction::alloc, {IRValue{Type::ir_i32}});
-//     bblock->gen_inst(Instruction::store, {val_ptr, IRValue{IRValueType::immediate, 10}, IRValue{Type::ir_i32}});
-//     auto val = bblock->gen_inst(Instruction::load, {val_ptr, IRValue{Type::ir_i32}});
-//     auto val2 = bblock->gen_inst(Instruction::dup, {val});
-//     auto sum  = bblock->gen_inst(Instruction::add, {val, val2});
-//     bblock->gen_inst(Instruction::ret, {sum});
-
-//     print_module_if_noisy(main_module);
-
-//     Arcvm vm;
-//     vm.load_module(main_module);
-//     run_passes(vm);
-//     return execute(vm) == 20;
-// }
-
-
-inline static bool test() {
+inline static bool expr_1() {
     ARCVM_PROFILE();
     IRGenerator gen;
     auto* main_module = gen.create_module();
@@ -1467,10 +1443,46 @@ inline static bool test() {
 
     Arcvm vm;
     vm.load_module(main_module);
-    // run_passes(vm);
-    vm.optimize();
-    print_module_if_noisy(main_module);
+    run_passes(vm);
     return execute(vm) == 6;
+}
+
+
+inline static bool phi_1() {
+    ARCVM_PROFILE();
+    IRGenerator gen;
+    auto* main_module = gen.create_module();
+    auto* main = main_module->gen_function_def("main", {}, Type::ir_i32);
+    main->add_attribute(Attribute::entrypoint);
+    auto* fn_body = main->get_block();
+    auto* bblock = fn_body->get_bblock();
+    auto cond_val = bblock->gen_inst(Instruction::dup, {IRValue{1}});
+    auto* if_block = fn_body->new_basic_block("if_block");
+    auto* else_block = fn_body->new_basic_block("else_block");
+    auto* then_block = fn_body->new_basic_block("then_block");
+
+    fn_body->set_insertion_point(if_block);
+    auto* i_block = fn_body->get_bblock();
+    auto val1 = i_block->gen_inst(Instruction::dup, {IRValue{20}});
+
+    fn_body->set_insertion_point(else_block);
+    auto* e_block = fn_body->get_bblock();
+    auto val2 = e_block->gen_inst(Instruction::dup, {IRValue{30}});
+
+    fn_body->set_insertion_point(bblock);
+    fn_body->gen_if(cond_val, if_block, else_block, then_block);
+
+    fn_body->set_insertion_point(then_block);
+    auto* t_block = fn_body->get_bblock();
+    auto val = t_block->gen_inst(Instruction::phi, {IRValue{new std::string("if_block")}, val1, IRValue{new std::string("else_block")}, val2});
+    t_block->gen_inst(Instruction::ret, {val});
+
+    print_module_if_noisy(main_module);
+
+    Arcvm vm;
+    vm.load_module(main_module);
+    // run_passes(vm);
+    return execute(vm) == 20;
 }
 
 using namespace std::literals;
@@ -1544,6 +1556,8 @@ int main(int argc, char *argv[]) {
     run_test(CF_cleanup_1);
     run_test(negate_1);
     run_test(dup_1);
+    run_test(expr_1);
+    run_test(phi_1);
 /*
 */
 

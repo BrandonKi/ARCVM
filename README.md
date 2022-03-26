@@ -21,7 +21,7 @@ Labels have identical functionality to labels in assembly languages. They repres
 ## examples
 
 ### add two numbers
-Uses stack-allocated variables instead of just adding immediates.
+Uses stack-allocated variables instead of just adding immediates for demonstration purposes.
 ```
 [entrypoint]
 define function main() -> i32 {
